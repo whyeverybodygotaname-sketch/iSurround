@@ -182,7 +182,6 @@ namespace DisplayMagicianShared
 
             // Create default filenames to avoid null exceptions
             SavedProfileIconCacheFilename = "";
-            WallpaperBitmapFilename = "";
 
 
             // Fill out a new NVIDIA and AMD object when a profile is being created
@@ -365,24 +364,7 @@ namespace DisplayMagicianShared
         [DefaultValue("")]
         public string SavedProfileIconCacheFilename { get; set; }
 
-        [DefaultValue(Wallpaper.Mode.DoNothing)]
-        public Wallpaper.Mode WallpaperMode { get; set; }
-
-        [DefaultValue(Wallpaper.Style.Fill)]
-        public Wallpaper.Style WallpaperStyle { get; set; }
-
-        [DefaultValue("")]
-        public string WallpaperBitmapFilename{ 
-            get
-            {
-                return _wallpaperBitmapFilename;
-            }
-            set
-            {
-                _wallpaperBitmapFilename = value;
-            }
-        }
-
+       
         [DefaultValue(default(List<string>))]
         public virtual List<string> ProfileDisplayIdentifiers
         {
@@ -515,9 +497,6 @@ namespace DisplayMagicianShared
             profile.ProfileBitmap = ProfileBitmap;
             profile.ProfileTightestBitmap = ProfileTightestBitmap;
             profile.ProfileDisplayIdentifiers = ProfileDisplayIdentifiers;
-            profile.WallpaperMode = WallpaperMode;
-            profile.WallpaperBitmapFilename = WallpaperBitmapFilename;
-            profile.WallpaperStyle = WallpaperStyle;
             return true;
         }
 
