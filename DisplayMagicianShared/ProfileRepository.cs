@@ -1,0 +1,238 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Drawing.IconLib;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Threading;
+using DisplayMagicianShared.AMD;
+using DisplayMagicianShared.NVIDIA;
+using DisplayMagicianShared.Windows;
+
+namespace DisplayMagicianShared
+{
+    public enum ApplyProfileResult { Successful, Cancelled, Error }
+
+    public struct ProfileFile
+    {
+        public string ProfileFileVersion;
+        public DateTime LastUpdated;
+        public List<ProfileItem> Profiles;
+    }
+
+    public static class ProfileRepository
+    {
+        private static List<ProfileItem> _allProfiles = new List<ProfileItem>();
+        private static bool _profilesLoaded = false;
+        private static ProfileItem _currentProfile;
+        private static List<string> _connectedDisplayIdentifiers = new List<string>();
+        private static bool _pauseReadsUntilChangeCompleted = false;
+
+        public static string AppDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DisplayMagician");
+        public static string AppIconPath = Path.Combine(AppDataPath, "Icons");
+        public static string AppDisplayMagicianIconFilename = Path.Combine(AppIconPath, "DisplayMagician.ico");
+        private static readonly string AppProfileStoragePath = Path.Combine(AppDataPath, "Profiles");
+        private static readonly string _profileStorageJsonFullFileName = Path.Combine(AppProfileStoragePath, "DisplayProfiles.json");
+
+        static ProfileRepository()
+        {
+            if (!Directory.Exists(AppProfileStoragePath))
+                Directory.CreateDirectory(AppProfileStoragePath);
+        }
+
+        public static List<ProfileItem> AllProfiles
+        {
+            get
+            {
+                if (!_profilesLoaded) LoadProfiles();
+                return _allProfiles;
+            }
+        }
+
+        public static ProfileItem CurrentProfile
+        {
+            get
+            {
+                if (_currentProfile == null) UpdateActiveProfile();
+                return _currentProfile;
+            }
+            set => _currentProfile = value;
+        }
+
+        // 补充 ProfileItem.cs 中使用的属性
+        public static List<string> ConnectedDisplayIdentifiers
+        {
+            get => _connectedDisplayIdentifiers;
+            set => _connectedDisplayIdentifiers = value;
+        }
+
+        public static bool ProfilesLoaded => _profilesLoaded;
+
+        public static List<string> GetCurrentDisplayIdentifiers() => GetAllConnectedDisplayIdentifiers();
+
+        public static bool AddProfile(ProfileItem profile)
+        {
+            if (profile == null) return false;
+            _allProfiles.Add(profile);
+            SaveProfileIconToCache(profile);
+            SaveProfiles();
+            IsPossibleRefresh();
+            return true;
+        }
+
+        public static bool RemoveProfile(ProfileItem profile)
+        {
+            if (profile == null) return false;
+            bool removed = _allProfiles.RemoveAll(p => p.UUID == profile.UUID) > 0;
+            if (removed)
+            {
+                SaveProfiles();
+                IsPossibleRefresh();
+                UpdateActiveProfile();
+                try { if (File.Exists(profile.SavedProfileIconCacheFilename)) File.Delete(profile.SavedProfileIconCacheFilename); } catch { }
+            }
+            return removed;
+        }
+
+        public static ProfileItem GetProfile(string nameOrId)
+        {
+            if (string.IsNullOrEmpty(nameOrId)) return null;
+            return _allProfiles.FirstOrDefault(p => p.UUID == nameOrId || p.Name == nameOrId);
+        }
+
+        public static void UpdateActiveProfile(bool fastScan = true)
+        {
+            var current = new ProfileItem();
+            current.CreateProfileFromCurrentDisplaySettings(fastScan);
+            var matched = _allProfiles.FirstOrDefault(p => p.Equals(current));
+            _currentProfile = matched ?? current;
+        }
+
+        private static bool LoadProfiles()
+        {
+            _profilesLoaded = false;
+            _allProfiles.Clear();
+
+            if (!File.Exists(_profileStorageJsonFullFileName))
+                return true;
+
+            try
+            {
+                string json = File.ReadAllText(_profileStorageJsonFullFileName, Encoding.Unicode);
+                if (string.IsNullOrWhiteSpace(json)) return true;
+
+                var profileFile = JsonConvert.DeserializeObject<ProfileFile>(json);
+                _allProfiles = profileFile.Profiles ?? new List<ProfileItem>();
+
+                // 修复 Windows 显示配置的适配器 ID
+                foreach (var prof in _allProfiles)
+                {
+                    var winCfg = prof.WindowsDisplayConfig;
+                    WinLibrary.GetLibrary().PatchWindowsDisplayConfig(ref winCfg);
+                }
+                _allProfiles.Sort();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load profiles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            _profilesLoaded = true;
+            IsPossibleRefresh();
+            return true;
+        }
+
+        public static void CopyCurrentLayoutToProfile(ProfileItem profile)
+        {
+            profile.CreateProfileFromCurrentDisplaySettings(false);
+            SaveProfiles();
+        }
+
+        public static bool SaveProfiles()
+        {
+            if (!Directory.Exists(AppProfileStoragePath))
+                Directory.CreateDirectory(AppProfileStoragePath);
+
+            _allProfiles.Sort();
+            try
+            {
+                var profileFile = new ProfileFile
+                {
+                    ProfileFileVersion = "3",
+                    LastUpdated = DateTime.Now,
+                    Profiles = _allProfiles
+                };
+                string json = JsonConvert.SerializeObject(profileFile, Formatting.Indented);
+                File.WriteAllText(_profileStorageJsonFullFileName, json, Encoding.Unicode);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save profiles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        private static void SaveProfileIconToCache(ProfileItem profile)
+        {
+            profile.SavedProfileIconCacheFilename = Path.Combine(AppProfileStoragePath, $"profile-{profile.UUID}.ico");
+            try
+            {
+                var multiIcon = profile.ProfileIcon.ToIcon();
+                multiIcon.Save(profile.SavedProfileIconCacheFilename, MultiIconFormat.ICO);
+            }
+            catch
+            {
+                File.Copy(AppDisplayMagicianIconFilename, profile.SavedProfileIconCacheFilename, true);
+            }
+        }
+
+        public static void IsPossibleRefresh()
+        {
+            if (!_profilesLoaded || _allProfiles.Count == 0) return;
+            _connectedDisplayIdentifiers = GetAllConnectedDisplayIdentifiers();
+            foreach (var p in _allProfiles) p.RefreshPossbility();
+        }
+
+        public static List<string> GetAllConnectedDisplayIdentifiers()
+        {
+            var ids = new List<string>();
+            try
+            {
+                if (NVIDIALibrary.GetLibrary().IsInstalled) ids.AddRange(NVIDIALibrary.GetLibrary().GetAllConnectedDisplayIdentifiers());
+                if (AMDLibrary.GetLibrary().IsInstalled) ids.AddRange(AMDLibrary.GetLibrary().GetAllConnectedDisplayIdentifiers());
+                ids.AddRange(WinLibrary.GetLibrary().GetAllConnectedDisplayIdentifiers());
+                ids.Sort();
+            }
+            catch { }
+            return ids;
+        }
+
+        public static ApplyProfileResult ApplyProfile(ProfileItem profile)
+        {
+            if (profile == null) return ApplyProfileResult.Error;
+            try
+            {
+                _pauseReadsUntilChangeCompleted = true;
+                if (!profile.SetActive()) return ApplyProfileResult.Error;
+                // 成功应用后，将当前活动配置设为仓库中的对应实例（确保引用正确）
+                var repoProfile = _allProfiles.FirstOrDefault(p => p.UUID == profile.UUID);
+                _currentProfile = repoProfile ?? profile;
+                return ApplyProfileResult.Successful;
+            }
+            catch { return ApplyProfileResult.Error; }
+            finally
+            {
+                _pauseReadsUntilChangeCompleted = false;
+                Thread.Sleep(500);
+                // 不再调用 UpdateActiveProfile，因为它会覆盖 _currentProfile
+                // 如果其他模块依赖 UpdateActiveProfile 的副作用（比如刷新显示状态），可以保留，但会覆盖我们刚才的设置
+                // 因此这里注释掉它
+                // UpdateActiveProfile(); 
+            }
+        }
+    }
+}
