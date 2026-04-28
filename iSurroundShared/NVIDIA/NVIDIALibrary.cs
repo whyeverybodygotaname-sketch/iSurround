@@ -241,13 +241,13 @@ namespace iSurroundShared.NVIDIA
             _activeDisplayConfig = CreateDefaultConfig();
             try
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/NVIDIALibrary: Attempting to load the NVIDIA NVAPI DLL");
+                SharedLogger.Trace($"NVIDIALibrary/NVIDIALibrary: Attempting to load the NVIDIA NVAPI DLL");
                 // Attempt to prelink all of the NVAPI functions
                 //Marshal.PrelinkAll(typeof(NVImport));
 
                 // If we get here then we definitely have the NVIDIA driver available.
                 NVAPI_STATUS NVStatus = NVAPI_STATUS.NVAPI_ERROR;
-                SharedLogger.logger.Trace("NVIDIALibrary/NVIDIALibrary: Intialising NVIDIA NVAPI library interface");
+                SharedLogger.Trace("NVIDIALibrary/NVIDIALibrary: Intialising NVIDIA NVAPI library interface");
                 // Step 1: Initialise the NVAPI
                 _initialised = false;
                 try
@@ -255,44 +255,44 @@ namespace iSurroundShared.NVIDIA
                     if (NVImport.IsAvailable())
                     {
                         _initialised = true;
-                        SharedLogger.logger.Trace($"NVIDIALibrary/NVIDIALibrary: NVIDIA NVAPI library was initialised successfully");
-                        SharedLogger.logger.Trace($"NVIDIALibrary/NVIDIALibrary: Running UpdateActiveConfig to ensure there is a config to use later");
+                        SharedLogger.Trace($"NVIDIALibrary/NVIDIALibrary: NVIDIA NVAPI library was initialised successfully");
+                        SharedLogger.Trace($"NVIDIALibrary/NVIDIALibrary: Running UpdateActiveConfig to ensure there is a config to use later");
                         _activeDisplayConfig = GetActiveConfig();
                         _allConnectedDisplayIdentifiers = GetAllConnectedDisplayIdentifiers();
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/NVIDIALibrary: Error intialising NVIDIA NVAPI library. NvAPI_Initialize() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/NVIDIALibrary: Error intialising NVIDIA NVAPI library. NvAPI_Initialize() returned error code {NVStatus}");
                     }
 
                 }
                 catch (DllNotFoundException ex)
                 {
                     // If this fires, then the DLL isn't available, so we need don't try to do anything else
-                    SharedLogger.logger.Info(ex, $"NVIDIALibrary/NVIDIALibrary: Exception trying to load the NVIDIA NVAPI DLLs nvapi64.dll or nvapi.dll. This generally means you don't have the NVIDIA driver installed.");
+                    SharedLogger.Info(ex, $"NVIDIALibrary/NVIDIALibrary: Exception trying to load the NVIDIA NVAPI DLLs nvapi64.dll or nvapi.dll. This generally means you don't have the NVIDIA driver installed.");
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Error(ex, $"NVIDIALibrary/NVIDIALibrary: Exception intialising NVIDIA NVAPI library. NvAPI_Initialize() caused an exception.");
+                    SharedLogger.Error(ex, $"NVIDIALibrary/NVIDIALibrary: Exception intialising NVIDIA NVAPI library. NvAPI_Initialize() caused an exception.");
                 }
 
             }            
             catch (ArgumentNullException ex)
             {
                 // If we get here then the PrelinkAll didn't work, meaning the AMD ADL DLL links don't work. We can't continue to use it, so we log the error and exit
-                SharedLogger.logger.Info(ex, $"NVIDIALibrary/NVIDIALibrary: Exception2 trying to load the NVIDIA NVAPI DLLs nvapi64.dll or nvapi.dll. This generally means you don't have the NVIDIA driver installed.");
+                SharedLogger.Info(ex, $"NVIDIALibrary/NVIDIALibrary: Exception2 trying to load the NVIDIA NVAPI DLLs nvapi64.dll or nvapi.dll. This generally means you don't have the NVIDIA driver installed.");
             }
             catch (Exception ex)
             {
                 // If we get here then something else didn't work. We can't continue to use the AMD library, so we log the error and exit
-                SharedLogger.logger.Info(ex, $"NVIDIALibrary/NVIDIALibrary: Exception3 trying to load the NVIDIA NVAPI DLLs nvapi64.dll or nvapi.dll. This generally means you don't have the NVIDIA driver installed.");
+                SharedLogger.Info(ex, $"NVIDIALibrary/NVIDIALibrary: Exception3 trying to load the NVIDIA NVAPI DLLs nvapi64.dll or nvapi.dll. This generally means you don't have the NVIDIA driver installed.");
             }
 
         }
 
         ~NVIDIALibrary()
         {
-            SharedLogger.logger.Trace("NVIDIALibrary/~NVIDIALibrary: Destroying NVIDIA NVAPI library interface");
+            SharedLogger.Trace("NVIDIALibrary/~NVIDIALibrary: Destroying NVIDIA NVAPI library interface");
             // The NVAPI library automatically runs NVAPI_Unload on Exit, so no need for anything here.
         }
 
@@ -330,6 +330,7 @@ namespace iSurroundShared.NVIDIA
         {
             get
             {
+                // 结构体不能为null，保留原逻辑以确保兼容性
                 if (_activeDisplayConfig == null)
                     _activeDisplayConfig = CreateDefaultConfig();
                 return _activeDisplayConfig;
@@ -340,6 +341,7 @@ namespace iSurroundShared.NVIDIA
         {
             get
             {
+                // 结构体不能为null，保留原逻辑以确保兼容性
                 if (_activeDisplayConfig == null)
                     _activeDisplayConfig = CreateDefaultConfig();
                 return _activeDisplayConfig.DisplayIdentifiers;
@@ -382,7 +384,7 @@ namespace iSurroundShared.NVIDIA
 
         public bool UpdateActiveConfig()
         {
-            SharedLogger.logger.Trace($"NVIDIALibrary/UpdateActiveConfig: Updating the currently active config");
+            SharedLogger.Trace($"NVIDIALibrary/UpdateActiveConfig: Updating the currently active config");
             try
             {
                 _activeDisplayConfig = GetActiveConfig();
@@ -390,7 +392,7 @@ namespace iSurroundShared.NVIDIA
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Trace(ex, $"NVIDIALibrary/UpdateActiveConfig: Exception updating the currently active config");
+                SharedLogger.Trace(ex, $"NVIDIALibrary/UpdateActiveConfig: Exception updating the currently active config");
                 return false;
             }
 
@@ -399,7 +401,7 @@ namespace iSurroundShared.NVIDIA
 
         public NVIDIA_DISPLAY_CONFIG GetActiveConfig()
         {
-            SharedLogger.logger.Trace($"NVIDIALibrary/GetActiveConfig: Getting the currently active config");
+            SharedLogger.Trace($"NVIDIALibrary/GetActiveConfig: Getting the currently active config");
             bool allDisplays = false;
             return GetNVIDIADisplayConfig(allDisplays);
         }
@@ -420,11 +422,11 @@ namespace iSurroundShared.NVIDIA
                 NVAPI_STATUS NVStatus = NVImport.NvAPI_EnumPhysicalGPUs(ref physicalGpus, out physicalGpuCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
                 }
 
                 // This check is to make sure that we only continue if there are physical GPUs
@@ -447,32 +449,32 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_GPU_QueryWorkstationFeatureSupport(physicalGpus[physicalGpuIndex], NV_GPU_WORKSTATION_FEATURE_TYPE.NV_GPU_WORKSTATION_FEATURE_TYPE_PROVIZ);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Video Card is one from the Quadro range");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Video Card is one from the Quadro range");
                         myAdapter.IsQuadro = true;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Video Card is not a Quadro range video card.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Video Card is not a Quadro range video card.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The current NVIDIA driver doesn't support this NvAPI_GPU_QueryWorkstationFeatureSupport interface.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The current NVIDIA driver doesn't support this NvAPI_GPU_QueryWorkstationFeatureSupport interface.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_HANDLE)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The physical video card handle supplied to NvAPI_GPU_QueryWorkstationFeatureSupport was an invalid handle.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The physical video card handle supplied to NvAPI_GPU_QueryWorkstationFeatureSupport was an invalid handle.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The requested gpuWorkstationFeature is not supported in the selected GPU.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The requested gpuWorkstationFeature is not supported in the selected GPU.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_SETTING_NOT_FOUND)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The requested gpuWorkstationFeature is unknown to the current driver version.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The requested gpuWorkstationFeature is unknown to the current driver version.");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting GPU Function status. NvAPI_GPU_QueryWorkstationFeatureSupport() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting GPU Function status. NvAPI_GPU_QueryWorkstationFeatureSupport() returned error code {NVStatus}");
                     }
 
 
@@ -481,27 +483,27 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_GetLogicalGPUFromPhysicalGPU(physicalGpus[physicalGpuIndex], out logicalGPUHandle);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Successfully got Logical GPU Handle from physical GPU.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Successfully got Logical GPU Handle from physical GPU.");
                         NV_LOGICAL_GPU_DATA_V1 logicalGPUData = new NV_LOGICAL_GPU_DATA_V1();
                         NVStatus = NVImport.NvAPI_GPU_GetLogicalGpuInfo(logicalGPUHandle, ref logicalGPUData);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Successfully got the Logical GPU information from the NVIDIA driver!");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Successfully got the Logical GPU information from the NVIDIA driver!");
                             myAdapter.HasLogicalGPU = true;
                             myAdapter.LogicalGPU = logicalGPUData;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_POINTER)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: No Logical GPU found so no logicalGPUData available. NvAPI_GPU_GetLogicalGpuInfo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: No Logical GPU found so no logicalGPUData available. NvAPI_GPU_GetLogicalGpuInfo() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting Logical GPU information from NVIDIA driver. NvAPI_GPU_GetLogicalGpuInfo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting Logical GPU information from NVIDIA driver. NvAPI_GPU_GetLogicalGpuInfo() returned error code {NVStatus}");
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting Logical GPU handle from Physical GPU. NvAPI_GetLogicalGPUFromPhysicalGPU() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting Logical GPU handle from Physical GPU. NvAPI_GetLogicalGPUFromPhysicalGPU() returned error code {NVStatus}");
                     }
 
                     myDisplayConfig.PhysicalAdapters[physicalGpuIndex] = myAdapter;
@@ -515,31 +517,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_Mosaic_GetCurrentTopo(ref mosaicTopoBrief, ref mosaicDisplaySetting, out mosaicOverlapX, out mosaicOverlapY);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
 
                 // Get more Mosaic Topology detailed settings
@@ -547,14 +549,14 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_Mosaic_GetTopoGroup(ref mosaicTopoBrief, ref mosaicTopoGroup);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetTopoGroup returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetTopoGroup returned OK.");
                     if (mosaicTopoBrief.IsPossible == 1)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The current Mosaic Topology of {mosaicTopoBrief.Topo} is possible to use");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The current Mosaic Topology of {mosaicTopoBrief.Topo} is possible to use");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The current Mosaic Topology of {mosaicTopoBrief.Topo} is NOT possible to use");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The current Mosaic Topology of {mosaicTopoBrief.Topo} is NOT possible to use");
                     }
                     if (mosaicTopoGroup.Count > 0)
                     {
@@ -564,22 +566,22 @@ namespace iSurroundShared.NVIDIA
 
                             if (mosaicTopoDetail.TopologyValid)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is VALID.");
+                                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is VALID.");
                             }
                             else
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is NOT VALID and cannot be used.");
+                                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is NOT VALID and cannot be used.");
                                 if (mosaicTopoDetail.TopologyMissingGPU)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is MISSING THE GPU it was created with.");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is MISSING THE GPU it was created with.");
                                 }
                                 if (mosaicTopoDetail.TopologyMissingDisplay)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is MISSING ONE OR MORE DISPLAYS it was created with.");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is MISSING ONE OR MORE DISPLAYS it was created with.");
                                 }
                                 if (mosaicTopoDetail.TopologyMixedDisplayTypes)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is USING MIXED DISPLAY TYPES and NVIDIA don't support that at present.");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group #{m} is USING MIXED DISPLAY TYPES and NVIDIA don't support that at present.");
                                 }
 
                             }
@@ -587,43 +589,43 @@ namespace iSurroundShared.NVIDIA
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group doesn't have any returned Topo Groups. We expect there should be at least one if the Mosaic display layout is configured correctly.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The returned Mosaic Topology Group doesn't have any returned Topo Groups. We expect there should be at least one if the Mosaic display layout is configured correctly.");
                     }
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not supported by this driver. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not supported by this driver. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetTopoGroup() returned error code {NVStatus}");
                 }
 
                 // Check if there is a topology and that Mosaic is enabled
                 if (mosaicTopoBrief.Topo != NV_MOSAIC_TOPO.TOPO_NONE && mosaicTopoBrief.Enabled == 1)
                 {
                     // Mosaic is enabled!
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is enabled.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is enabled.");
                     myDisplayConfig.MosaicConfig.MosaicTopologyBrief = mosaicTopoBrief;
                     myDisplayConfig.MosaicConfig.MosaicDisplaySettings = mosaicDisplaySetting;
                     myDisplayConfig.MosaicConfig.OverlapX = mosaicOverlapX;
@@ -636,7 +638,7 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayGrids(ref mosaicGridCount);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
                     }
 
                     // Get Current Mosaic Grid settings using the Grid topologies fnumbers we got before
@@ -644,31 +646,31 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayGrids(ref mosaicGridTopos, ref mosaicGridCount);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayGrids returned OK.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayGrids returned OK.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
                     }
 
                     myDisplayConfig.MosaicConfig.MosaicGridTopos = mosaicGridTopos;
@@ -683,35 +685,35 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_Mosaic_GetDisplayViewportsByResolution(gridTopo.Displays[0].DisplayId, 0, 0, ref viewports, ref bezelCorrected);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetDisplayViewportsByResolution returned OK.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetDisplayViewportsByResolution returned OK.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_MOSAIC_NOT_ACTIVE)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The requested action cannot be performed without Mosaic being enabled. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The requested action cannot be performed without Mosaic being enabled. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetDisplayViewportsByResolution() returned error code {NVStatus}");
                         }
                         // Save the viewports to the List
                         allViewports.Add(viewports);
@@ -721,7 +723,7 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayModes(gridTopo, ref mosaicDisplayModesCount);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
                         }
 
                         // Get Current Mosaic Display Topology settings using the Grid topologies numbers we got before
@@ -730,31 +732,31 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayModes(gridTopo, ref mosaicDisplaySettings, ref mosaicDisplayModesCount);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                            SharedLogger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology Display Settings! NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology Display Settings! NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                         }
 
                     }
@@ -764,7 +766,7 @@ namespace iSurroundShared.NVIDIA
                 else
                 {
                     // Mosaic isn't enabled
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is NOT enabled.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is NOT enabled.");
                     myDisplayConfig.MosaicConfig.MosaicTopologyBrief = mosaicTopoBrief;
                     myDisplayConfig.MosaicConfig.IsMosaicEnabled = false;
                     myDisplayConfig.MosaicConfig.MosaicGridTopos = new NV_MOSAIC_GRID_TOPO_V2[] { };
@@ -775,12 +777,12 @@ namespace iSurroundShared.NVIDIA
                 if (mosaicTopoBrief.IsPossible == 1)
                 {
                     // Mosaic is possible!
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is possible. Mosaic topology would be {mosaicTopoBrief.Topo.ToString("G")}.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is possible. Mosaic topology would be {mosaicTopoBrief.Topo.ToString("G")}.");
                 }
                 else
                 {
                     // Mosaic isn't possible
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is NOT possible.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NVIDIA Mosaic is NOT possible.");
                 }
 
                 // Now we try to get the NVIDIA Windows Display Config. This is needed for handling some of the advanced scaling settings that some advanced users make use of
@@ -801,18 +803,18 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_DISP_GetDisplayConfig(ref pathInfoCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK && pathInfoCount > 0)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on first pass. We know we have {pathInfoCount} pathInfo objects to get");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on first pass. We know we have {pathInfoCount} pathInfo objects to get");
                     // Second pass: Now get the number of targetInfoCount for each returned pathInfoCount object
                     NV_DISPLAYCONFIG_PATH_INFO_V2[] pathInfos = new NV_DISPLAYCONFIG_PATH_INFO_V2[pathInfoCount];
                     NVStatus = NVImport.NvAPI_DISP_GetDisplayConfig(ref pathInfoCount, ref pathInfos);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on second pass.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on second pass.");
                         // Third pass: Now we send the same partially filled object back in a third time to get the target information
                         NVStatus = NVImport.NvAPI_DISP_GetDisplayConfig(ref pathInfoCount, ref pathInfos, true);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on third and final pass.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on third and final pass.");
                             // If this worked, we need to check for and handle cloned displays if there are any
                             // They need to be set in a special way (see DisplayConfiguration.cpp from the DisplayConfiguration sample from NVIDIA)
                             for (int x = 0; x < pathInfoCount; x++)
@@ -825,138 +827,138 @@ namespace iSurroundShared.NVIDIA
                             }
 
                             myDisplayConfig.DisplayConfigs = pathInfos.ToList();
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on third pass.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayConfig returned OK on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_DEVICE_BUSY)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: ModeSet has not yet completed. Please wait and call it again. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: ModeSet has not yet completed. Please wait and call it again. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Error($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting NVIDIA Display Config! NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting NVIDIA Display Config! NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on third pass.");
                         }
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_DEVICE_BUSY)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: ModeSet has not yet completed. Please wait and call it again. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: ModeSet has not yet completed. Please wait and call it again. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Error($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting NVIDIA Display Config! NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting NVIDIA Display Config! NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on second pass.");
                     }
 
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_OK && pathInfoCount == 0)
                 {
-                    SharedLogger.logger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: The call was successful but no display paths were found. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: The call was successful but no display paths were found. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more arguments passed in are invalid. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more arguments passed in are invalid. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_DEVICE_BUSY)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: ModeSet has not yet completed. Please wait and call it again. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: ModeSet has not yet completed. Please wait and call it again. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                 {
-                    SharedLogger.logger.Error($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass.");
+                    SharedLogger.Error($"NVIDIALibrary/GetNVIDIADisplayConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass.");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting NVIDIA Display Config! NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting NVIDIA Display Config! NvAPI_DISP_GetDisplayConfig() returned error code {NVStatus} on first pass");
                 }
 
                 // We want to get the primary monitor
                 NVStatus = NVImport.NvAPI_DISP_GetGDIPrimaryDisplayId(out UInt32 primaryDisplayId);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetGDIPrimaryDisplayId returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetGDIPrimaryDisplayId returned OK.");
                     myDisplayConfig.MosaicConfig.PrimaryDisplayId = primaryDisplayId;
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                 {
-                    SharedLogger.logger.Info($"NVIDIALibrary/GetNVIDIADisplayConfig: There are no NVIDIA video cards currently in use within this computer. This may be due to another GPU being used instead e.g. embedded GPU within the CPU. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                    SharedLogger.Info($"NVIDIALibrary/GetNVIDIADisplayConfig: There are no NVIDIA video cards currently in use within this computer. This may be due to another GPU being used instead e.g. embedded GPU within the CPU. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting primary display id! NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting primary display id! NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                 }
 
                 // We want to get the number of displays we have
@@ -974,31 +976,31 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_GPU_GetConnectedDisplayIds(physicalGpus[physicalGpuIndex], ref displayCount, 0);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_GPU_GetConnectedDisplayIds returned OK on first pass. We have {displayCount} physical GPUs");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_GPU_GetConnectedDisplayIds returned OK on first pass. We have {displayCount} physical GPUs");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting connected display ids! NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting connected display ids! NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on first pass.");
                     }
 
                     if (displayCount > 0)
@@ -1008,31 +1010,31 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_GPU_GetConnectedDisplayIds(physicalGpus[physicalGpuIndex], ref displayIds, ref displayCount, 0);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_GPU_GetConnectedDisplayIds returned OK on second pass. We have {displayCount} physical displays");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_GPU_GetConnectedDisplayIds returned OK on second pass. We have {displayCount} physical displays");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus} on second pass.");
                         }
                         else
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting connected display ids! NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus} on second pass.");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting connected display ids! NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus} on second pass.");
                         }
 
 
@@ -1082,37 +1084,37 @@ namespace iSurroundShared.NVIDIA
                                 NVStatus = NVImport.NvAPI_Disp_ColorControl(displayIds[displayIndex].DisplayId, ref colorData);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Your monitor {displayIds[displayIndex].DisplayId} has the following color settings set. BPC = {colorData.Bpc.ToString("G")}. Color Format = {colorData.ColorFormat.ToString("G")}. Colorimetry = {colorData.Colorimetry.ToString("G")}. Color Selection Policy = {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth = {colorData.Depth.ToString("G")}. Dynamic Range = {colorData.DynamicRange.ToString("G")}. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Your monitor {displayIds[displayIndex].DisplayId} has the following color settings set. BPC = {colorData.Bpc.ToString("G")}. Color Format = {colorData.ColorFormat.ToString("G")}. Colorimetry = {colorData.Colorimetry.ToString("G")}. Color Selection Policy = {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth = {colorData.Depth.ToString("G")}. Dynamic Range = {colorData.DynamicRange.ToString("G")}. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                     myDisplay.ColorData = colorData;
                                     myDisplay.HasColorData = true;
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Disp_ColorControl() returned error code {NVStatus}.");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Disp_ColorControl() returned error code {NVStatus}.");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color settings! NvAPI_Disp_ColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color settings! NvAPI_Disp_ColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
                                 }
 
                                 // Now we get the HDR capabilities of the display
@@ -1120,82 +1122,82 @@ namespace iSurroundShared.NVIDIA
                                 NVStatus = NVImport.NvAPI_Disp_GetHdrCapabilities(displayIds[displayIndex].DisplayId, ref hdrCapabilities);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Disp_GetHdrCapabilities returned OK.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Disp_GetHdrCapabilities returned OK.");
                                     if (hdrCapabilities.SupportFlags.HasFlag(NV_HDR_CAPABILITIES_V2_FLAGS.IsST2084EotfSupported))
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports HDR mode ST2084 EOTF");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports HDR mode ST2084 EOTF");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support HDR mode ST2084 EOTF");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support HDR mode ST2084 EOTF");
                                     }
                                     if (hdrCapabilities.SupportFlags.HasFlag(NV_HDR_CAPABILITIES_V2_FLAGS.IsDolbyVisionSupported))
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports DolbyVision HDR");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports DolbyVision HDR");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support DolbyVision HDR");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support DolbyVision HDR");
                                     }
                                     if (hdrCapabilities.SupportFlags.HasFlag(NV_HDR_CAPABILITIES_V2_FLAGS.IsEdrSupported))
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports EDR");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports EDR");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support EDR");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support EDR");
                                     }
                                     if (hdrCapabilities.SupportFlags.HasFlag(NV_HDR_CAPABILITIES_V2_FLAGS.IsTraditionalHdrGammaSupported))
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports Traditional HDR Gama");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports Traditional HDR Gama");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support Traditional HDR Gama");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support Traditional HDR Gama");
                                     }
 
                                     if (hdrCapabilities.SupportFlags.HasFlag(NV_HDR_CAPABILITIES_V2_FLAGS.IsTraditionalSdrGammaSupported))
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports Traditional SDR Gama");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports Traditional SDR Gama");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT supports Traditional SDR Gama");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT supports Traditional SDR Gama");
                                     }
                                     if (hdrCapabilities.SupportFlags.HasFlag(NV_HDR_CAPABILITIES_V2_FLAGS.DriverExpandDefaultHdrParameters))
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports Driver Expanded Default HDR Parameters");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} supports Driver Expanded Default HDR Parameters");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support Driver Expanded Default HDR Parameters ");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Display {displayIds[displayIndex].DisplayId} DOES NOT support Driver Expanded Default HDR Parameters ");
                                     }
 
                                     myDisplay.HdrCapabilities = hdrCapabilities;
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color capabilities from your display! NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color capabilities from your display! NvAPI_Disp_GetHdrCapabilities() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
                                 }
 
                                 // Now we get the HDR colour settings of the display
@@ -1204,7 +1206,7 @@ namespace iSurroundShared.NVIDIA
                                 NVStatus = NVImport.NvAPI_Disp_HdrColorControl(displayIds[displayIndex].DisplayId, ref hdrColorData);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Disp_HdrColorControl returned OK. HDR mode is set to {hdrColorData.HdrMode.ToString("G")}.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Disp_HdrColorControl returned OK. HDR mode is set to {hdrColorData.HdrMode.ToString("G")}.");
                                     if (hdrColorData.HdrMode != NV_HDR_MODE.OFF)
                                     {
                                         //isNvHdrEnabled = true;
@@ -1214,27 +1216,27 @@ namespace iSurroundShared.NVIDIA
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}.");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}.");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color settings! NvAPI_Disp_HdrColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color settings! NvAPI_Disp_HdrColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
                                 }
 
                                 // Now we get the Adaptive Sync Settings from the display
@@ -1249,49 +1251,49 @@ namespace iSurroundShared.NVIDIA
                                     setAdaptiveSyncData.Flags = getAdaptiveSyncData.Flags;
                                     setAdaptiveSyncData.MaxFrameInterval = getAdaptiveSyncData.MaxFrameInterval;
 
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetAdaptiveSyncData returned OK.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetAdaptiveSyncData returned OK.");
                                     if (getAdaptiveSyncData.DisableAdaptiveSync)
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: AdaptiveSync is DISABLED for Display {displayIds[displayIndex].DisplayId} .");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: AdaptiveSync is DISABLED for Display {displayIds[displayIndex].DisplayId} .");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: AdaptiveSync is ENABLED for Display {displayIds[displayIndex].DisplayId} .");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: AdaptiveSync is ENABLED for Display {displayIds[displayIndex].DisplayId} .");
                                     }
                                     if (getAdaptiveSyncData.DisableFrameSplitting)
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: FrameSplitting is DISABLED for Display {displayIds[displayIndex].DisplayId} .");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: FrameSplitting is DISABLED for Display {displayIds[displayIndex].DisplayId} .");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: FrameSplitting is ENABLED for Display {displayIds[displayIndex].DisplayId} .");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: FrameSplitting is ENABLED for Display {displayIds[displayIndex].DisplayId} .");
                                     }
                                     myDisplay.AdaptiveSyncConfig = setAdaptiveSyncData;
                                     myDisplay.HasAdaptiveSync = true;
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input buffer is not large enough to hold it's contents. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor {displayIds[displayIndex].DisplayId} is either not connected or is not a DP or HDMI panel. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor {displayIds[displayIndex].DisplayId} is either not connected or is not a DP or HDMI panel. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}.");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}.");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color settings! NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting HDR color settings! NvAPI_DISP_GetAdaptiveSyncData() returned error code {NVStatus}. It's most likely that your monitor {displayIds[displayIndex].DisplayId} doesn't support HDR.");
                                 }
 
 
@@ -1306,43 +1308,43 @@ namespace iSurroundShared.NVIDIA
                                     NVStatus = NVImport.NvAPI_DISP_EnumCustomDisplay(displayIds[displayIndex].DisplayId, d, ref customDisplay);
                                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_EnumCustomDisplay returned OK. Custom Display settings retrieved.");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_EnumCustomDisplay returned OK. Custom Display settings retrieved.");
                                         myDisplay.CustomDisplay = customDisplay;
                                         myDisplay.HasCustomDisplay = true;
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_END_ENUMERATION)
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: We've reached the end of the list of Custom Displays. Breaking the polling loop.");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: We've reached the end of the list of Custom Displays. Breaking the polling loop.");
                                         break;
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
                                         break;
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
                                         break;
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
                                         break;
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The supplied struct is incompatible. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The supplied struct is incompatible. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}");
                                         break;
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}.");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}.");
                                         break;
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while enumerating the custom displays! NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}.");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while enumerating the custom displays! NvAPI_DISP_EnumCustomDisplay() returned error code {NVStatus}.");
                                         break;
                                     }
 
@@ -1370,32 +1372,32 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_DISP_GetDisplayIdByDisplayName(displayName, out displayId);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayIdByDisplayName returned OK. The display {displayName} has NVIDIA DisplayID {displayId}");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DISP_GetDisplayIdByDisplayName returned OK. The display {displayName} has NVIDIA DisplayID {displayId}");
                         myDisplayConfig.DisplayNames.Add(displayId.ToString(), displayName);
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                     {
-                        SharedLogger.logger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
+                        SharedLogger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_DISP_GetDisplayIdByDisplayName() returned error code {NVStatus}");
                     }
                 }
 
@@ -1407,7 +1409,7 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_DRS_CreateSession(out drsSessionHandle);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_CreateSession returned OK. We got a DRS Session Handle");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_CreateSession returned OK. We got a DRS Session Handle");
 
                     try
                     {
@@ -1415,31 +1417,31 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_DRS_LoadSettings(drsSessionHandle);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_LoadSettings returned OK. We successfully loaded the DRS Settings into memory.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_LoadSettings returned OK. We successfully loaded the DRS Settings into memory.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst loading settings into memory. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst loading settings into memory. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while loading settings into memory! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while loading settings into memory! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                         }
 
                         // Now we try to start getting the DRS Settings we need
@@ -1452,12 +1454,12 @@ namespace iSurroundShared.NVIDIA
                             if (drsProfileHandle.Ptr == IntPtr.Zero)
                             {
                                 // There isn't a custom global profile set yet, so we ignore it
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK, but there was no process handle set. THe DRS Settings may not have been loaded.");
+                                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK, but there was no process handle set. THe DRS Settings may not have been loaded.");
                             }
                             else
                             {
                                 // There is a custom global profile set, so we continue
-                                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK. We got the DRS Profile Handle for the current global profile");
+                                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK. We got the DRS Profile Handle for the current global profile");
 
                                 // Next, we make a single DRS setting to track the global profile
                                 NVIDIA_DRS_CONFIG drsConfig = new NVIDIA_DRS_CONFIG();
@@ -1468,32 +1470,32 @@ namespace iSurroundShared.NVIDIA
                                 NVStatus = NVImport.NvAPI_DRS_GetProfileInfo(drsSessionHandle, drsProfileHandle, ref drsProfileInfo);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_GetProfileInfo returned OK. We got the DRS Profile info for the current global profile. Profile Name is {drsProfileInfo.ProfileName}.");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_GetProfileInfo returned OK. We got the DRS Profile info for the current global profile. Profile Name is {drsProfileInfo.ProfileName}.");
                                     drsConfig.ProfileInfo = drsProfileInfo;
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst getting the profile info. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst getting the profile info. NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting the profile info! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting the profile info! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                                 }
 
                                 if (drsProfileInfo.NumofSettings > 0)
@@ -1505,32 +1507,32 @@ namespace iSurroundShared.NVIDIA
                                     NVStatus = NVImport.NvAPI_DRS_EnumSettings(drsSessionHandle, drsProfileHandle, 0, ref drsNumSettings, ref drsDriverSettings);
                                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_EnumSettings returned OK. We found {drsNumSettings} settings in the DRS Profile {drsProfileInfo.ProfileName}.");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_EnumSettings returned OK. We found {drsNumSettings} settings in the DRS Profile {drsProfileInfo.ProfileName}.");
                                         drsConfig.DriverSettings = drsDriverSettings.ToList();
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
                                     }
                                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                     {
-                                        SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst enumerating settings. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
+                                        SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst enumerating settings. NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while enumerating settings! NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
+                                        SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while enumerating settings! NvAPI_DRS_EnumSettings() returned error code {NVStatus}");
                                     }
 
                                     // And then we save the DRS Config to the main config so it gets saved
@@ -1542,27 +1544,27 @@ namespace iSurroundShared.NVIDIA
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst getting the base profile. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whilst getting the base profile. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting the base profile! NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting the base profile! NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
 
                     }
@@ -1572,63 +1574,63 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_DRS_DestroySession(drsSessionHandle);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_DestroySession returned OK. We cleaned up and destroyed our DRS Session Handle");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_DRS_DestroySession returned OK. We cleaned up and destroyed our DRS Session Handle");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                     }
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more args passed in are invalid. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whist getting a DRS Session Handle. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred whist getting a DRS Session Handle. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting a DRS Session Handle! NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting a DRS Session Handle! NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
 
             }
             else
             {
-                SharedLogger.logger.Info($"NVIDIALibrary/GetNVIDIADisplayConfig: Tried to run GetNVIDIADisplayConfig but the NVIDIA NVAPI library isn't initialised! This generally means you don't have a NVIDIA video card in your machine.");
+                SharedLogger.Info($"NVIDIALibrary/GetNVIDIADisplayConfig: Tried to run GetNVIDIADisplayConfig but the NVIDIA NVAPI library isn't initialised! This generally means you don't have a NVIDIA video card in your machine.");
                 //throw new NVIDIALibraryException($"Tried to run GetNVIDIADisplayConfig but the NVIDIA NVAPI library isn't initialised!");
             }
 
@@ -1652,12 +1654,12 @@ namespace iSurroundShared.NVIDIA
             NVAPI_STATUS NVStatus = NVImport.NvAPI_EnumPhysicalGPUs(ref physicalGpus, out physicalGpuCount);
             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
+                SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
                 stringToReturn += $"Number of NVIDIA Video cards found: {physicalGpuCount}\n";
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
+                SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
             }
 
             // This check is to make sure that if there aren't any physical GPUS then we exit!
@@ -1665,7 +1667,7 @@ namespace iSurroundShared.NVIDIA
             {
                 // Print out that there aren't any video cards detected
                 stringToReturn += "No NVIDIA Video Cards detected.";
-                SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: No NVIDIA Videocards detected");
+                SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: No NVIDIA Videocards detected");
                 return stringToReturn;
             }
 
@@ -1677,32 +1679,32 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_GPU_GetFullName(physicalGpus[physicalGpuIndex], ref gpuName);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: NvAPI_GPU_GetFullName returned OK. The GPU Full Name is {gpuName}");
+                    SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: NvAPI_GPU_GetFullName returned OK. The GPU Full Name is {gpuName}");
                     stringToReturn += $"NVIDIA Video card #{physicalGpuIndex} is a {gpuName}\n";
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/PrintActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/PrintActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/PrintActiveConfig: One or more argumentss passed in are invalid. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/PrintActiveConfig: One or more argumentss passed in are invalid. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/PrintActiveConfig: The NvAPI API needs to be initialized first. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/PrintActiveConfig: The NvAPI API needs to be initialized first. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/PrintActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/PrintActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/PrintActiveConfig: A miscellaneous error occurred. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/PrintActiveConfig: A miscellaneous error occurred. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: Some non standard error occurred while getting the GPU full name! NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: Some non standard error occurred while getting the GPU full name! NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
 
                 //This function retrieves the Quadro status for the GPU (1 if Quadro, 0 if GeForce)
@@ -1712,22 +1714,22 @@ namespace iSurroundShared.NVIDIA
                 {
                     if (quadroStatus == 0)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: NVIDIA Video Card is one from the GeForce range");
+                        SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: NVIDIA Video Card is one from the GeForce range");
                         stringToReturn += $"NVIDIA Video card #{physicalGpuIndex} is in the GeForce range\n";
                     }
                     else if (quadroStatus == 1)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: NVIDIA Video Card is one from the Quadro range");
+                        SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: NVIDIA Video Card is one from the Quadro range");
                         stringToReturn += $"NVIDIA Video card #{physicalGpuIndex} is in the Quadro range\n";
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: NVIDIA Video Card is neither a GeForce or Quadro range vodeo card (QuadroStatus = {quadroStatus})");
+                        SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: NVIDIA Video Card is neither a GeForce or Quadro range vodeo card (QuadroStatus = {quadroStatus})");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/PrintActiveConfig: Error GETTING qUADRO STATUS. NvAPI_GPU_GetQuadroStatus() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/PrintActiveConfig: Error GETTING qUADRO STATUS. NvAPI_GPU_GetQuadroStatus() returned error code {NVStatus}");
                 }
             }
 
@@ -1868,10 +1870,10 @@ namespace iSurroundShared.NVIDIA
                 bool logicalGPURefreshNeeded = false;
 
                 // Remove any custom NVIDIA Colour settings
-                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off colour if it's default set colour.");
+                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off colour if it's default set colour.");
                 foreach (var physicalGPU in displayConfig.PhysicalAdapters)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Processing settings for Physical GPU #{physicalGPU.Key}");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Processing settings for Physical GPU #{physicalGPU.Key}");
                     NVIDIA_PER_ADAPTER_CONFIG myAdapter = physicalGPU.Value;
                     UInt32 myAdapterIndex = physicalGPU.Key;
                     foreach (var displayDict in myAdapter.Displays)
@@ -1881,12 +1883,12 @@ namespace iSurroundShared.NVIDIA
 
                         if (!ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays.ContainsKey(displayId))
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Display {displayId} doesn't exist in this setup, so skipping changing any NVIDIA display Settings.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Display {displayId} doesn't exist in this setup, so skipping changing any NVIDIA display Settings.");
                             continue;
                         }
 
                         // Remove any custom NVIDIA Colour settings
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off colour if it's user set colour.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off colour if it's user set colour.");
 
                         NV_COLOR_DATA_V5 colorData = myDisplay.ColorData;
                         try
@@ -1894,83 +1896,83 @@ namespace iSurroundShared.NVIDIA
                             // If the setting for this display is not the same as we want, then we set it to NV_COLOR_SELECTION_POLICY_BEST_QUALITY
                             if (ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].ColorData.ColorSelectionPolicy != NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_BEST_QUALITY)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off NVIDIA customer colour settings for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off NVIDIA customer colour settings for display {displayId}.");
 
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want the standard colour settings to be {myDisplay.ColorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want the standard colour settings to be {myDisplay.ColorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}.");
                                 // Force the colorData to be NV_COLOR_SELECTION_POLICY_BEST_QUALITY so that we return the color control to Windows
                                 // We will change the colorData to whatever is required later on
                                 //colorData = myDisplay.ColorData;
                                 colorData.ColorSelectionPolicy = NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_BEST_QUALITY;
 
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want the standard colour settings to be {myDisplay.ColorData.ColorSelectionPolicy.ToString("G")} and they are currently {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].ColorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off standard colour mode for Mosaic display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings Color selection policy {colorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings BPC {colorData.Bpc} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings colour format {colorData.ColorFormat} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings colourimetry {colorData.Colorimetry} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings colour depth {colorData.Depth} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings dynamic range {colorData.DynamicRange} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want the standard colour settings to be {myDisplay.ColorData.ColorSelectionPolicy.ToString("G")} and they are currently {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].ColorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off standard colour mode for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings Color selection policy {colorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings BPC {colorData.Bpc} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings colour format {colorData.ColorFormat} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings colourimetry {colorData.Colorimetry} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings colour depth {colorData.Depth} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want standard colour settings dynamic range {colorData.DynamicRange} for Mosaic display {displayId}");
 
                                 // Set the command as a 'SET'
                                 colorData.Cmd = NV_COLOR_CMD.NV_COLOR_CMD_SET;
                                 NVStatus = NVImport.NvAPI_Disp_ColorControl(displayId, ref colorData);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Disp_ColorControl returned OK. BPC is set to {colorData.Bpc.ToString("G")}. Color Format is set to {colorData.ColorFormat.ToString("G")}. Colorimetry is set to {colorData.Colorimetry.ToString("G")}. Color Selection Policy is set to {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth is set to {colorData.Depth.ToString("G")}. Dynamic Range is set to {colorData.DynamicRange.ToString("G")}");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Disp_ColorControl returned OK. BPC is set to {colorData.Bpc.ToString("G")}. Color Format is set to {colorData.ColorFormat.ToString("G")}. Colorimetry is set to {colorData.Colorimetry.ToString("G")}. Color Selection Policy is set to {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth is set to {colorData.Depth.ToString("G")}. Dynamic Range is set to {colorData.DynamicRange.ToString("G")}");
                                     switch (colorData.ColorSelectionPolicy)
                                     {
                                         case NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_USER:
-                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_USER so the color settings have been set by the user in the NVIDIA Control Panel.");
+                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_USER so the color settings have been set by the user in the NVIDIA Control Panel.");
                                             break;
                                         case NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_BEST_QUALITY: // Also matches NV_COLOR_SELECTION_POLICY_DEFAULT as it is 1
-                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_BEST_QUALITY so the color settings are being handled by the Windows OS.");
+                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_BEST_QUALITY so the color settings are being handled by the Windows OS.");
                                             break;
                                         case NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_UNKNOWN:
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_UNKNOWN so the color settings aren't being handled by either the Windows OS or the NVIDIA Setup!");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_UNKNOWN so the color settings aren't being handled by either the Windows OS or the NVIDIA Setup!");
                                             break;
                                     }
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: Your monitor {displayId} doesn't support the requested color settings. BPC = {colorData.Bpc.ToString("G")}. Color Format = {colorData.ColorFormat.ToString("G")}. Colorimetry = {colorData.Colorimetry.ToString("G")}. Color Selection Policy = {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth = {colorData.Depth.ToString("G")}. Dynamic Range = {colorData.DynamicRange.ToString("G")}. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: Your monitor {displayId} doesn't support the requested color settings. BPC = {colorData.Bpc.ToString("G")}. Color Format = {colorData.ColorFormat.ToString("G")}. Colorimetry = {colorData.Colorimetry.ToString("G")}. Color Selection Policy = {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth = {colorData.Depth.ToString("G")}. Dynamic Range = {colorData.DynamicRange.ToString("G")}. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while seting the color settings! NvAPI_Disp_ColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support this color mode.");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while seting the color settings! NvAPI_Disp_ColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support this color mode.");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want only want to turn off custom NVIDIA colour settings if needed for display {displayId}, and that currently isn't required. Skipping changing NVIDIA colour mode.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want only want to turn off custom NVIDIA colour settings if needed for display {displayId}, and that currently isn't required. Skipping changing NVIDIA colour mode.");
                             }
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception caused while turning off prior NVIDIA specific colour settings for display {displayId}.");
+                            SharedLogger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception caused while turning off prior NVIDIA specific colour settings for display {displayId}.");
                         }
 
                         // Remove any custom NVIDIA HDR Colour settings
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off HDR colour if it's user set HDR colour.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn off HDR colour if it's user set HDR colour.");
 
                         NV_HDR_COLOR_DATA_V2 hdrColorData = myDisplay.HdrColorData;
                         try
@@ -1979,57 +1981,57 @@ namespace iSurroundShared.NVIDIA
                             // if it's not the same HDR we want, then we turn off HDR (and will apply it if needed later on in SetActiveOverride)
                             if (ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].HdrColorData.HdrMode != NV_HDR_MODE.OFF)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn on custom HDR mode for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to turn on custom HDR mode for display {displayId}.");
 
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: HDR mode is currently {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].HdrColorData.HdrMode.ToString("G")} for Mosaic display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings BPC  {hdrColorData.HdrBpc} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings HDR Colour Format {hdrColorData.HdrColorFormat} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings HDR dynamic range {hdrColorData.HdrDynamicRange} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings HDR Mode {hdrColorData.HdrMode} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings Mastering Display Data {hdrColorData.MasteringDisplayData} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings Static Meradata Description ID {hdrColorData.StaticMetadataDescriptorId} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: HDR mode is currently {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].HdrColorData.HdrMode.ToString("G")} for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings BPC  {hdrColorData.HdrBpc} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings HDR Colour Format {hdrColorData.HdrColorFormat} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings HDR dynamic range {hdrColorData.HdrDynamicRange} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings HDR Mode {hdrColorData.HdrMode} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings Mastering Display Data {hdrColorData.MasteringDisplayData} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want HDR settings Static Meradata Description ID {hdrColorData.StaticMetadataDescriptorId} for Mosaic display {displayId}");
                                 // Apply the HDR removal
                                 hdrColorData.Cmd = NV_HDR_CMD.CMD_SET;
                                 hdrColorData.HdrMode = NV_HDR_MODE.OFF;
                                 NVStatus = NVImport.NvAPI_Disp_HdrColorControl(displayId, ref hdrColorData);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Disp_HdrColorControl returned OK. We just successfully turned off the HDR mode for Mosaic display {displayId}.");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Disp_HdrColorControl returned OK. We just successfully turned off the HDR mode for Mosaic display {displayId}.");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The input buffer is not large enough to hold it's contents. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Disp_HdrColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support HDR.");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Disp_HdrColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support HDR.");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want only want to turn off custom NVIDIA HDR settings if needed for display {displayId}, and that currently isn't required. Skipping changing NVIDIA HDR mode.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want only want to turn off custom NVIDIA HDR settings if needed for display {displayId}, and that currently isn't required. Skipping changing NVIDIA HDR mode.");
                             }
 
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception caused while turning off prior NVIDIA HDR colour settings for display {displayId}.");
+                            SharedLogger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception caused while turning off prior NVIDIA HDR colour settings for display {displayId}.");
                         }
 
                         
@@ -2042,7 +2044,7 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_DRS_CreateSession(out drsSessionHandle);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_CreateSession returned OK. We got a DRS Session Handle");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_CreateSession returned OK. We got a DRS Session Handle");
 
                     try
                     {
@@ -2050,31 +2052,31 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_DRS_LoadSettings(drsSessionHandle);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_LoadSettings returned OK. We successfully loaded the DRS Settings into memory.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_LoadSettings returned OK. We successfully loaded the DRS Settings into memory.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                         }
 
                         // Now we try to start getting the DRS Settings we need
@@ -2086,18 +2088,18 @@ namespace iSurroundShared.NVIDIA
                             if (drsProfileHandle.Ptr == IntPtr.Zero)
                             {
                                 // There isn't a custom global profile set yet, so we ignore it
-                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK, but there was no process handle set. The DRS Settings may not have been loaded.");
+                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK, but there was no process handle set. The DRS Settings may not have been loaded.");
                             }
                             else
                             {
                                 // There is a custom global profile, so we continue
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK. We got the DRS Profile Handle for the current global profile");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_GetCurrentGlobalProfile returned OK. We got the DRS Profile Handle for the current global profile");
 
                                 // Next, we go through all the settings we have in the saved profile, and we change the current profile settings to be the same
                                 if (displayConfig.DRSSettings.Count > 0)
                                 {
                                     bool needToSave = false;
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: There are {displayConfig.DRSSettings.Count} stored DRS profiles so we need to process them");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: There are {displayConfig.DRSSettings.Count} stored DRS profiles so we need to process them");
 
                                     try
                                     {
@@ -2115,7 +2117,7 @@ namespace iSurroundShared.NVIDIA
                                                 {
                                                     if (drsSetting.CurrentValue.Equals(currentSetting.CurrentValue))
                                                     {
-                                                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: '{currentSetting.Name}' ({currentSetting.SettingId}) is set to the same value as the one we want, so skipping changing it.");
+                                                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: '{currentSetting.Name}' ({currentSetting.SettingId}) is set to the same value as the one we want, so skipping changing it.");
                                                     }
                                                     else
                                                     {
@@ -2123,31 +2125,31 @@ namespace iSurroundShared.NVIDIA
                                                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                                         {
                                                             needToSave = true;
-                                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We changed setting '{currentSetting.Name}' ({currentSetting.SettingId}) from {currentSetting.CurrentValue} to {drsSetting.CurrentValue} using NvAPI_DRS_SetSetting()");
+                                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We changed setting '{currentSetting.Name}' ({currentSetting.SettingId}) from {currentSetting.CurrentValue} to {drsSetting.CurrentValue} using NvAPI_DRS_SetSetting()");
                                                         }
                                                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                                                         {
-                                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
+                                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
                                                         }
                                                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                                                         {
-                                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
+                                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
                                                         }
                                                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                                         {
-                                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
+                                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
                                                         }
                                                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                                         {
-                                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
+                                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
                                                         }
                                                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                                         {
-                                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
+                                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_SetSetting() returned error code {NVStatus}");
                                                         }
                                                         else
                                                         {
-                                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_SetSetting() returned error code {NVStatus}");
+                                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_SetSetting() returned error code {NVStatus}");
                                                         }
 
                                                     }
@@ -2170,37 +2172,37 @@ namespace iSurroundShared.NVIDIA
                                             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                             {
                                                 needToSave = true;
-                                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We changed active setting '{currentSetting.Name}' ({currentSetting.SettingId}) from {currentSetting.CurrentValue} to it's default  value using NvAPI_DRS_RestoreProfileDefaultSetting()");
+                                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We changed active setting '{currentSetting.Name}' ({currentSetting.SettingId}) from {currentSetting.CurrentValue} to it's default  value using NvAPI_DRS_RestoreProfileDefaultSetting()");
                                             }
                                             else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                                             {
-                                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
+                                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
                                             }
                                             else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                                             {
-                                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
+                                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
                                             }
                                             else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                             {
-                                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
+                                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
                                             }
                                             else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                             {
-                                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
+                                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
                                             }
                                             else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                             {
-                                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
+                                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
                                             }
                                             else
                                             {
-                                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
+                                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_RestoreProfileDefaultSetting() returned error code {NVStatus}");
                                             }
                                         }
                                     }
                                     catch (Exception ex)
                                     {
-                                        SharedLogger.logger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception while trying to find base profiles in either the stored or active display configs.");
+                                        SharedLogger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception while trying to find base profiles in either the stored or active display configs.");
                                     }
 
                                     // Next we save the Settings if needed
@@ -2210,31 +2212,31 @@ namespace iSurroundShared.NVIDIA
                                         NVStatus = NVImport.NvAPI_DRS_SaveSettings(drsSessionHandle);
                                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                         {
-                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_SaveSettings returned OK. We successfully saved the DRS Settings.");
+                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_SaveSettings returned OK. We successfully saved the DRS Settings.");
                                         }
                                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                                         {
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
                                         }
                                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                                         {
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
                                         }
                                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                         {
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
                                         }
                                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                         {
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
                                         }
                                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                         {
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whilst saving driver settings. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whilst saving driver settings. NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
                                         }
                                         else
                                         {
-                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred whilst saving driver settings! NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
+                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred whilst saving driver settings! NvAPI_DRS_SaveSettings() returned error code {NVStatus}");
                                         }
                                     }
                                 }
@@ -2242,27 +2244,27 @@ namespace iSurroundShared.NVIDIA
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whilst getting the Base Profile. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whilst getting the Base Profile. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting the Base Profile Handle! NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting the Base Profile Handle! NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                         }
 
                     }
@@ -2272,120 +2274,120 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_DRS_DestroySession(drsSessionHandle);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_DestroySession returned OK. We cleaned up and destroyed our DRS Session Handle");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DRS_DestroySession returned OK. We cleaned up and destroyed our DRS Session Handle");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                         }
                     }
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more args passed in are invalid. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist getting a DRS Session Handle. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred whist getting a DRS Session Handle. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting a DRS Session Handle! NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting a DRS Session Handle! NvAPI_DRS_CreateSession() returned error code {NVStatus}");
                 }
 
 
                 // Now we've set the color the way we want it, lets do the thing
                 // We want to check the NVIDIA Surround (Mosaic) config is valid
-                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Testing whether the display configuration is valid");
+                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Testing whether the display configuration is valid");
                 // 
                 if (displayConfig.MosaicConfig.IsMosaicEnabled)
                 {
                     if (displayConfig.MosaicConfig.Equals(ActiveDisplayConfig.MosaicConfig))
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic current config is exactly the same as the one we want, so skipping applying the Mosaic config");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic current config is exactly the same as the one we want, so skipping applying the Mosaic config");
                     }
                     else
                     {
                         /*// We need to change to a Mosaic profile, so we need to apply the new Mosaic Topology
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic current config is different as the one we want, so applying the Mosaic config now");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic current config is different as the one we want, so applying the Mosaic config now");
                         // If we get here then the display is valid, so now we actually apply the new Mosaic Topology
                         NVStatus = NVImport.NvAPI_Mosaic_SetCurrentTopo(displayConfig.MosaicConfig.MosaicTopologyBrief, displayConfig.MosaicConfig.MosaicDisplaySettings, displayConfig.MosaicConfig.OverlapX, displayConfig.MosaicConfig.OverlapY, 0);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_SetCurrentTopo returned OK.");
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_SetCurrentTopo returned OK.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
                             System.Threading.Thread.Sleep(500);
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_ACTIVE_SLI_TOPOLOGY)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_SetCurrentTopo() returned error code {NVStatus}");
                         }
 
                         // Turn on the selected Mosaic
@@ -2393,105 +2395,105 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_Mosaic_EnableCurrentTopo(enable);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_EnableCurrentTopo returned OK. Previously set Mosiac config re-enabled.");
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_EnableCurrentTopo returned OK. Previously set Mosiac config re-enabled.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
                             System.Threading.Thread.Sleep(500);
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error disabling the display mode. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error disabling the display mode. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                         }*/
 
                         //NV_MOSAIC_SETDISPLAYTOPO_FLAGS setTopoFlags = NV_MOSAIC_SETDISPLAYTOPO_FLAGS.MAXIMIZE_PERFORMANCE;
                         NV_MOSAIC_SETDISPLAYTOPO_FLAGS setTopoFlags = NV_MOSAIC_SETDISPLAYTOPO_FLAGS.NONE;
 
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic current config is different as the one we want, so applying the Mosaic config now");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic current config is different as the one we want, so applying the Mosaic config now");
                         // If we get here then the display is valid, so now we actually apply the new Mosaic Topology
                         NVStatus = NVImport.NvAPI_Mosaic_SetDisplayGrids(displayConfig.MosaicConfig.MosaicGridTopos, displayConfig.MosaicConfig.MosaicGridCount, setTopoFlags);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_SetDisplayGrids returned OK.");
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_SetDisplayGrids returned OK.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
                             System.Threading.Thread.Sleep(500);
                             logicalGPURefreshNeeded = true;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_ACTIVE_SLI_TOPOLOGY)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}. This is often caused by new NVIDIA settings from an NVIDIA driver update. You may ned to recreate your Surround layout.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}. This is often caused by new NVIDIA settings from an NVIDIA driver update. You may ned to recreate your Surround layout.");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_OUT_OF_MEMORY)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI driver is out of memory and is unable to allocate more. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI driver is out of memory and is unable to allocate more. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         }
                     }
 
@@ -2504,132 +2506,132 @@ namespace iSurroundShared.NVIDIA
                     //NV_MOSAIC_SETDISPLAYTOPO_FLAGS setTopoFlags = NV_MOSAIC_SETDISPLAYTOPO_FLAGS.ALLOW_INVALID;
                     NV_MOSAIC_SETDISPLAYTOPO_FLAGS setTopoFlags = NV_MOSAIC_SETDISPLAYTOPO_FLAGS.NONE;
 
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic config that is currently set is no longer needed. Removing Mosaic config.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic config that is currently set is no longer needed. Removing Mosaic config.");
                     NV_MOSAIC_GRID_TOPO_V2[] individualScreensTopology = CreateSingleScreenMosaicTopology();
 
                     // WARNING - Validation is disabled at present. This is mostly because there are errors in my NvAPI_Mosaic_ValidateDisplayGrids,
                     // but also because the config is coming from the NVIDIA Control Panel which will already do it's own validation checks.
                     /*// Firstly try to see if the oneScreenTopology is a valid config
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Checking if the 1x1 DisplayGrid we chose is valid for the NvAPI_Mosaic_SetDisplayGrids mosaic layout.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Checking if the 1x1 DisplayGrid we chose is valid for the NvAPI_Mosaic_SetDisplayGrids mosaic layout.");
                     NV_MOSAIC_DISPLAY_TOPO_STATUS_V1[] individualScreensStatuses = new NV_MOSAIC_DISPLAY_TOPO_STATUS_V1[(UInt32)individualScreensTopology.Length];
                     NVStatus = NVImport.NvAPI_Mosaic_ValidateDisplayGrids(setTopoFlags, individualScreensTopology, ref individualScreensStatuses, (UInt32)individualScreensTopology.Length);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_ValidateDisplayGrids returned OK.");
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_ValidateDisplayGrids returned OK.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
                         System.Threading.Thread.Sleep(500);
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_ACTIVE_SLI_TOPOLOGY)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The Display ID of the first display is not currently possible to use. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}. Trying again with the next display.");
+                        SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The Display ID of the first display is not currently possible to use. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}. Trying again with the next display.");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }*/
 
 
                     // If we get here then the display is valid, so now we actually apply the new Mosaic Topology
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Trying to set a 1x1 DisplayGrid for the NvAPI_Mosaic_SetDisplayGrids mosaic layout.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Trying to set a 1x1 DisplayGrid for the NvAPI_Mosaic_SetDisplayGrids mosaic layout.");
                     NVStatus = NVImport.NvAPI_Mosaic_SetDisplayGrids(individualScreensTopology, (UInt32)individualScreensTopology.Length, setTopoFlags);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_SetDisplayGrids returned OK.");
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_SetDisplayGrids returned OK.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
                         System.Threading.Thread.Sleep(500);
                         logicalGPURefreshNeeded = true;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_ACTIVE_SLI_TOPOLOGY)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The Display ID of the first display is not currently possible to use. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}. Trying again with the next display.");
+                        SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The Display ID of the first display is not currently possible to use. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}. Trying again with the next display.");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
                     else
                     {
                         // If we get here, we may have an error, or it may have worked successfully! So we need to check again :( 
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Display Grids! NvAPI_Mosaic_SetDisplayGrids() returned error code {NVStatus}");
                         return false;
                     }
 
@@ -2638,71 +2640,71 @@ namespace iSurroundShared.NVIDIA
                     if (MosaicIsOn())
                     {
                         // If the Mosaic is still on, then the last mosaic disable failed, so we need to then try turning it off this using NvAPI_Mosaic_EnableCurrentTopo(0)
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Previous attempt to turn off Mosaic. Now trying to use NvAPI_Mosaic_EnableCurrentTopo to disable Mosaic instead.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Previous attempt to turn off Mosaic. Now trying to use NvAPI_Mosaic_EnableCurrentTopo to disable Mosaic instead.");
                         uint enable = 0;
                         NVStatus = NVImport.NvAPI_Mosaic_EnableCurrentTopo(enable);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_EnableCurrentTopo returned OK. Previously set Mosiac config now disabled");
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_EnableCurrentTopo returned OK. Previously set Mosiac config now disabled");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Mosaic display change take place before continuing");
                             System.Threading.Thread.Sleep(500);
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error disabling the display mode. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error disabling the display mode. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnableCurrentTopo() returned error code {NVStatus}");
                             return false;
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic successfully disabled using NvAPI_Mosaic_SetDisplayGrids method.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Mosaic successfully disabled using NvAPI_Mosaic_SetDisplayGrids method.");
                     }
                 }
                 else if (!displayConfig.MosaicConfig.IsMosaicEnabled && !ActiveDisplayConfig.MosaicConfig.IsMosaicEnabled)
                 {
                     // We are on a non-Mosaic profile now, and we are changing to a non-Mosaic profile
                     // so there is nothing to do as far as NVIDIA is concerned!
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We are on a non-Mosaic profile now, and we are changing to a non-Mosaic profile so there is no need to modify Mosaic settings!");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We are on a non-Mosaic profile now, and we are changing to a non-Mosaic profile so there is no need to modify Mosaic settings!");
                 }
 
                 // TODO - NvAPI_DISP_SetDisplayConfig isn't working at the moment and will always error with a NVAPI_INVALID_ARGUMENT. It is related to the 
@@ -2717,18 +2719,18 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_DISP_SetDisplayConfig((UInt32)displayConfig.DisplayConfigs.Count, displayConfig.DisplayConfigs.ToArray(), NV_DISPLAYCONFIG_FLAGS.SAVE_TO_PERSISTENCE);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DISP_SetDisplayConfig returned OK.");
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Display Config layout change take place before continuing");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DISP_SetDisplayConfig returned OK.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Waiting 0.5 second to let the Display Config layout change take place before continuing");
                         System.Threading.Thread.Sleep(500);
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_ACTIVE_SLI_TOPOLOGY)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The Display ID of the first display is not currently possible to use. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}. Trying again with the next display.");
+                        SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The Display ID of the first display is not currently possible to use. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}. Trying again with the next display.");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
@@ -2738,48 +2740,48 @@ namespace iSurroundShared.NVIDIA
                         // We need to wait until the Windows library applies the screen before the DisplayConfig will be applied.
                         if (!displayConfig.MosaicConfig.IsMosaicEnabled && ActiveDisplayConfig.MosaicConfig.IsMosaicEnabled)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}, but this is expected as we are changing from a Surround screen layout to a non-surround layout. Ignoring this error.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}, but this is expected as we are changing from a Surround screen layout to a non-surround layout. Ignoring this error.");
                         }
                         else
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: One or more arguments passed in are invalid. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                             return false;
                         }
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Setting the NVIDIA Display Config! NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Setting the NVIDIA Display Config! NvAPI_DISP_SetDisplayConfig() returned error code {NVStatus}");
                         return false;
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Skipping setting the NVIDIA Display Config as there isn't one provided in the configuration.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Skipping setting the NVIDIA Display Config as there isn't one provided in the configuration.");
                 }*/
 
                 // If the NVIDIA topology has changed, then we need to refresh our active config so it stays valid. 
@@ -2792,7 +2794,7 @@ namespace iSurroundShared.NVIDIA
             }
             else
             {
-                SharedLogger.logger.Info($"NVIDIALibrary/SetActiveConfig: Tried to run SetActiveConfig but the NVIDIA NvAPI library isn't initialised! This generally means you don't have a NVIDIA video card in your machine.");
+                SharedLogger.Info($"NVIDIALibrary/SetActiveConfig: Tried to run SetActiveConfig but the NVIDIA NvAPI library isn't initialised! This generally means you don't have a NVIDIA video card in your machine.");
                 //throw new NVIDIALibraryException($"Tried to run SetActiveConfig but the NVIDIA NvAPI library isn't initialised!");
             }
 
@@ -2813,7 +2815,7 @@ namespace iSurroundShared.NVIDIA
                 // Go through the physical adapters
                 foreach (var physicalGPU in displayConfig.PhysicalAdapters)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Processing settings for Physical GPU #{physicalGPU.Key}");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Processing settings for Physical GPU #{physicalGPU.Key}");
                     NVIDIA_PER_ADAPTER_CONFIG myAdapter = physicalGPU.Value;
                     UInt32 myAdapterIndex = physicalGPU.Key;
 
@@ -2823,15 +2825,15 @@ namespace iSurroundShared.NVIDIA
                         UInt32 displayId = displayDict.Key;
 
                         // Now we try to set each display settings
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to process settings for display {displayId}.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to process settings for display {displayId}.");
 
                         if (!ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays.ContainsKey(displayId))
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Display {displayId} doesn't exist in this setup, so skipping overriding any NVIDIA display Settings.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Display {displayId} doesn't exist in this setup, so skipping overriding any NVIDIA display Settings.");
                             continue;
                         }
 
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn on colour if it's user set colour.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn on colour if it's user set colour.");
                         // Now we try to set each display color
 
                         NV_COLOR_DATA_V5 colorData = myDisplay.ColorData;
@@ -2840,77 +2842,77 @@ namespace iSurroundShared.NVIDIA
                             // If this is a setting that says it uses user colour settings, then we turn it off
                             if (ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].ColorData.ColorSelectionPolicy != colorData.ColorSelectionPolicy)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to use custom NVIDIA HDR Colour for display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want the standard colour settings to be {myDisplay.ColorData.ColorSelectionPolicy.ToString("G")} and they are {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].ColorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn off standard colour mode for Mosaic display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings Color selection policy {colorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings BPC {colorData.Bpc} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings colour format {colorData.ColorFormat} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings colourimetry {colorData.Colorimetry} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings colour depth {colorData.Depth} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings dynamic range {colorData.DynamicRange} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to use custom NVIDIA HDR Colour for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want the standard colour settings to be {myDisplay.ColorData.ColorSelectionPolicy.ToString("G")} and they are {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].ColorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn off standard colour mode for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings Color selection policy {colorData.ColorSelectionPolicy.ToString("G")} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings BPC {colorData.Bpc} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings colour format {colorData.ColorFormat} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings colourimetry {colorData.Colorimetry} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings colour depth {colorData.Depth} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want standard colour settings dynamic range {colorData.DynamicRange} for Mosaic display {displayId}");
 
                                 // Set the command as a 'SET'
                                 colorData.Cmd = NV_COLOR_CMD.NV_COLOR_CMD_SET;
                                 NVStatus = NVImport.NvAPI_Disp_ColorControl(displayId, ref colorData);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: NvAPI_Disp_ColorControl returned OK. BPC is set to {colorData.Bpc.ToString("G")}. Color Format is set to {colorData.ColorFormat.ToString("G")}. Colorimetry is set to {colorData.Colorimetry.ToString("G")}. Color Selection Policy is set to {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth is set to {colorData.Depth.ToString("G")}. Dynamic Range is set to {colorData.DynamicRange.ToString("G")}");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: NvAPI_Disp_ColorControl returned OK. BPC is set to {colorData.Bpc.ToString("G")}. Color Format is set to {colorData.ColorFormat.ToString("G")}. Colorimetry is set to {colorData.Colorimetry.ToString("G")}. Color Selection Policy is set to {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth is set to {colorData.Depth.ToString("G")}. Dynamic Range is set to {colorData.DynamicRange.ToString("G")}");
                                     switch (colorData.ColorSelectionPolicy)
                                     {
                                         case NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_USER:
-                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_USER so the color settings have been set by the user in the NVIDIA Control Panel.");
+                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_USER so the color settings have been set by the user in the NVIDIA Control Panel.");
                                             break;
                                         case NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_BEST_QUALITY: // Also matches NV_COLOR_SELECTION_POLICY_DEFAULT as it is 1
-                                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_BEST_QUALITY so the color settings are being handled by the Windows OS.");
+                                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_BEST_QUALITY so the color settings are being handled by the Windows OS.");
                                             break;
                                         case NV_COLOR_SELECTION_POLICY.NV_COLOR_SELECTION_POLICY_UNKNOWN:
-                                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_UNKNOWN so the color settings aren't being handled by either the Windows OS or the NVIDIA Setup!");
+                                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: Color Selection Policy is set to NV_COLOR_SELECTION_POLICY_UNKNOWN so the color settings aren't being handled by either the Windows OS or the NVIDIA Setup!");
                                             break;
                                     }
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: Your monitor {displayId} doesn't support the requested color settings. BPC = {colorData.Bpc.ToString("G")}. Color Format = {colorData.ColorFormat.ToString("G")}. Colorimetry = {colorData.Colorimetry.ToString("G")}. Color Selection Policy = {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth = {colorData.Depth.ToString("G")}. Dynamic Range = {colorData.DynamicRange.ToString("G")}. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: Your monitor {displayId} doesn't support the requested color settings. BPC = {colorData.Bpc.ToString("G")}. Color Format = {colorData.ColorFormat.ToString("G")}. Colorimetry = {colorData.Colorimetry.ToString("G")}. Color Selection Policy = {colorData.ColorSelectionPolicy.ToString("G")}. Color Depth = {colorData.Depth.ToString("G")}. Dynamic Range = {colorData.DynamicRange.ToString("G")}. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input buffer is not large enough to hold it's contents. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input buffer is not large enough to hold it's contents. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The NvAPI API needs to be initialized first. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The NvAPI API needs to be initialized first. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: This entry point not available in this NVIDIA Driver. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: A miscellaneous error occurred. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: A miscellaneous error occurred. NvAPI_Disp_ColorControl() returned error code {NVStatus}");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Some non standard error occurred while seting the color settings! NvAPI_Disp_ColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support this color mode.");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Some non standard error occurred while seting the color settings! NvAPI_Disp_ColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support this color mode.");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want only want to turn on custom NVIDIA colour settings if needed for display {displayId}, and that currently isn't required. Skipping changing NVIDIA colour mode.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want only want to turn on custom NVIDIA colour settings if needed for display {displayId}, and that currently isn't required. Skipping changing NVIDIA colour mode.");
                             }
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Error(ex, $"NVIDIALibrary/SetActiveConfigOverride: Exception caused while turning on NVIDIA custom colour settings for display {displayId}.");
+                            SharedLogger.Error(ex, $"NVIDIALibrary/SetActiveConfigOverride: Exception caused while turning on NVIDIA custom colour settings for display {displayId}.");
                         }
 
 
 
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn on NVIDIA HDR colour if it's user wants to use NVIDIA HDR colour.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn on NVIDIA HDR colour if it's user wants to use NVIDIA HDR colour.");
                         // Now we try to set each display color
 
                         NV_HDR_COLOR_DATA_V2 hdrColorData = myDisplay.HdrColorData;
@@ -2920,54 +2922,54 @@ namespace iSurroundShared.NVIDIA
                             // if it's HDR and it's a different mode than what we are in now, then set HDR
                             if (ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].HdrColorData.HdrMode != hdrColorData.HdrMode)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn on user-set HDR mode for display {displayId} as it's supposed to be on.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: HDR mode is currently {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].HdrColorData.HdrMode.ToString("G")} for Mosaic display {displayId}.");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings BPC  {hdrColorData.HdrBpc} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings HDR Colour Format {hdrColorData.HdrColorFormat} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings HDR dynamic range {hdrColorData.HdrDynamicRange} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings HDR Mode {hdrColorData.HdrMode} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings Mastering Display Data {hdrColorData.MasteringDisplayData} for Mosaic display {displayId}");
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings Static Meradata Description ID {hdrColorData.StaticMetadataDescriptorId} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want to turn on user-set HDR mode for display {displayId} as it's supposed to be on.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: HDR mode is currently {ActiveDisplayConfig.PhysicalAdapters[myAdapterIndex].Displays[displayId].HdrColorData.HdrMode.ToString("G")} for Mosaic display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings BPC  {hdrColorData.HdrBpc} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings HDR Colour Format {hdrColorData.HdrColorFormat} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings HDR dynamic range {hdrColorData.HdrDynamicRange} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings HDR Mode {hdrColorData.HdrMode} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings Mastering Display Data {hdrColorData.MasteringDisplayData} for Mosaic display {displayId}");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want HDR settings Static Meradata Description ID {hdrColorData.StaticMetadataDescriptorId} for Mosaic display {displayId}");
                                 // Apply the HDR removal
                                 hdrColorData.Cmd = NV_HDR_CMD.CMD_SET;
                                 NVStatus = NVImport.NvAPI_Disp_HdrColorControl(displayId, ref hdrColorData);
                                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: NvAPI_Disp_HdrColorControl returned OK. We just successfully turned off the HDR mode for Mosaic display {displayId}.");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: NvAPI_Disp_HdrColorControl returned OK. We just successfully turned off the HDR mode for Mosaic display {displayId}.");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input buffer is not large enough to hold it's contents. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input buffer is not large enough to hold it's contents. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The NvAPI API needs to be initialized first. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: The NvAPI API needs to be initialized first. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: This entry point not available in this NVIDIA Driver. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: This entry point not available in this NVIDIA Driver. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                                 {
-                                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfigOverride: A miscellaneous error occurred. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
+                                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfigOverride: A miscellaneous error occurred. NvAPI_Disp_HdrColorControl() returned error code {NVStatus}");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Some non standard error occurred while getting Mosaic Topology! NvAPI_Disp_HdrColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support HDR.");
+                                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: Some non standard error occurred while getting Mosaic Topology! NvAPI_Disp_HdrColorControl() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support HDR.");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want only want to turn on custom NVIDIA HDR if needed for display {displayId} and that currently isn't required. Skipping changing NVIDIA HDR mode.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfigOverride: We want only want to turn on custom NVIDIA HDR if needed for display {displayId} and that currently isn't required. Skipping changing NVIDIA HDR mode.");
                             }
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Error(ex, $"NVIDIALibrary/SetActiveConfigOverride: Exception caused while turning on custom NVIDIA HDR colour settings for display {displayId}.");
+                            SharedLogger.Error(ex, $"NVIDIALibrary/SetActiveConfigOverride: Exception caused while turning on custom NVIDIA HDR colour settings for display {displayId}.");
                         }
 
                         // Disabled the Adaptive Sync equality matching as we are having trouble applying it, which is causing issues in profile matching in iSurround
@@ -2975,65 +2977,65 @@ namespace iSurroundShared.NVIDIA
                         // But for now, we'll exclude it from the equality matching and also stop trying to use the adaptive sync config.
 
                         /*// Set any AdaptiveSync settings
-                        SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to set any adaptive Sync settings if in use.");
+                        SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to set any adaptive Sync settings if in use.");
 
                         NV_SET_ADAPTIVE_SYNC_DATA_V1 adaptiveSyncData = myDisplay.AdaptiveSyncConfig;
                         try
                         {
                             if (myDisplay.AdaptiveSyncConfig.DisableAdaptiveSync)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to DISABLE Adaptive Sync for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to DISABLE Adaptive Sync for display {displayId}.");
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to ENABLE Adaptive Sync for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to ENABLE Adaptive Sync for display {displayId}.");
                             }
 
                             if (myDisplay.AdaptiveSyncConfig.DisableFrameSplitting)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to DISABLE Frame Splitting for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to DISABLE Frame Splitting for display {displayId}.");
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to ENABLE Frame Splitting for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to ENABLE Frame Splitting for display {displayId}.");
                             }
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: We want to set the Adaptice Sync Max Frame Interval to {myDisplay.AdaptiveSyncConfig.MaxFrameInterval}ms for display {displayId}.");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: We want to set the Adaptice Sync Max Frame Interval to {myDisplay.AdaptiveSyncConfig.MaxFrameInterval}ms for display {displayId}.");
 
                             // Apply the AdaptiveSync settings
                             NVStatus = NVImport.NvAPI_DISP_SetAdaptiveSyncData(displayId, ref adaptiveSyncData);
                             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DISP_SetAdaptiveSyncData returned OK. We just successfully set the Adaptive Sync settings for display {displayId}.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_DISP_SetAdaptiveSyncData returned OK. We just successfully set the Adaptive Sync settings for display {displayId}.");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The input buffer is not large enough to hold it's contents. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The input buffer is not large enough to hold it's contents. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}");
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support HDR.");
+                                SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_DISP_SetAdaptiveSyncData() returned error code {NVStatus}. It's most likely that your monitor {displayId} doesn't support HDR.");
                             }
 
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception caused while trying to set NVIDIA Adaptive Sync settings for display {displayId}.");
+                            SharedLogger.Error(ex, $"NVIDIALibrary/SetActiveConfig: Exception caused while trying to set NVIDIA Adaptive Sync settings for display {displayId}.");
                         }*/
                     }
 
@@ -3043,7 +3045,7 @@ namespace iSurroundShared.NVIDIA
             }
             else
             {
-                SharedLogger.logger.Info($"NVIDIALibrary/SetActiveConfigOverride: Tried to run SetActiveConfig but the NVIDIA NVAPI library isn't initialised! This generally means you don't have a NVIDIA video card in your machine.");
+                SharedLogger.Info($"NVIDIALibrary/SetActiveConfigOverride: Tried to run SetActiveConfig but the NVIDIA NVAPI library isn't initialised! This generally means you don't have a NVIDIA video card in your machine.");
                 //throw new NVIDIALibraryException($"Tried to run SetActiveConfigOverride but the NVIDIA NVAPI library isn't initialised!");
             }
 
@@ -3053,15 +3055,15 @@ namespace iSurroundShared.NVIDIA
         public bool IsActiveConfig(NVIDIA_DISPLAY_CONFIG displayConfig)
         {
             // Check whether the display config is in use now
-            SharedLogger.logger.Trace($"NVIDIALibrary/IsActiveConfig: Checking whether the display configuration is already being used.");
+            SharedLogger.Trace($"NVIDIALibrary/IsActiveConfig: Checking whether the display configuration is already being used.");
             if (displayConfig.Equals(_activeDisplayConfig))
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/IsActiveConfig: The display configuration is already being used (supplied displayConfig Equals currentDisplayConfig");
+                SharedLogger.Trace($"NVIDIALibrary/IsActiveConfig: The display configuration is already being used (supplied displayConfig Equals currentDisplayConfig");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/IsActiveConfig: The display configuration is NOT currently in use (supplied displayConfig does NOT equal currentDisplayConfig");
+                SharedLogger.Trace($"NVIDIALibrary/IsActiveConfig: The display configuration is NOT currently in use (supplied displayConfig does NOT equal currentDisplayConfig");
                 return false;
             }
 
@@ -3070,7 +3072,7 @@ namespace iSurroundShared.NVIDIA
         public bool IsValidConfig(NVIDIA_DISPLAY_CONFIG displayConfig)
         {
             // We want to check the NVIDIA Surround (Mosaic) config is valid
-            SharedLogger.logger.Trace($"NVIDIALibrary/IsValidConfig: Testing whether the display configuration is valid");
+            SharedLogger.Trace($"NVIDIALibrary/IsValidConfig: Testing whether the display configuration is valid");
             // 
             if (displayConfig.MosaicConfig.IsMosaicEnabled)
             {
@@ -3088,7 +3090,7 @@ namespace iSurroundShared.NVIDIA
                 NVAPI_STATUS NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayGrids(ref mosaicGridCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
                 }
 
                 // Get Current Mosaic Grid settings using the Grid topologies fnumbers we got before
@@ -3097,31 +3099,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayGrids(ref mosaicGridTopos, ref mosaicGridCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 */
 
@@ -3133,7 +3135,7 @@ namespace iSurroundShared.NVIDIA
                 //NVStatus = NVImport.NvAPI_Mosaic_ValidateDisplayGrids(setTopoFlags, ref mosaicGridTopos, ref topoStatuses, mosaicGridCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
 
                     for (int i = 0; i < topoStatuses.Length; i++)
                     {
@@ -3141,109 +3143,109 @@ namespace iSurroundShared.NVIDIA
                         // And make it not be used
                         if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Congratulations! No error flags for GridTopology #{i}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Congratulations! No error flags for GridTopology #{i}");
                             topoValid = true;
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.DISPLAY_ON_INVALID_GPU)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Display is on an invalid GPU");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Display is on an invalid GPU");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.DISPLAY_ON_WRONG_CONNECTOR)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Display is on the wrong connection. It was on a different connection when the display profile was saved.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Display is on the wrong connection. It was on a different connection when the display profile was saved.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.ECC_ENABLED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: ECC has been enabled, and Mosaic/Surround doesn't work with ECC");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: ECC has been enabled, and Mosaic/Surround doesn't work with ECC");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.GPU_TOPOLOGY_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: This GPU topology is not supported.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: This GPU topology is not supported.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.MISMATCHED_OUTPUT_TYPE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: The output type has changed for the display. The display was connected through another output type when the display profile was saved.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: The output type has changed for the display. The display was connected through another output type when the display profile was saved.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: This Grid Topology is not supported on this video card.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: This Grid Topology is not supported on this video card.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.NO_COMMON_TIMINGS)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Couldn't find common timings that suit all the displays in this Grid Topology.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Couldn't find common timings that suit all the displays in this Grid Topology.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.NO_DISPLAY_CONNECTED)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: No display connected.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: No display connected.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.NO_EDID_AVAILABLE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Your display didn't provide any information when we attempted to query it. Your display either doesn't support support EDID querying or has it a fault. ");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: Your display didn't provide any information when we attempted to query it. Your display either doesn't support support EDID querying or has it a fault. ");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.NO_GPU_TOPOLOGY)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: There is no GPU topology provided.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: There is no GPU topology provided.");
                         }
                         else if (topoStatuses[i].ErrorFlags == NV_MOSAIC_DISPLAYCAPS_PROBLEM_FLAGS.NO_SLI_BRIDGE)
                         {
-                            SharedLogger.logger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: There is no SLI bridge, and there was one when the display profile was created.");
+                            SharedLogger.Error($"NVIDIALibrary/SetActiveConfig: Error with the GridTopology #{i}: There is no SLI bridge, and there was one when the display profile was created.");
                         }
 
                         // And now we also check to see if there are any warnings we also need to log
                         if (topoStatuses[i].WarningFlags == NV_MOSAIC_DISPLAYTOPO_WARNING_FLAGS.NONE)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Congratulations! No warning flags for GridTopology #{i}");
+                            SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Congratulations! No warning flags for GridTopology #{i}");
                         }
                         else if (topoStatuses[i].WarningFlags == NV_MOSAIC_DISPLAYTOPO_WARNING_FLAGS.DISPLAY_POSITION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: Warning for the GridTopology #{i}: The display position has changed, and this may affect your display view.");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: Warning for the GridTopology #{i}: The display position has changed, and this may affect your display view.");
                         }
                         else if (topoStatuses[i].WarningFlags == NV_MOSAIC_DISPLAYTOPO_WARNING_FLAGS.DRIVER_RELOAD_REQUIRED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: Warning for the GridTopology #{i}: Your computer needs to be restarted before your NVIDIA device driver can use this Grid Topology.");
+                            SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: Warning for the GridTopology #{i}: Your computer needs to be restarted before your NVIDIA device driver can use this Grid Topology.");
                         }
                     }
 
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_ACTIVE_SLI_TOPOLOGY)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: No matching GPU topologies could be found. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_TOPO_NOT_POSSIBLE)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The topology passed in is not currently possible. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INCOMPATIBLE_STRUCT_VERSION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: The version of the structure passed in is not compatible with this entrypoint. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_MODE_CHANGE_FAILED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: There was an error changing the display mode. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/SetActiveConfig: A miscellaneous error occurred. NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_ValidateDisplayGrids() returned error code {NVStatus}");
                 }
 
 
@@ -3252,14 +3254,14 @@ namespace iSurroundShared.NVIDIA
                 {
                     // If there was an issue then we need to return false
                     // to indicate that the display profile can't be applied
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: The display settings are valid.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: The display settings are valid.");
                     return true;
                 }
                 else
                 {
                     // If there was an issue then we need to return false
                     // to indicate that the display profile can't be applied
-                    SharedLogger.logger.Trace($"NVIDIALibrary/SetActiveConfig: There was an error when validating the requested grid topology that prevents us from using the display settings provided. THe display setttings are NOT valid.");
+                    SharedLogger.Trace($"NVIDIALibrary/SetActiveConfig: There was an error when validating the requested grid topology that prevents us from using the display settings provided. THe display setttings are NOT valid.");
                     return false;
                 }*/
             }
@@ -3273,18 +3275,18 @@ namespace iSurroundShared.NVIDIA
         public bool IsPossibleConfig(NVIDIA_DISPLAY_CONFIG displayConfig)
         {
             // We want to check the NVIDIA profile can be used now
-            SharedLogger.logger.Trace($"NVIDIALibrary/IsPossibleConfig: Testing whether the NVIDIA display configuration is possible to be used now");
+            SharedLogger.Trace($"NVIDIALibrary/IsPossibleConfig: Testing whether the NVIDIA display configuration is possible to be used now");
 
             // CHeck that we have all the displayConfig DisplayIdentifiers we need available now
             if (displayConfig.DisplayIdentifiers.All(value => _allConnectedDisplayIdentifiers.Contains(value)))
             //if (currentAllIds.Intersect(displayConfig.DisplayIdentifiers).Count() == displayConfig.DisplayIdentifiers.Count)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/IsPossibleConfig: Success! The NVIDIA display configuration is possible to be used now");
+                SharedLogger.Trace($"NVIDIALibrary/IsPossibleConfig: Success! The NVIDIA display configuration is possible to be used now");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/IsPossibleConfig: Uh oh! The NVIDIA display configuration is possible cannot be used now");
+                SharedLogger.Trace($"NVIDIALibrary/IsPossibleConfig: Uh oh! The NVIDIA display configuration is possible cannot be used now");
                 return false;
             }
 
@@ -3297,11 +3299,11 @@ namespace iSurroundShared.NVIDIA
             NVAPI_STATUS NVStatus = NVImport.NvAPI_EnumPhysicalGPUs(ref physicalGpus, out physicalGpuCount);
             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
+                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
+                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
             }
 
             // Go through the Physical GPUs one by one
@@ -3315,31 +3317,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_Mosaic_GetCurrentTopo(ref mosaicTopoBrief, ref mosaicDisplaySetting, out mosaicOverlapX, out mosaicOverlapY);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Debug($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_GetCurrentTopo() returned error code {NVStatus}");
                 }
 
                 // Check if there is a topology and that Mosaic is enabled
@@ -3354,13 +3356,13 @@ namespace iSurroundShared.NVIDIA
 
         public List<string> GetCurrentDisplayIdentifiers()
         {
-            SharedLogger.logger.Trace($"NVIDIALibrary/GetCurrentDisplayIdentifiers: Getting the current display identifiers for the displays in use now");
+            SharedLogger.Trace($"NVIDIALibrary/GetCurrentDisplayIdentifiers: Getting the current display identifiers for the displays in use now");
             return GetSomeDisplayIdentifiers(false);
         }
 
         public List<string> GetAllConnectedDisplayIdentifiers()
         {
-            SharedLogger.logger.Trace($"NVIDIALibrary/GetAllConnectedDisplayIdentifiers: Getting all the display identifiers that can possibly be used");
+            SharedLogger.Trace($"NVIDIALibrary/GetAllConnectedDisplayIdentifiers: Getting all the display identifiers that can possibly be used");
             _allConnectedDisplayIdentifiers = GetSomeDisplayIdentifiers(true);
 
             return _allConnectedDisplayIdentifiers;
@@ -3368,7 +3370,7 @@ namespace iSurroundShared.NVIDIA
 
         private List<string> GetSomeDisplayIdentifiers(bool allDisplays = true)
         {
-            SharedLogger.logger.Debug($"NVIDIALibrary/GetCurrentDisplayIdentifiers: Generating the unique Display Identifiers for the currently active configuration");
+            SharedLogger.Debug($"NVIDIALibrary/GetCurrentDisplayIdentifiers: Generating the unique Display Identifiers for the currently active configuration");
 
             List<string> displayIdentifiers = new List<string>();
 
@@ -3378,18 +3380,18 @@ namespace iSurroundShared.NVIDIA
             NVAPI_STATUS NVStatus = NVImport.NvAPI_EnumPhysicalGPUs(ref physicalGpus, out physicalGpuCount);
             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
+                SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_EnumPhysicalGPUs returned {physicalGpuCount} Physical GPUs");
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
+                SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Error getting physical GPU count. NvAPI_EnumPhysicalGPUs() returned error code {NVStatus}");
             }
 
             // This check is to make sure that if there aren't any physical GPUS then we exit!
             if (physicalGpuCount == 0)
             {
                 // If there aren't any video cards detected, then return that empty list.
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: No Videocards detected so returning empty list");
+                SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: No Videocards detected so returning empty list");
                 return new List<string>();
             }
 
@@ -3401,31 +3403,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_GPU_GetFullName(physicalGpus[physicalGpuIndex], ref gpuName);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetFullName returned OK. The GPU Full Name is {gpuName}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetFullName returned OK. The GPU Full Name is {gpuName}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: One or more argumentss passed in are invalid. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: One or more argumentss passed in are invalid. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting the GPU full name! NvAPI_GPU_GetFullName() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting the GPU full name! NvAPI_GPU_GetFullName() returned error code {NVStatus}");
                 }
 
                 //We want to get the physical details of the physical device
@@ -3433,31 +3435,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_GPU_GetBusType(physicalGpus[physicalGpuIndex], ref busType);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetBoardInfo returned OK. THe GPU BusType is {busType.ToString("G")}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetBoardInfo returned OK. THe GPU BusType is {busType.ToString("G")}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: One or more argumentss passed in are invalid. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: One or more argumentss passed in are invalid. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetBoardInfo() returned error code {NVStatus}");
                 }
 
                 //We want to get the physical details of the physical device
@@ -3465,31 +3467,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_GPU_GetBusId(physicalGpus[physicalGpuIndex], ref busId);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetBusId returned OK. The GPU Bus ID was {busId}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetBusId returned OK. The GPU Bus ID was {busId}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Mosaic is not supported with the existing hardware. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: One or more argumentss passed in are invalid. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: One or more argumentss passed in are invalid. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetBusId() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetBusId() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetBusId() returned error code {NVStatus}");
                 }
 
                 // Next, we need to get all the connected Display IDs. 
@@ -3498,31 +3500,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_GPU_GetConnectedDisplayIds(physicalGpus[physicalGpuIndex], ref displayCount, 0);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_DISP_GetGDIPrimaryDisplayId returned OK. We have {displayCount} connected displays detected.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_DISP_GetGDIPrimaryDisplayId returned OK. We have {displayCount} connected displays detected.");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                 }
 
                 if (displayCount > 0)
@@ -3532,31 +3534,31 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_GPU_GetConnectedDisplayIds(physicalGpus[physicalGpuIndex], ref displayIds, ref displayCount, 0);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetConnectedDisplayIds returned OK. We have {displayCount} physical GPUs");
+                        SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetConnectedDisplayIds returned OK. We have {displayCount} physical GPUs");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input buffer is not large enough to hold it's contents. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_DISP_GetGDIPrimaryDisplayId() returned error code {NVStatus}");
                     }
 
                     // Now, we want to go through the displays 
@@ -3576,31 +3578,31 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_SYS_GetGpuAndOutputIdFromDisplayId(oneDisplay.DisplayId, out physicalGpu, out gpuOutputId);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_SYS_GetGpuAndOutputIdFromDisplayId returned OK. We received Physical GPU ID {physicalGpu} and GPU Output ID {gpuOutputId}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_SYS_GetGpuAndOutputIdFromDisplayId returned OK. We received Physical GPU ID {physicalGpu} and GPU Output ID {gpuOutputId}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INSUFFICIENT_BUFFER)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input buffer is not large enough to hold it's contents. NvAPI_SYS_GetGpuAndOutputIdFromDisplayId() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input buffer is not large enough to hold it's contents. NvAPI_SYS_GetGpuAndOutputIdFromDisplayId() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_DISPLAY_ID)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The input monitor is either not connected or is not a DP or HDMI panel. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                         }
                         else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                         {
-                            SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
+                            SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetConnectedDisplayIds() returned error code {NVStatus}");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_SYS_GetGpuAndOutputIdFromDisplayId() returned error code {NVStatus}");
+                            SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_SYS_GetGpuAndOutputIdFromDisplayId() returned error code {NVStatus}");
                         }
 
                         // Lets set some EDID default in case the EDID doesn't work
@@ -3612,7 +3614,7 @@ namespace iSurroundShared.NVIDIA
                         NVStatus = NVImport.NvAPI_GPU_GetEDID(physicalGpu, gpuOutputId, ref edidInfo);
                         if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                         {
-                            SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetEDID returned OK. We have got an EDID Block.");
+                            SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: NvAPI_GPU_GetEDID returned OK. We have got an EDID Block.");
                             EDID edidParsedInfo = new EDID(edidInfo.EDID_Data);
                             manufacturerName = edidParsedInfo.ManufacturerCode;
                             productCode = edidParsedInfo.ProductCode;
@@ -3622,35 +3624,35 @@ namespace iSurroundShared.NVIDIA
                         {
                             if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Either edidInfo was null when it was supplied, or gpuOutputId . NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: Either edidInfo was null when it was supplied, or gpuOutputId . NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: No active GPU was found. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: No active GPU was found. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_EXPECTED_PHYSICAL_GPU_HANDLE)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The GPU Handle supplied was not a valid GPU Handle. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The GPU Handle supplied was not a valid GPU Handle. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_DATA_NOT_FOUND)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The display does not support EDID. NvAPI_GPU_GetEDID() returned status code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The display does not support EDID. NvAPI_GPU_GetEDID() returned status code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: The NvAPI API needs to be initialized first. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: This entry point not available in this NVIDIA Driver. NvAPI_GPU_GetEDID() returned status  code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetEDID() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/GetSomeDisplayIdentifiers: A miscellaneous error occurred. NvAPI_GPU_GetEDID() returned error code {NVStatus}");
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetEDID() returned error code {NVStatus}");
+                                SharedLogger.Trace($"NVIDIALibrary/GetSomeDisplayIdentifiers: Some non standard error occurred while getting Mosaic Topology! NvAPI_GPU_GetEDID() returned error code {NVStatus}");
                             }
                         }
 
@@ -3664,7 +3666,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Name from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Name from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3673,7 +3675,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Bus Type from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Bus Type from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3682,7 +3684,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Bus ID from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Bus ID from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3691,7 +3693,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Output ID from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting GPU Output ID from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3700,7 +3702,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting NVIDIA EDID Manufacturer Name for the display from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting NVIDIA EDID Manufacturer Name for the display from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3709,7 +3711,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting NVIDIA EDID Product Code for the display from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting NVIDIA EDID Product Code for the display from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3718,7 +3720,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting NVIDIA EDID Serial Number for the display from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting NVIDIA EDID Serial Number for the display from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -3727,7 +3729,7 @@ namespace iSurroundShared.NVIDIA
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting Display ID from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"NVIDIALibrary/GetSomeDisplayIdentifiers: Exception getting Display ID from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         // Create a display identifier out of it
@@ -3737,7 +3739,7 @@ namespace iSurroundShared.NVIDIA
                         if (!displayIdentifiers.Contains(displayIdentifier))
                         {
                             displayIdentifiers.Add(displayIdentifier);
-                            SharedLogger.logger.Debug($"NVIDIALibrary/GetSomeDisplayIdentifiers: DisplayIdentifier detected: {displayIdentifier}");
+                            SharedLogger.Debug($"NVIDIALibrary/GetSomeDisplayIdentifiers: DisplayIdentifier detected: {displayIdentifier}");
                         }
                     }
                 }
@@ -3762,38 +3764,38 @@ namespace iSurroundShared.NVIDIA
             NVStatus = NVImport.NvAPI_DRS_CreateSession(out drsSessionHandle);
             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: NvAPI_DRS_CreateSession returned OK. We got a DRS Session Handle");
+                SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: NvAPI_DRS_CreateSession returned OK. We got a DRS Session Handle");
                 try
                 {
                     // Load the DRS Settings into memory
                     NVStatus = NVImport.NvAPI_DRS_LoadSettings(drsSessionHandle);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: NvAPI_DRS_LoadSettings returned OK. We successfully loaded the DRS Settings into memory.");
+                        SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: NvAPI_DRS_LoadSettings returned OK. We successfully loaded the DRS Settings into memory.");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_LoadSettings() returned error code {NVStatus}");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_GetProfileInfo() returned error code {NVStatus}");
                     }
 
                     // Get ALL available settings
@@ -3832,27 +3834,27 @@ namespace iSurroundShared.NVIDIA
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
                             }
                             else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                             {
-                                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
+                                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_EnumAvailableSettingValues() returned error code {NVStatus}");
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_EnumNvAPI_DRS_EnumAvailableSettingValuesSettings() returned error code {NVStatus}");
+                                SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_EnumNvAPI_DRS_EnumAvailableSettingValuesSettings() returned error code {NVStatus}");
                             }
                             settingCount++;
                         }
@@ -3860,27 +3862,27 @@ namespace iSurroundShared.NVIDIA
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_GetCurrentGlobalProfile() returned error code {NVStatus}");
                     }
 
                 }
@@ -3890,57 +3892,57 @@ namespace iSurroundShared.NVIDIA
                     NVStatus = NVImport.NvAPI_DRS_DestroySession(drsSessionHandle);
                     if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: NvAPI_DRS_DestroySession returned OK. We cleaned up and destroyed our DRS Session Handle");
+                        SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: NvAPI_DRS_DestroySession returned OK. We cleaned up and destroyed our DRS Session Handle");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                     }
                     else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                     {
-                        SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                        SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist destroying our DRS Session Handle. NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_DestroySession() returned error code {NVStatus}");
+                        SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while destroying our DRS Session Handle! NvAPI_DRS_DestroySession() returned error code {NVStatus}");
                     }
                 }
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_NVIDIA_DEVICE_NOT_FOUND)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: GDI Primary not on an NVIDIA GPU. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: One or more args passed in are invalid. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: The NvAPI API needs to be initialized first. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: This entry point not available in this NVIDIA Driver. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist getting a DRS Session Handle. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/DumpAllDRSSettings: A miscellaneous error occurred whist getting a DRS Session Handle. NvAPI_DRS_CreateSession() returned error code {NVStatus}");
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while getting a DRS Session Handle! NvAPI_DRS_CreateSession() returned error code {NVStatus}");
+                SharedLogger.Trace($"NVIDIALibrary/DumpAllDRSSettings: Some non standard error occurred while getting a DRS Session Handle! NvAPI_DRS_CreateSession() returned error code {NVStatus}");
             }
             return stringToReturn;
         }
@@ -3953,7 +3955,7 @@ namespace iSurroundShared.NVIDIA
             NVAPI_STATUS NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayGrids(ref mosaicGridCount);
             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
+                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_GetCurrentTopo returned OK.");
             }
 
             // Get Current Mosaic Grid settings using the Grid topologies fnumbers we got before
@@ -3961,31 +3963,31 @@ namespace iSurroundShared.NVIDIA
             NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayGrids(ref mosaicGridTopos, ref mosaicGridCount);
             if (NVStatus == NVAPI_STATUS.NVAPI_OK)
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayGrids returned OK.");
+                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayGrids returned OK.");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
             }
             else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
             {
-                SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
             }
             else
             {
-                SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
+                SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology! NvAPI_Mosaic_EnumDisplayGrids() returned error code {NVStatus}");
             }
 
             // Sum up all the screens we have
@@ -3999,7 +4001,7 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayModes(gridTopo, ref mosaicDisplayModesCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
                 }
 
                 // Get Current Mosaic Display Topology settings using the Grid topologies numbers we got before
@@ -4008,31 +4010,31 @@ namespace iSurroundShared.NVIDIA
                 NVStatus = NVImport.NvAPI_Mosaic_EnumDisplayModes(gridTopo, ref mosaicDisplaySettings, ref mosaicDisplayModesCount);
                 if (NVStatus == NVAPI_STATUS.NVAPI_OK)
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: NvAPI_Mosaic_EnumDisplayModes returned OK.");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: Mosaic is not supported with the existing hardware. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_INVALID_ARGUMENT)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: One or more argumentss passed in are invalid. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_API_NOT_INITIALIZED)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: The NvAPI API needs to be initialized first. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_NO_IMPLEMENTATION)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: This entry point not available in this NVIDIA Driver. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                 }
                 else if (NVStatus == NVAPI_STATUS.NVAPI_ERROR)
                 {
-                    SharedLogger.logger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                    SharedLogger.Warn($"NVIDIALibrary/GetNVIDIADisplayConfig: A miscellaneous error occurred. NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology Display Settings! NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
+                    SharedLogger.Trace($"NVIDIALibrary/GetNVIDIADisplayConfig: Some non standard error occurred while getting Mosaic Topology Display Settings! NvAPI_Mosaic_EnumDisplayModes() returned error code {NVStatus}");
                 }
 
                 for (int displayIndexToUse = 0; displayIndexToUse < gridTopo.DisplayCount; displayIndexToUse++)
@@ -4221,8 +4223,5 @@ namespace iSurroundShared.NVIDIA
         public NVIDIALibraryException() { }
         public NVIDIALibraryException(string message) : base(message) { }
         public NVIDIALibraryException(string message, Exception inner) : base(message, inner) { }
-        protected NVIDIALibraryException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

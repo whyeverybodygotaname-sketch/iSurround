@@ -187,11 +187,11 @@ namespace iSurroundShared.AMD
             _activeDisplayConfig = CreateDefaultConfig();
             try
             {
-                SharedLogger.logger.Trace($"AMDLibrary/AMDLibrary: Attempting to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}");
+                SharedLogger.Trace($"AMDLibrary/AMDLibrary: Attempting to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}");
                 // Attempt to prelink all of the NVAPI functions
                 Marshal.PrelinkAll(typeof(ADLImport));
 
-                SharedLogger.logger.Trace("AMDLibrary/AMDLibrary: Intialising AMD ADL2 library interface");
+                SharedLogger.Trace("AMDLibrary/AMDLibrary: Intialising AMD ADL2 library interface");
                 // Second parameter is 1 so that we only the get connected adapters in use now
 
                 // We set the environment variable as a workaround so that ADL2_Display_SLSMapConfigX2_Get works :(
@@ -205,37 +205,37 @@ namespace iSurroundShared.AMD
                     if (ADLRet == ADL_STATUS.ADL_OK)
                     {
                         _initialised = true;
-                        SharedLogger.logger.Trace($"AMDLibrary/AMDLibrary: AMD ADL2 library was initialised successfully");
-                        SharedLogger.logger.Trace($"AMDLibrary/AMDLibrary: Running UpdateActiveConfig to ensure there is a config to use later");
+                        SharedLogger.Trace($"AMDLibrary/AMDLibrary: AMD ADL2 library was initialised successfully");
+                        SharedLogger.Trace($"AMDLibrary/AMDLibrary: Running UpdateActiveConfig to ensure there is a config to use later");
                         _activeDisplayConfig = GetActiveConfig();
                         _allConnectedDisplayIdentifiers = GetAllConnectedDisplayIdentifiers();
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/AMDLibrary: Error intialising AMD ADL2 library. ADL2_Main_Control_Create() returned error code {ADLRet}");
+                        SharedLogger.Trace($"AMDLibrary/AMDLibrary: Error intialising AMD ADL2 library. ADL2_Main_Control_Create() returned error code {ADLRet}");
                     }
                 }
                 catch (DllNotFoundException ex)
                 {
                     // If we get here then the AMD ADL DLL wasn't found. We can't continue to use it, so we log the error and exit
-                    SharedLogger.logger.Info(ex, $"AMDLibrary/AMDLibrary: Exception trying to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}. This generally means you don't have the AMD ADL driver installed.");
+                    SharedLogger.Info(ex, $"AMDLibrary/AMDLibrary: Exception trying to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}. This generally means you don't have the AMD ADL driver installed.");
                 }
 
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Trace(ex, $"AMDLibrary/AMDLibrary: Exception intialising AMD ADL2 library. ADL2_Main_Control_Create() caused an exception.");
+                    SharedLogger.Trace(ex, $"AMDLibrary/AMDLibrary: Exception intialising AMD ADL2 library. ADL2_Main_Control_Create() caused an exception.");
                 }
 
             }
             catch (ArgumentNullException ex)
             {
                 // If we get here then the PrelinkAll didn't work, meaning the AMD ADL DLL links don't work. We can't continue to use it, so we log the error and exit
-                SharedLogger.logger.Info(ex, $"AMDLibrary/AMDLibrary: Exception2 trying to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}. This generally means you don't have the AMD ADL driver installed.");
+                SharedLogger.Info(ex, $"AMDLibrary/AMDLibrary: Exception2 trying to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}. This generally means you don't have the AMD ADL driver installed.");
             }
             catch (Exception ex)
             {
                 // If we get here then something else didn't work. We can't continue to use the AMD library, so we log the error and exit
-                SharedLogger.logger.Info(ex, $"AMDLibrary/AMDLibrary: Exception3 trying to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}. This generally means you don't have the AMD ADL driver installed.");
+                SharedLogger.Info(ex, $"AMDLibrary/AMDLibrary: Exception3 trying to load the AMD ADL DLL {ADLImport.ATI_ADL_DLL}. This generally means you don't have the AMD ADL driver installed.");
             }
 
 
@@ -243,18 +243,18 @@ namespace iSurroundShared.AMD
 
         ~AMDLibrary()
         {
-            SharedLogger.logger.Trace("AMDLibrary/~AMDLibrary: Destroying AMD ADL2 library interface");
+            SharedLogger.Trace("AMDLibrary/~AMDLibrary: Destroying AMD ADL2 library interface");
             // If the ADL2 library was initialised, then we need to free it up.
             if (_initialised)
             {
                 try
                 {
                     ADLImport.ADL2_Main_Control_Destroy(_adlContextHandle);
-                    SharedLogger.logger.Trace($"AMDLibrary/AMDLibrary: AMD ADL2 library was destroyed successfully");
+                    SharedLogger.Trace($"AMDLibrary/AMDLibrary: AMD ADL2 library was destroyed successfully");
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Trace(ex, $"AMDLibrary/AMDLibrary: Exception destroying AMD ADL2 library. ADL2_Main_Control_Destroy() caused an exception.");
+                    SharedLogger.Trace(ex, $"AMDLibrary/AMDLibrary: Exception destroying AMD ADL2 library. ADL2_Main_Control_Destroy() caused an exception.");
                 }
 
             }
@@ -305,6 +305,7 @@ namespace iSurroundShared.AMD
         {
             get
             {
+                // 结构体不能为null，保留原逻辑以确保兼容性
                 if (_activeDisplayConfig == null)
                     _activeDisplayConfig = CreateDefaultConfig();
                 return _activeDisplayConfig;
@@ -319,6 +320,7 @@ namespace iSurroundShared.AMD
         {
             get
             {
+                // 结构体不能为null，保留原逻辑以确保兼容性
                 if (_activeDisplayConfig == null)
                     _activeDisplayConfig = CreateDefaultConfig();
                 return _activeDisplayConfig.DisplayIdentifiers;
@@ -351,7 +353,7 @@ namespace iSurroundShared.AMD
 
         public bool UpdateActiveConfig()
         {
-            SharedLogger.logger.Trace($"AMDLibrary/UpdateActiveConfig: Updating the currently active config");
+            SharedLogger.Trace($"AMDLibrary/UpdateActiveConfig: Updating the currently active config");
             try
             {
                 _activeDisplayConfig = GetActiveConfig();
@@ -359,7 +361,7 @@ namespace iSurroundShared.AMD
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Trace(ex, $"AMDLibrary/UpdateActiveConfig: Exception updating the currently active config");
+                SharedLogger.Trace(ex, $"AMDLibrary/UpdateActiveConfig: Exception updating the currently active config");
                 return false;
             }
 
@@ -368,7 +370,7 @@ namespace iSurroundShared.AMD
 
         public AMD_DISPLAY_CONFIG GetActiveConfig()
         {
-            SharedLogger.logger.Trace($"AMDLibrary/GetActiveConfig: Getting the currently active config");
+            SharedLogger.Trace($"AMDLibrary/GetActiveConfig: Getting the currently active config");
             bool allDisplays = true;
             return GetAMDDisplayConfig(allDisplays);
         }
@@ -381,17 +383,17 @@ namespace iSurroundShared.AMD
             {
 
                 // Get the Adapter info for ALL adapter and put it in the AdapterBuffer
-                SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: Running ADL2_Adapter_AdapterInfoX4_Get to get the information about all AMD Adapters.");
+                SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: Running ADL2_Adapter_AdapterInfoX4_Get to get the information about all AMD Adapters.");
                 int numAdaptersInfo = 0;
                 IntPtr adapterInfoBuffer = IntPtr.Zero;
                 ADL_STATUS ADLRet = ADLImport.ADL2_Adapter_AdapterInfoX4_Get(_adlContextHandle, -1, out numAdaptersInfo, out adapterInfoBuffer);
                 if (ADLRet == ADL_STATUS.ADL_OK)
                 {
-                    SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Adapter_AdapterInfoX4_Get returned information about all AMD Adapters.");
+                    SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Adapter_AdapterInfoX4_Get returned information about all AMD Adapters.");
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Adapter_AdapterInfoX4_Get returned ADL_STATUS {ADLRet} when trying to get the adapter info about all AMD Adapters. Trying to skip this adapter so something at least works.");
+                    SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Adapter_AdapterInfoX4_Get returned ADL_STATUS {ADLRet} when trying to get the adapter info about all AMD Adapters. Trying to skip this adapter so something at least works.");
                     return myDisplayConfig;
                 }
 
@@ -428,14 +430,14 @@ namespace iSurroundShared.AMD
                     ADL_ADAPTER_INFOX2 oneAdapter = adapterArray[adapterIndex]; // There is always just one as we asked for a specific one!
                     if (oneAdapter.Exist != ADLImport.ADL_TRUE)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} doesn't exist at present so skipping detection for this adapter.");
+                        SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} doesn't exist at present so skipping detection for this adapter.");
                         continue;
                     }
 
                     // Only skip non-present displays if we want all displays information
                     if (oneAdapter.Present != ADLImport.ADL_TRUE)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} isn't enabled at present so skipping detection for this adapter.");
+                        SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} isn't enabled at present so skipping detection for this adapter.");
                         continue;
                     }
 
@@ -447,17 +449,17 @@ namespace iSurroundShared.AMD
                     {
                         if (adapterActiveStatus == ADLImport.ADL_TRUE)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_TRUE - AMD Adapter #{adapterIndex} is active! We can continue.");
+                            SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_TRUE - AMD Adapter #{adapterIndex} is active! We can continue.");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, so skipping.");
+                            SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, so skipping.");
                             continue;
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"AMDLibrary/GetSomeDisplayIdentifiers: WARNING - ADL2_Adapter_Active_Get returned ADL_STATUS {ADLRet} when trying to see if AMD Adapter #{adapterIndex} is active. Trying to skip this adapter so something at least works.");
+                        SharedLogger.Warn($"AMDLibrary/GetSomeDisplayIdentifiers: WARNING - ADL2_Adapter_Active_Get returned ADL_STATUS {ADLRet} when trying to see if AMD Adapter #{adapterIndex} is active. Trying to skip this adapter so something at least works.");
                         continue;
                     }
 
@@ -469,11 +471,11 @@ namespace iSurroundShared.AMD
                     ADLRet = ADLImport.ADL2_Display_DisplayMapConfig_Get(_adlContextHandle, adapterIndex, out numDisplayMaps, out displayMapBuffer, out numDisplayTargets, out displayTargetBuffer, ADLImport.ADL_DISPLAY_DISPLAYMAP_OPTION_GPUINFO);
                     if (ADLRet == ADL_STATUS.ADL_OK)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayMapConfig_Get returned information about all displaytargets connected to AMD adapter {adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayMapConfig_Get returned information about all displaytargets connected to AMD adapter {adapterIndex}.");
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DisplayMapConfig_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
+                        SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DisplayMapConfig_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
                         throw new AMDLibraryException($"ADL2_Display_DisplayMapConfig_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer");
                     }
 
@@ -564,7 +566,7 @@ namespace iSurroundShared.AMD
                         if (ADLRet == ADL_STATUS.ADL_OK && matchingSLSMapIndex != -1)
                         {
                             // We have a matching SLS index!
-                            SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} has one or more SLS Maps that could be used with this display configuration! Eyefinity (SLS) could be enabled.");
+                            SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} has one or more SLS Maps that could be used with this display configuration! Eyefinity (SLS) could be enabled.");
 
                             AMD_SLSMAP_CONFIG mySLSMapConfig = new AMD_SLSMAP_CONFIG();
 
@@ -602,11 +604,11 @@ namespace iSurroundShared.AMD
                                                                                 ADLImport.ADL_DISPLAY_SLSGRID_CAP_OPTION_RELATIVETO_CURRENTANGLE);
                             if (ADLRet == ADL_STATUS.ADL_OK)
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_SLSMapConfigX2_Get returned information about the SLS Info connected to AMD adapter {adapterIndex}.");
+                                SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_SLSMapConfigX2_Get returned information about the SLS Info connected to AMD adapter {adapterIndex}.");
                             }
                             else
                             {
-                                SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_SLSMapConfigX2_Get returned ADL_STATUS {ADLRet} when trying to get the SLS Info from AMD adapter {adapterIndex} in the computer.");
+                                SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_SLSMapConfigX2_Get returned ADL_STATUS {ADLRet} when trying to get the SLS Info from AMD adapter {adapterIndex} in the computer.");
                                 continue;
                             }
 
@@ -814,11 +816,11 @@ namespace iSurroundShared.AMD
                                                                                 out displayModeBuffer);
                                 if (ADLRet == ADL_STATUS.ADL_OK)
                                 {
-                                    SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_Modes_Get returned information about the display modes used by display #{displayTarget.DisplayID.DisplayLogicalAdapterIndex} connected to AMD adapter {adapterIndex}.");
+                                    SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_Modes_Get returned information about the display modes used by display #{displayTarget.DisplayID.DisplayLogicalAdapterIndex} connected to AMD adapter {adapterIndex}.");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_Modes_Get returned ADL_STATUS {ADLRet} when trying to get the display modes from AMD adapter {adapterIndex} in the computer.");
+                                    SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_Modes_Get returned ADL_STATUS {ADLRet} when trying to get the display modes from AMD adapter {adapterIndex} in the computer.");
                                     continue;
                                 }
 
@@ -856,7 +858,6 @@ namespace iSurroundShared.AMD
                                 // First check the native SLS mode list
                                 // Process the slsOffsetBuffer
                                 bool isSlsEnabled = false;
-                                bool isBezelCompensatedDisplay = false;
                                 foreach (var displayMode in displayModeArray)
                                 {
                                     foreach (var nativeMode in nativeModeArray)
@@ -877,7 +878,6 @@ namespace iSurroundShared.AMD
                                             if (bezelMode.DisplayMode.XRes == displayMode.XRes && bezelMode.DisplayMode.YRes == displayMode.YRes)
                                             {
                                                 isSlsEnabled = true;
-                                                isBezelCompensatedDisplay = true;
                                                 break;
                                             }
                                         }
@@ -894,7 +894,7 @@ namespace iSurroundShared.AMD
                                         // we also update the main IsSLSEnabled so that it is indicated at the top level too
 
                                         myDisplayConfig.SlsConfig.IsSlsEnabled = true;
-                                        SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} has a matching SLS grid set! Eyefinity (SLS) is enabled. Setting IsSlsEnabled to true");
+                                        SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} has a matching SLS grid set! Eyefinity (SLS) is enabled. Setting IsSlsEnabled to true");
 
                                     }
                                 }
@@ -911,13 +911,13 @@ namespace iSurroundShared.AMD
                         else
                         {
                             // If we get here then there there was no active SLSGrid, meaning Eyefinity is disabled!
-                            SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} has no active SLS grids set! Eyefinity (SLS) hasn't even been setup yet. Keeping the default IsSlsEnabled value of false.");
+                            SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} has no active SLS grids set! Eyefinity (SLS) hasn't even been setup yet. Keeping the default IsSlsEnabled value of false.");
                         }
                     }
                     else
                     {
                         // If we get here then there are less than two displays connected. Eyefinity cannot be enabled in this case!
-                        SharedLogger.logger.Info($"AMDLibrary/GetAMDDisplayConfig: There are less than two displays connected to this adapter so Eyefinity cannot be enabled.");
+                        SharedLogger.Info($"AMDLibrary/GetAMDDisplayConfig: There are less than two displays connected to this adapter so Eyefinity cannot be enabled.");
                     }
 
 
@@ -927,16 +927,16 @@ namespace iSurroundShared.AMD
                     ADLRet = ADLImport.ADL2_Display_DisplayInfo_Get(_adlContextHandle, adapterIndex, out numDisplays, out displayInfoBuffer, forceDetect);
                     if (ADLRet == ADL_STATUS.ADL_OK)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to AMD adapter #{adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to AMD adapter #{adapterIndex}.");
                     }
                     else if (ADLRet == ADL_STATUS.ADL_ERR_NULL_POINTER || ADLRet == ADL_STATUS.ADL_ERR_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned ADL_ERR_NULL_POINTER so skipping getting display info from AMD adapter #{adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned ADL_ERR_NULL_POINTER so skipping getting display info from AMD adapter #{adapterIndex}.");
                         continue;
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Display_DisplayInfo_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter #{adapterIndex}.");
+                        SharedLogger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Display_DisplayInfo_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter #{adapterIndex}.");
                     }
 
                     ADL_DISPLAY_INFO[] displayInfoArray = { };
@@ -973,11 +973,11 @@ namespace iSurroundShared.AMD
                         {
                             displayConnector = displayInfoArray.First(d => d.DisplayID == displayTarget.DisplayID).DisplayConnector;
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             displayConnector = ADL_DISPLAY_CONNECTION_TYPE.Unknown;
                         }
-                        SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: Display {displayTarget.DisplayID} on AMD adapter #{adapterIndex} has a {displayConnector} connector.");
+                        SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: Display {displayTarget.DisplayID} on AMD adapter #{adapterIndex} has a {displayConnector} connector.");
                         // Then only get the HDR config stuff if the connection actually suports getting the HDR info!
                         if (!SkippedColorConnectionTypes.Contains(displayConnector))
                         {
@@ -989,20 +989,20 @@ namespace iSurroundShared.AMD
                             {
                                 if (supported > 0 && enabled > 0)
                                 {
-                                    SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_HDRState_Get says that display {displayTarget.DisplayID.DisplayLogicalIndex} on adapter {adapterIndex} supports HDR and HDR is enabled.");
+                                    SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_HDRState_Get says that display {displayTarget.DisplayID.DisplayLogicalIndex} on adapter {adapterIndex} supports HDR and HDR is enabled.");
                                 }
                                 else if (supported > 0 && enabled == 0)
                                 {
-                                    SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_HDRState_Get says that display {displayTarget.DisplayID.DisplayLogicalIndex} on adapter {adapterIndex} supports HDR and HDR is NOT enabled.");
+                                    SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_HDRState_Get says that display {displayTarget.DisplayID.DisplayLogicalIndex} on adapter {adapterIndex} supports HDR and HDR is NOT enabled.");
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_HDRState_Get says that display {displayTarget.DisplayID.DisplayLogicalIndex} on adapter {adapterIndex} does NOT support HDR.");
+                                    SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_HDRState_Get says that display {displayTarget.DisplayID.DisplayLogicalIndex} on adapter {adapterIndex} does NOT support HDR.");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_HDRState_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
+                                SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_HDRState_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
                                 throw new AMDLibraryException($"ADL2_Display_HDRState_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer");
                             }
 
@@ -1027,7 +1027,7 @@ namespace iSurroundShared.AMD
             }
             else
             {
-                SharedLogger.logger.Info($"AMDLibrary/GetAMDDisplayConfig: Tried to run GetAMDDisplayConfig but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
+                SharedLogger.Info($"AMDLibrary/GetAMDDisplayConfig: Tried to run GetAMDDisplayConfig but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
                 //throw new AMDLibraryException($"Tried to run GetAMDDisplayConfig but the AMD ADL library isn't initialised!");
             }
 
@@ -1053,11 +1053,11 @@ namespace iSurroundShared.AMD
                 ADL_STATUS ADLRet = ADLImport.ADL2_Adapter_NumberOfAdapters_Get(_adlContextHandle, out numAdapters);
                 if (ADLRet == ADL_STATUS.ADL_OK)
                 {
-                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_NumberOfAdapters_Get returned the number of AMD Adapters the OS knows about ({numAdapters}).");
+                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_NumberOfAdapters_Get returned the number of AMD Adapters the OS knows about ({numAdapters}).");
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Adapter_NumberOfAdapters_Get returned ADL_STATUS {ADLRet} when trying to get number of AMD adapters in the computer.");
+                    SharedLogger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Adapter_NumberOfAdapters_Get returned ADL_STATUS {ADLRet} when trying to get number of AMD adapters in the computer.");
                 }
 
                 // This check is to make sure that if there aren't any physical GPUS then we exit!
@@ -1066,7 +1066,7 @@ namespace iSurroundShared.AMD
                 {
                     // Print out that there aren't any video cards detected
                     stringToReturn += "No Video Cards detected.";
-                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: No Videocards detected");
+                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: No Videocards detected");
                     return stringToReturn;
                 }
 
@@ -1075,11 +1075,11 @@ namespace iSurroundShared.AMD
                 ADLRet = ADLImport.ADL2_Adapter_Primary_Get(_adlContextHandle, out primaryAdapterIndex);
                 if (ADLRet == ADL_STATUS.ADL_OK)
                 {
-                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: The primary adapter has index {primaryAdapterIndex}.");
+                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: The primary adapter has index {primaryAdapterIndex}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Adapter_Primary_Get returned ADL_STATUS {ADLRet} when trying to get the primary adapter info from all the AMD adapters in the computer.");
+                    SharedLogger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Adapter_Primary_Get returned ADL_STATUS {ADLRet} when trying to get the primary adapter info from all the AMD adapters in the computer.");
                 }
 
                 // Now go through each adapter and get the information we need from it
@@ -1092,32 +1092,32 @@ namespace iSurroundShared.AMD
                     {
                         if (adapterActiveStatus == ADLImport.ADL_TRUE)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_Active_Get returned ADL_TRUE - AMD Adapter #{adapterIndex} is active! We can continue.");
+                            SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_Active_Get returned ADL_TRUE - AMD Adapter #{adapterIndex} is active! We can continue.");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, so skipping.");
+                            SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, so skipping.");
                             continue;
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"AMDLibrary/PrintActiveConfig: WARNING - ADL2_Adapter_Active_Get returned ADL_STATUS {ADLRet} when trying to see if AMD Adapter #{adapterIndex} is active. Trying to skip this adapter so something at least works.");
+                        SharedLogger.Warn($"AMDLibrary/PrintActiveConfig: WARNING - ADL2_Adapter_Active_Get returned ADL_STATUS {ADLRet} when trying to see if AMD Adapter #{adapterIndex} is active. Trying to skip this adapter so something at least works.");
                         continue;
                     }
 
                     // Get the Adapter info for this adapter and put it in the AdapterBuffer
-                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: Running ADL2_Adapter_AdapterInfoX4_Get to get the information about AMD Adapter #{adapterIndex}.");
+                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: Running ADL2_Adapter_AdapterInfoX4_Get to get the information about AMD Adapter #{adapterIndex}.");
                     int numAdaptersInfo = 0;
                     IntPtr adapterInfoBuffer = IntPtr.Zero;
                     ADLRet = ADLImport.ADL2_Adapter_AdapterInfoX4_Get(_adlContextHandle, adapterIndex, out numAdaptersInfo, out adapterInfoBuffer);
                     if (ADLRet == ADL_STATUS.ADL_OK)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_AdapterInfoX4_Get returned information about AMD Adapter #{adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Adapter_AdapterInfoX4_Get returned information about AMD Adapter #{adapterIndex}.");
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Adapter_AdapterInfoX4_Get returned ADL_STATUS {ADLRet} when trying to get the adapter info from AMD Adapter #{adapterIndex}. Trying to skip this adapter so something at least works.");
+                        SharedLogger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Adapter_AdapterInfoX4_Get returned ADL_STATUS {ADLRet} when trying to get the adapter info from AMD Adapter #{adapterIndex}. Trying to skip this adapter so something at least works.");
                         continue;
                     }
 
@@ -1140,13 +1140,13 @@ namespace iSurroundShared.AMD
                         Marshal.FreeCoTaskMem(adapterInfoBuffer);
                     }
 
-                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: Converted ADL2_Adapter_AdapterInfoX4_Get memory buffer into a {adapterArray.Length} long array about AMD Adapter #{adapterIndex}.");
+                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: Converted ADL2_Adapter_AdapterInfoX4_Get memory buffer into a {adapterArray.Length} long array about AMD Adapter #{adapterIndex}.");
 
                     //AMD_ADAPTER_CONFIG savedAdapterConfig = new AMD_ADAPTER_CONFIG();
                     ADL_ADAPTER_INFOX2 oneAdapter = adapterArray[0];
                     if (oneAdapter.Exist != 1)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} doesn't exist at present so skipping detection for this adapter.");
+                        SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} doesn't exist at present so skipping detection for this adapter.");
                         continue;
                     }
 
@@ -1191,7 +1191,7 @@ namespace iSurroundShared.AMD
                 ADLRet = ADLImport.ADL2_Display_DisplayMapConfig_Get(_adlContextHandle, -1, out numDisplayMaps, out displayMapBuffer, out numDisplayTargets, out displayTargetBuffer, ADLImport.ADL_DISPLAY_DISPLAYMAP_OPTION_GPUINFO);
                 if (ADLRet == ADL_STATUS.ADL_OK)
                 {
-                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayMapConfig_Get returned information about all displaytargets connected to all AMD adapters.");
+                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayMapConfig_Get returned information about all displaytargets connected to all AMD adapters.");
 
                     // Free the memory used by the buffer to avoid heap corruption
                     Marshal.FreeCoTaskMem(displayMapBuffer);
@@ -1231,19 +1231,19 @@ namespace iSurroundShared.AMD
                         {
                             if (displayTarget.DisplayID.DisplayLogicalAdapterIndex == -1)
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to all AMD adapters.");
+                                SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to all AMD adapters.");
                                 continue;
                             }
-                            SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to all AMD adapters.");
+                            SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to all AMD adapters.");
                         }
                         else if (ADLRet == ADL_STATUS.ADL_ERR_NULL_POINTER || ADLRet == ADL_STATUS.ADL_ERR_NOT_SUPPORTED)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned ADL_ERR_NULL_POINTER so skipping getting display info from all AMD adapters.");
+                            SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DisplayInfo_Get returned ADL_ERR_NULL_POINTER so skipping getting display info from all AMD adapters.");
                             continue;
                         }
                         else
                         {
-                            SharedLogger.logger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Display_DisplayInfo_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from all AMD adapters in the computer.");
+                            SharedLogger.Error($"AMDLibrary/PrintActiveConfig: ERROR - ADL2_Display_DisplayInfo_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from all AMD adapters in the computer.");
                         }
 
                         ADL_DISPLAY_INFO[] displayInfoArray = { };
@@ -1314,11 +1314,11 @@ namespace iSurroundShared.AMD
                             ADLRet = ADLImport.ADL2_Display_DDCInfo2_Get(_adlContextHandle, displayInfoItem.DisplayID.DisplayLogicalAdapterIndex, displayInfoItem.DisplayID.DisplayLogicalIndex, out ddcInfo);
                             if (ADLRet == ADL_STATUS.ADL_OK)
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {displayInfoItem.DisplayID.DisplayLogicalAdapterIndex}.");
+                                SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {displayInfoItem.DisplayID.DisplayLogicalAdapterIndex}.");
                                 if (ddcInfo.SupportsDDC == 1)
                                 {
                                     // The display supports DDC and returned some data!
-                                    SharedLogger.logger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {displayInfoItem.DisplayID.DisplayLogicalAdapterIndex}.");
+                                    SharedLogger.Trace($"AMDLibrary/PrintActiveConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {displayInfoItem.DisplayID.DisplayLogicalAdapterIndex}.");
                                     stringToReturn += $"DDC Information: \n";
                                     stringToReturn += $"- Display Name: {ddcInfo.DisplayName}\n";
                                     stringToReturn += $"- Display Manufacturer ID: {ddcInfo.ManufacturerID}\n";
@@ -1409,7 +1409,7 @@ namespace iSurroundShared.AMD
             }
             else
             {
-                SharedLogger.logger.Info($"AMDLibrary/PrintActiveConfig: Tried to run GetSomeDisplayIdentifiers but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
+                SharedLogger.Info($"AMDLibrary/PrintActiveConfig: Tried to run GetSomeDisplayIdentifiers but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
                 //throw new AMDLibraryException($"Tried to run PrintActiveConfig but the AMD ADL library isn't initialised!");
             }
 
@@ -1434,7 +1434,7 @@ namespace iSurroundShared.AMD
                 if (displayConfig.SlsConfig.IsSlsEnabled)
                 {
                     // We need to change to an Eyefinity (SLS) profile, so we need to apply the new SLS Topologies
-                    SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: SLS is enabled in the new display configuration, so we need to set it");
+                    SharedLogger.Trace($"AMDLibrary/SetActiveConfig: SLS is enabled in the new display configuration, so we need to set it");
 
                     foreach (AMD_SLSMAP_CONFIG slsMapConfig in displayConfig.SlsConfig.SLSMapConfigs)
                     {
@@ -1442,11 +1442,11 @@ namespace iSurroundShared.AMD
                         ADLRet = ADLImport.ADL2_Display_SLSMapConfig_SetState(_adlContextHandle, slsMapConfig.SLSMap.AdapterIndex, slsMapConfig.SLSMap.SLSMapIndex, ADLImport.ADL_TRUE);
                         if (ADLRet == ADL_STATUS.ADL_OK)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_SetState successfully set the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} to TRUE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                            SharedLogger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_SetState successfully set the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} to TRUE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                         }
                         else
                         {
-                            SharedLogger.logger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_SetState returned ADL_STATUS {ADLRet} when trying to set the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} to TRUE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                            SharedLogger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_SetState returned ADL_STATUS {ADLRet} when trying to set the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} to TRUE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
 
                             // If we get an error with just tturning it on, then we need to actually try to created a new Eyefinity map and then enable it
                             // If we reach this stage, then the user has discarded the AMD Eyefinity mode in AMD due to a bad UI design, and we need to work around that slight issue.
@@ -1460,11 +1460,11 @@ namespace iSurroundShared.AMD
                             ADLRet = ADLImport.ADL2_Display_SLSMapConfig_Valid(_adlContextHandle, slsMapConfig.SLSMap.AdapterIndex, slsMapConfig.SLSMap, slsMapConfig.SLSTargets.Count, slsMapConfig.SLSTargets.ToArray(), out supportedSLSLayoutImageMode, out reasonForNotSupportSLS, ADLImport.ADL_DISPLAY_SLSMAPCONFIG_CREATE_OPTION_RELATIVETO_CURRENTANGLE);
                             if (ADLRet == ADL_STATUS.ADL_OK)
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_Valid successfully validated a new SLSMAP config for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                SharedLogger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_Valid successfully validated a new SLSMAP config for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                             }
                             else
                             {
-                                SharedLogger.logger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_Valid returned ADL_STATUS {ADLRet} when trying to create a new SLSMAP for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                SharedLogger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_Valid returned ADL_STATUS {ADLRet} when trying to create a new SLSMAP for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                                 return false;
                             }
 
@@ -1475,18 +1475,18 @@ namespace iSurroundShared.AMD
                             {
                                 if (newSlsMapIndex != -1)
                                 {
-                                    SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_Create successfully created the new SLSMAP we just created with index {newSlsMapIndex} to TRUE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                    SharedLogger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_Create successfully created the new SLSMAP we just created with index {newSlsMapIndex} to TRUE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
 
                                     // At this point we have created a new AMD Eyefinity Config
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_Create returned ADL_STATUS {ADLRet} but the returned SLSMapIndex was -1, which indicates that the new SLSMAP failed to create for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                    SharedLogger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_Create returned ADL_STATUS {ADLRet} but the returned SLSMapIndex was -1, which indicates that the new SLSMAP failed to create for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_Create returned ADL_STATUS {ADLRet} when trying to create a new SLSMAP for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                SharedLogger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_Create returned ADL_STATUS {ADLRet} when trying to create a new SLSMAP for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                                 return false;
                             }
 
@@ -1498,12 +1498,12 @@ namespace iSurroundShared.AMD
                 else
                 {
                     // We need to change to a plain, non-Eyefinity (SLS) profile, so we need to disable any SLS Topologies if they are being used
-                    SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: SLS is not used in the new display configuration, so we need to set it to disabled if it's configured currently");
+                    SharedLogger.Trace($"AMDLibrary/SetActiveConfig: SLS is not used in the new display configuration, so we need to set it to disabled if it's configured currently");
 
                     if (ActiveDisplayConfig.SlsConfig.IsSlsEnabled)
                     {
                         // We need to disable the current Eyefinity (SLS) profile to turn it off
-                        SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: SLS is enabled in the current display configuration, so we need to turn it off");
+                        SharedLogger.Trace($"AMDLibrary/SetActiveConfig: SLS is enabled in the current display configuration, so we need to turn it off");
 
                         foreach (AMD_SLSMAP_CONFIG slsMapConfig in ActiveDisplayConfig.SlsConfig.SLSMapConfigs)
                         {
@@ -1511,11 +1511,11 @@ namespace iSurroundShared.AMD
                             ADLRet = ADLImport.ADL2_Display_SLSMapConfig_SetState(_adlContextHandle, slsMapConfig.SLSMap.AdapterIndex, slsMapConfig.SLSMap.SLSMapIndex, ADLImport.ADL_FALSE);
                             if (ADLRet == ADL_STATUS.ADL_OK)
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_SetState successfully disabled the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                SharedLogger.Trace($"AMDLibrary/SetActiveConfig: ADL2_Display_SLSMapConfig_SetState successfully disabled the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                             }
                             else
                             {
-                                SharedLogger.logger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_SetState returned ADL_STATUS {ADLRet} when trying to set the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} to FALSE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
+                                SharedLogger.Error($"AMDLibrary/SetActiveConfig: ERROR - ADL2_Display_SLSMapConfig_SetState returned ADL_STATUS {ADLRet} when trying to set the SLSMAP with index {slsMapConfig.SLSMap.SLSMapIndex} to FALSE for adapter { slsMapConfig.SLSMap.AdapterIndex}.");
                                 return false;
                             }
 
@@ -1527,7 +1527,7 @@ namespace iSurroundShared.AMD
             }
             else
             {
-                SharedLogger.logger.Info($"AMDLibrary/SetActiveConfig: Tried to run SetActiveConfig but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
+                SharedLogger.Info($"AMDLibrary/SetActiveConfig: Tried to run SetActiveConfig but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
                 //throw new AMDLibraryException($"Tried to run SetActiveConfig but the AMD ADL library isn't initialised!");
             }
 
@@ -1561,11 +1561,11 @@ namespace iSurroundShared.AMD
                                     ADLRet = ADLImport.ADL2_Display_HDRState_Set(_adlContextHandle, hdrConfig.Value.AdapterIndex, displayInfoItem.DisplayID, 1);
                                     if (ADLRet == ADL_STATUS.ADL_OK)
                                     {
-                                        SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was able to turn on HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
+                                        SharedLogger.Trace($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was able to turn on HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Error($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was NOT able to turn on HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
+                                        SharedLogger.Error($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was NOT able to turn on HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
                                     }
                                 }
                                 else
@@ -1573,11 +1573,11 @@ namespace iSurroundShared.AMD
                                     ADLRet = ADLImport.ADL2_Display_HDRState_Set(_adlContextHandle, hdrConfig.Value.AdapterIndex, displayInfoItem.DisplayID, 0);
                                     if (ADLRet == ADL_STATUS.ADL_OK)
                                     {
-                                        SharedLogger.logger.Trace($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was able to turn off HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
+                                        SharedLogger.Trace($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was able to turn off HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Error($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was NOT able to turn off HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
+                                        SharedLogger.Error($"AMDLibrary/SetActiveConfigOverride: ADL2_Display_HDRState_Set was NOT able to turn off HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
                                     }
                                 }
                                 break;
@@ -1585,7 +1585,7 @@ namespace iSurroundShared.AMD
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Error(ex, $"AMDLibrary/GetAMDDisplayConfig: Exception! ADL2_Display_HDRState_Set was NOT able to change HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
+                            SharedLogger.Error(ex, $"AMDLibrary/GetAMDDisplayConfig: Exception! ADL2_Display_HDRState_Set was NOT able to change HDR for display {displayInfoItem.DisplayID.DisplayLogicalIndex}.");
                             continue;
                         }
                     }
@@ -1594,7 +1594,7 @@ namespace iSurroundShared.AMD
             }
             else
             {
-                SharedLogger.logger.Info($"AMDLibrary/SetActiveConfig: Tried to run SetActiveConfigOverride but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
+                SharedLogger.Info($"AMDLibrary/SetActiveConfig: Tried to run SetActiveConfigOverride but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
                 //throw new AMDLibraryException($"Tried to run SetActiveConfigOverride but the AMD ADL library isn't initialised!");
             }
             return true;
@@ -1606,15 +1606,15 @@ namespace iSurroundShared.AMD
         {
 
             // Check whether the display config is in use now
-            SharedLogger.logger.Trace($"AMDLibrary/IsActiveConfig: Checking whether the display configuration is already being used.");
+            SharedLogger.Trace($"AMDLibrary/IsActiveConfig: Checking whether the display configuration is already being used.");
             if (displayConfig.Equals(_activeDisplayConfig))
             {
-                SharedLogger.logger.Trace($"AMDLibrary/IsActiveConfig: The display configuration is already being used (supplied displayConfig Equals currentWindowsDisplayConfig)");
+                SharedLogger.Trace($"AMDLibrary/IsActiveConfig: The display configuration is already being used (supplied displayConfig Equals currentWindowsDisplayConfig)");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"AMDLibrary/IsActiveConfig: The display configuration is NOT currently in use (supplied displayConfig Equals currentWindowsDisplayConfig)");
+                SharedLogger.Trace($"AMDLibrary/IsActiveConfig: The display configuration is NOT currently in use (supplied displayConfig Equals currentWindowsDisplayConfig)");
                 return false;
             }
 
@@ -1623,7 +1623,7 @@ namespace iSurroundShared.AMD
         public bool IsValidConfig(AMD_DISPLAY_CONFIG displayConfig)
         {
             // We want to check the AMD Eyefinity (SLS) config is valid
-            SharedLogger.logger.Trace($"AMDLibrary/IsValidConfig: Testing whether the display configuration is valid");
+            SharedLogger.Trace($"AMDLibrary/IsValidConfig: Testing whether the display configuration is valid");
             // 
             if (displayConfig.SlsConfig.IsSlsEnabled)
             {
@@ -1640,31 +1640,31 @@ namespace iSurroundShared.AMD
         public bool IsPossibleConfig(AMD_DISPLAY_CONFIG displayConfig)
         {
             // We want to check the AMD profile can be used now
-            SharedLogger.logger.Trace($"AMDLibrary/IsPossibleConfig: Testing whether the AMD display configuration is possible to be used now");
+            SharedLogger.Trace($"AMDLibrary/IsPossibleConfig: Testing whether the AMD display configuration is possible to be used now");
 
             // Check that we have all the displayConfig DisplayIdentifiers we need available now
             if (displayConfig.DisplayIdentifiers.All(value => _allConnectedDisplayIdentifiers.Contains(value)))
             {
-                SharedLogger.logger.Trace($"AMDLibrary/IsPossibleConfig: Success! The AMD display configuration is possible to be used now");
+                SharedLogger.Trace($"AMDLibrary/IsPossibleConfig: Success! The AMD display configuration is possible to be used now");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"AMDLibrary/IsPossibleConfig: Uh oh! The AMDdisplay configuration is possible cannot be used now");
+                SharedLogger.Trace($"AMDLibrary/IsPossibleConfig: Uh oh! The AMDdisplay configuration is possible cannot be used now");
                 return false;
             }
         }
 
         public List<string> GetCurrentDisplayIdentifiers()
         {
-            SharedLogger.logger.Trace($"AMDLibrary/GetCurrentDisplayIdentifiers: Getting the current display identifiers for the displays in use now");
+            SharedLogger.Trace($"AMDLibrary/GetCurrentDisplayIdentifiers: Getting the current display identifiers for the displays in use now");
             bool allDisplays = false;
             return GetSomeDisplayIdentifiers(allDisplays);
         }
 
         public List<string> GetAllConnectedDisplayIdentifiers()
         {
-            SharedLogger.logger.Trace($"AMDLibrary/GetAllConnectedDisplayIdentifiers: Getting all the display identifiers that can possibly be used");
+            SharedLogger.Trace($"AMDLibrary/GetAllConnectedDisplayIdentifiers: Getting all the display identifiers that can possibly be used");
             bool allDisplays = true;
             _allConnectedDisplayIdentifiers = GetSomeDisplayIdentifiers(allDisplays);
 
@@ -1673,7 +1673,7 @@ namespace iSurroundShared.AMD
 
         private List<string> GetSomeDisplayIdentifiers(bool allDisplays = false)
         {
-            SharedLogger.logger.Debug($"AMDLibrary/GetSomeDisplayIdentifiers: Generating unique Display Identifiers");
+            SharedLogger.Debug($"AMDLibrary/GetSomeDisplayIdentifiers: Generating unique Display Identifiers");
 
             List<string> displayIdentifiers = new List<string>();
 
@@ -1684,11 +1684,11 @@ namespace iSurroundShared.AMD
                 ADL_STATUS ADLRet = ADLImport.ADL2_Adapter_NumberOfAdapters_Get(_adlContextHandle, out numAdapters);
                 if (ADLRet == ADL_STATUS.ADL_OK)
                 {
-                    SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_NumberOfAdapters_Get returned the number of AMD Adapters the OS knows about ({numAdapters}).");
+                    SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_NumberOfAdapters_Get returned the number of AMD Adapters the OS knows about ({numAdapters}).");
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"AMDLibrary/GetSomeDisplayIdentifiers: ERROR - ADL2_Adapter_NumberOfAdapters_Get returned ADL_STATUS {ADLRet} when trying to get number of AMD adapters in the computer.");
+                    SharedLogger.Error($"AMDLibrary/GetSomeDisplayIdentifiers: ERROR - ADL2_Adapter_NumberOfAdapters_Get returned ADL_STATUS {ADLRet} when trying to get number of AMD adapters in the computer.");
                     throw new AMDLibraryException($"GetSomeDisplayIdentifiers returned ADL_STATUS {ADLRet} when trying to get number of AMD adapters in the computer");
                 }
 
@@ -1697,7 +1697,7 @@ namespace iSurroundShared.AMD
                 if (numAdapters == 0)
                 {
                     // If there aren't any video cards detected, then return that empty list.
-                    SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: No Videocards detected so returning empty list");
+                    SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: No Videocards detected so returning empty list");
                     return new List<string>();
                 }
 
@@ -1706,11 +1706,11 @@ namespace iSurroundShared.AMD
                 ADLRet = ADLImport.ADL2_Adapter_Primary_Get(_adlContextHandle, out primaryAdapterIndex);
                 if (ADLRet == ADL_STATUS.ADL_OK)
                 {
-                    SharedLogger.logger.Trace($"AMDLibrary/ADL2_Adapter_Primary_Get: The primary adapter has index {primaryAdapterIndex}.");
+                    SharedLogger.Trace($"AMDLibrary/ADL2_Adapter_Primary_Get: The primary adapter has index {primaryAdapterIndex}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"AMDLibrary/GetSomeDisplayIdentifiers: ERROR - ADL2_Adapter_Primary_Get returned ADL_STATUS {ADLRet} when trying to get the primary adapter info from all the AMD adapters in the computer.");
+                    SharedLogger.Error($"AMDLibrary/GetSomeDisplayIdentifiers: ERROR - ADL2_Adapter_Primary_Get returned ADL_STATUS {ADLRet} when trying to get the primary adapter info from all the AMD adapters in the computer.");
                     throw new AMDLibraryException($"GetSomeDisplayIdentifiers returned ADL_STATUS {ADLRet} when trying to get the adapter info from all the AMD adapters in the computer");
                 }
 
@@ -1724,40 +1724,40 @@ namespace iSurroundShared.AMD
                     {
                         if (adapterActiveStatus == ADLImport.ADL_TRUE)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_TRUE - AMD Adapter #{adapterIndex} is active! We can continue.");
+                            SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_TRUE - AMD Adapter #{adapterIndex} is active! We can continue.");
                         }
                         else
                         {
                             if (!allDisplays)
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, so skipping.");
+                                SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, so skipping.");
                                 continue;
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, but we want to know all adapters, actiove or not, so continuing.");
+                                SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_Active_Get returned ADL_FALSE - AMD Adapter #{adapterIndex} is NOT active, but we want to know all adapters, actiove or not, so continuing.");
 
                             }
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"AMDLibrary/GetSomeDisplayIdentifiers: WARNING - ADL2_Adapter_Active_Get returned ADL_STATUS {ADLRet} when trying to see if AMD Adapter #{adapterIndex} is active. Trying to skip this adapter so something at least works.");
+                        SharedLogger.Warn($"AMDLibrary/GetSomeDisplayIdentifiers: WARNING - ADL2_Adapter_Active_Get returned ADL_STATUS {ADLRet} when trying to see if AMD Adapter #{adapterIndex} is active. Trying to skip this adapter so something at least works.");
                         continue;
                     }
 
                     // Get the Adapter info for this adapter and put it in the AdapterBuffer
-                    SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: Running ADL2_Adapter_AdapterInfoX4_Get to get the information about AMD Adapter #{adapterIndex}.");
+                    SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: Running ADL2_Adapter_AdapterInfoX4_Get to get the information about AMD Adapter #{adapterIndex}.");
                     int numAdaptersInfo = 0;
                     IntPtr adapterInfoBuffer = IntPtr.Zero;
                     ADLRet = ADLImport.ADL2_Adapter_AdapterInfoX4_Get(_adlContextHandle, adapterIndex, out numAdaptersInfo, out adapterInfoBuffer);
                     if (ADLRet == ADL_STATUS.ADL_OK)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_AdapterInfoX4_Get returned information about AMD Adapter #{adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: ADL2_Adapter_AdapterInfoX4_Get returned information about AMD Adapter #{adapterIndex}.");
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"AMDLibrary/GetSomeDisplayIdentifiers: ERROR - ADL2_Adapter_AdapterInfoX4_Get returned ADL_STATUS {ADLRet} when trying to get the adapter info from AMD Adapter #{adapterIndex}. Trying to skip this adapter so something at least works.");
+                        SharedLogger.Error($"AMDLibrary/GetSomeDisplayIdentifiers: ERROR - ADL2_Adapter_AdapterInfoX4_Get returned ADL_STATUS {ADLRet} when trying to get the adapter info from AMD Adapter #{adapterIndex}. Trying to skip this adapter so something at least works.");
                         continue;
                     }
 
@@ -1780,7 +1780,7 @@ namespace iSurroundShared.AMD
                         Marshal.FreeCoTaskMem(adapterInfoBuffer);
                     }
 
-                    SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: Converted ADL2_Adapter_AdapterInfoX4_Get memory buffer into a {adapterArray.Length} long array about AMD Adapter #{adapterIndex}.");
+                    SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: Converted ADL2_Adapter_AdapterInfoX4_Get memory buffer into a {adapterArray.Length} long array about AMD Adapter #{adapterIndex}.");
                     
                     //AMD_ADAPTER_CONFIG savedAdapterConfig = new AMD_ADAPTER_CONFIG();
                     ADL_ADAPTER_INFOX2 oneAdapter = adapterArray[0];
@@ -1797,21 +1797,21 @@ namespace iSurroundShared.AMD
                     }
                     if (!amdVendorIdFound)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: Adapter #{oneAdapter.AdapterIndex.ToString()} isn't an AMD adapter so skipping detection for this adapter.");
+                        SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: Adapter #{oneAdapter.AdapterIndex.ToString()} isn't an AMD adapter so skipping detection for this adapter.");
                         continue;
                     }
 
 
                     if (oneAdapter.Exist != 1)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} doesn't exist at present so skipping detection for this adapter.");
+                        SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} doesn't exist at present so skipping detection for this adapter.");
                         continue;
                     }
 
                     // Only skip non-present displays if we want all displays information
                     if (allDisplays && oneAdapter.Present != 1)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} isn't enabled at present so skipping detection for this adapter.");
+                        SharedLogger.Trace($"AMDLibrary/GetSomeDisplayIdentifiers: AMD Adapter #{oneAdapter.AdapterIndex.ToString()} isn't enabled at present so skipping detection for this adapter.");
                         continue;
                     }
 
@@ -1829,7 +1829,7 @@ namespace iSurroundShared.AMD
                         ADLRet = ADLImport.ADL2_Display_DisplayMapConfig_Get(_adlContextHandle, adapterIndex, out numDisplayMaps, out displayMapBuffer, out numDisplayTargets, out displayTargetBuffer, ADLImport.ADL_DISPLAY_DISPLAYMAP_OPTION_GPUINFO);
                         if (ADLRet == ADL_STATUS.ADL_OK)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayMapConfig_Get returned information about all displaytargets connected to AMD adapter {adapterIndex}.");
+                            SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayMapConfig_Get returned information about all displaytargets connected to AMD adapter {adapterIndex}.");
                             if (numDisplayTargets > 0)
                             {
                                 IntPtr currentDisplayTargetBuffer = displayTargetBuffer;
@@ -1858,7 +1858,7 @@ namespace iSurroundShared.AMD
                         {
                             if (!allDisplays)
                             {
-                                SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DisplayMapConfig_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
+                                SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DisplayMapConfig_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
                                 continue;
                             }
                         }
@@ -1870,16 +1870,16 @@ namespace iSurroundShared.AMD
                     ADLRet = ADLImport.ADL2_Display_DisplayInfo_Get(_adlContextHandle, adapterIndex, out numDisplays, out displayInfoBuffer, forceDetect);
                     if (ADLRet == ADL_STATUS.ADL_OK)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to AMD adapter {adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayInfo_Get returned information about all displaytargets connected to AMD adapter {adapterIndex}.");
                     }
                     else if (ADLRet == ADL_STATUS.ADL_ERR_NULL_POINTER || ADLRet == ADL_STATUS.ADL_ERR_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayInfo_Get returned ADL_ERR_NULL_POINTER so skipping getting display info from this AMD adapter {adapterIndex}.");
+                        SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DisplayInfo_Get returned ADL_ERR_NULL_POINTER so skipping getting display info from this AMD adapter {adapterIndex}.");
                         continue;
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DisplayInfo_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
+                        SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DisplayInfo_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
                     }
 
                     ADL_DISPLAY_INFO[] displayInfoArray = { };
@@ -1930,7 +1930,7 @@ namespace iSurroundShared.AMD
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Adapter Device Number from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Adapter Device Number from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -1939,7 +1939,7 @@ namespace iSurroundShared.AMD
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Adapter Name from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Adapter Name from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
                         try
@@ -1948,7 +1948,7 @@ namespace iSurroundShared.AMD
                         }
                         catch (Exception ex)
                         {
-                            SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting Display Connector from video card. Substituting with a # instead");
+                            SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting Display Connector from video card. Substituting with a # instead");
                             displayInfo.Add("#");
                         }
 
@@ -1957,11 +1957,11 @@ namespace iSurroundShared.AMD
                         ADLRet = ADLImport.ADL2_Display_DDCInfo2_Get(_adlContextHandle, adapterIndex, displayInfoItem.DisplayID.DisplayLogicalIndex, out ddcInfo);
                         if (ADLRet == ADL_STATUS.ADL_OK)
                         {
-                            SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {adapterIndex}.");
+                            SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {adapterIndex}.");
                             if (ddcInfo.SupportsDDC == 1)
                             {
                                 // The display supports DDC and returned some data!
-                                SharedLogger.logger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {adapterIndex}.");
+                                SharedLogger.Trace($"AMDLibrary/GetAMDDisplayConfig: ADL2_Display_DDCInfo2_Get returned information about DDC Information for display {displayInfoItem.DisplayID.DisplayLogicalIndex} connected to AMD adapter {adapterIndex}.");
 
                                 try
                                 {
@@ -1969,7 +1969,7 @@ namespace iSurroundShared.AMD
                                 }
                                 catch (Exception ex)
                                 {
-                                    SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display EDID Manufacturer Code from video card. Substituting with a # instead");
+                                    SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display EDID Manufacturer Code from video card. Substituting with a # instead");
                                     displayInfo.Add("#");
                                 }
                                 try
@@ -1978,7 +1978,7 @@ namespace iSurroundShared.AMD
                                 }
                                 catch (Exception ex)
                                 {
-                                    SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display EDID Product Code from video card. Substituting with a # instead");
+                                    SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display EDID Product Code from video card. Substituting with a # instead");
                                     displayInfo.Add("#");
                                 }
                                 try
@@ -1987,7 +1987,7 @@ namespace iSurroundShared.AMD
                                 }
                                 catch (Exception ex)
                                 {
-                                    SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Name from video card. Substituting with a # instead");
+                                    SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Name from video card. Substituting with a # instead");
                                     displayInfo.Add("#");
                                 }
                             }
@@ -2001,7 +2001,7 @@ namespace iSurroundShared.AMD
                                 }
                                 catch (Exception ex)
                                 {
-                                    SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Manufacturer Name 2 from video card. Substituting with a # instead");
+                                    SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Manufacturer Name 2 from video card. Substituting with a # instead");
                                     displayInfo.Add("#");
                                 }
                                 try
@@ -2010,14 +2010,14 @@ namespace iSurroundShared.AMD
                                 }
                                 catch (Exception ex)
                                 {
-                                    SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Name 2 from video card. Substituting with a # instead");
+                                    SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Name 2 from video card. Substituting with a # instead");
                                     displayInfo.Add("#");
                                 }
                             }
                         }
                         else
                         {
-                            SharedLogger.logger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DDCInfo2_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
+                            SharedLogger.Error($"AMDLibrary/GetAMDDisplayConfig: ERROR - ADL2_Display_DDCInfo2_Get returned ADL_STATUS {ADLRet} when trying to get the display target info from AMD adapter {adapterIndex} in the computer.");
 
                             // ADL2_Display_DDCInfo2_Get had a problem and nothing was returned! We need to find the information some other way!
 
@@ -2027,7 +2027,7 @@ namespace iSurroundShared.AMD
                             }
                             catch (Exception ex)
                             {
-                                SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Manufacturer Name 2 from video card. Substituting with a # instead");
+                                SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Manufacturer Name 2 from video card. Substituting with a # instead");
                                 displayInfo.Add("#");
                             }
                             try
@@ -2036,7 +2036,7 @@ namespace iSurroundShared.AMD
                             }
                             catch (Exception ex)
                             {
-                                SharedLogger.logger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Name 2 from video card. Substituting with a # instead");
+                                SharedLogger.Warn(ex, $"AMDLibrary/GetSomeDisplayIdentifiers: Exception getting AMD Display Name 2 from video card. Substituting with a # instead");
                                 displayInfo.Add("#");
                             }
                         }
@@ -2050,14 +2050,14 @@ namespace iSurroundShared.AMD
                         if (!displayIdentifiers.Contains(displayIdentifier))
                         {
                             displayIdentifiers.Add(displayIdentifier);
-                            SharedLogger.logger.Debug($"ProfileRepository/GenerateProfileDisplayIdentifiers: DisplayIdentifier: {displayIdentifier}");
+                            SharedLogger.Debug($"ProfileRepository/GenerateProfileDisplayIdentifiers: DisplayIdentifier: {displayIdentifier}");
                         }
                     }
                 }
             }
             else
             {
-                SharedLogger.logger.Info($"AMDLibrary/GetSomeDisplayIdentifiers: Tried to run GetSomeDisplayIdentifiers but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
+                SharedLogger.Info($"AMDLibrary/GetSomeDisplayIdentifiers: Tried to run GetSomeDisplayIdentifiers but the AMD ADL library isn't initialised! This generally means you don't have an AMD video card in your machine.");
                 // throw new AMDLibraryException($"Tried to run GetSomeDisplayIdentifiers but the AMD ADL library isn't initialised!");
             }
 
@@ -2170,8 +2170,5 @@ namespace iSurroundShared.AMD
         public AMDLibraryException() { }
         public AMDLibraryException(string message) : base(message) { }
         public AMDLibraryException(string message, Exception inner) : base(message, inner) { }
-        protected AMDLibraryException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

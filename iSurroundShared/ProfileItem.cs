@@ -97,9 +97,6 @@ namespace iSurroundShared
 
         private string _uuid = "";
         private bool _isPossible = false;
-        private bool _isNVIDIAPossible = false;
-        private bool _isAMDPossible = false;
-        private bool _isWindowsPossible = false;
         private Keys _hotkey = Keys.None;
         
 
@@ -190,7 +187,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex,$"ProfileItem/ProfileItem: Exception getting the default configuration from NVIDIALibrary - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex,$"ProfileItem/ProfileItem: Exception getting the default configuration from NVIDIALibrary - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }
 
             try
@@ -199,7 +196,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/ProfileItem: Exception getting the default configuration from AMDLibrary - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/ProfileItem: Exception getting the default configuration from AMDLibrary - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }
             try 
             {
@@ -207,7 +204,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/ProfileItem: Exception getting the default configuration from WinLibrary - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/ProfileItem: Exception getting the default configuration from WinLibrary - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }            
         }
 
@@ -554,7 +551,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/CreateProfileFromCurrentDisplaySettings: Exception within CreateProfileFromCurrentDisplaySettings function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/CreateProfileFromCurrentDisplaySettings: Exception within CreateProfileFromCurrentDisplaySettings function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
                 return false;
             }
         }
@@ -605,24 +602,24 @@ namespace iSurroundShared
                     // Check if the NVIDIA settings are already in use, if so skip applying them
                     if (nvidiaLibrary.IsActiveConfig(_nvidiaDisplayConfig))
                     {
-                        SharedLogger.logger.Info($"ProfileItem/SetActive: The NVIDIA display settings in profile {Name} are already installed. No need to install them again. Skipping.");
+                        SharedLogger.Info($"ProfileItem/SetActive: The NVIDIA display settings in profile {Name} are already installed. No need to install them again. Skipping.");
                     }
                     else
                     {
                         if (nvidiaLibrary.IsPossibleConfig(_nvidiaDisplayConfig))
                         {
 
-                            SharedLogger.logger.Trace($"ProfileItem/SetActive: The NVIDIA display settings within profile {Name} are possible to use right now, so we'll use attempt to use them.");
+                            SharedLogger.Trace($"ProfileItem/SetActive: The NVIDIA display settings within profile {Name} are possible to use right now, so we'll use attempt to use them.");
                             nvidiaMainConfigTried = true;
                             nvidiaMainConfigApplied = nvidiaLibrary.SetActiveConfig(_nvidiaDisplayConfig);
 
                             /*if (!nvidiaMainConfigApplied)
                             {
-                                SharedLogger.logger.Error($"ProfileItem/SetActive: Error applying NVIDIA display configuration in profile {Name}. Please see specific error earlier in log file.");
+                                SharedLogger.Error($"ProfileItem/SetActive: Error applying NVIDIA display configuration in profile {Name}. Please see specific error earlier in log file.");
                                 return false;
                             }*/
 
-                            SharedLogger.logger.Trace($"ProfileItem/SetActive: Waiting 0.5 seconds to let the NVIDIA display change take place before continuing.");
+                            SharedLogger.Trace($"ProfileItem/SetActive: Waiting 0.5 seconds to let the NVIDIA display change take place before continuing.");
                             System.Threading.Thread.Sleep(500);
 
                             // Lets update the screens so Windows knows whats happening
@@ -631,7 +628,7 @@ namespace iSurroundShared
                         }
                         else
                         {
-                            SharedLogger.logger.Warn($"ProfileItem/SetActive: Cannot apply the NVIDIA display config in profile {Name} as it is not currently possible to use it. Exiting");
+                            SharedLogger.Warn($"ProfileItem/SetActive: Cannot apply the NVIDIA display config in profile {Name} as it is not currently possible to use it. Exiting");
                             return false;
                         }
                     }
@@ -642,24 +639,24 @@ namespace iSurroundShared
                     // Check if the AMD settings are already in use, if so skip applying them
                     if (amdLibrary.IsActiveConfig(_amdDisplayConfig))
                     {
-                        SharedLogger.logger.Info($"ProfileItem/SetActive: The AMD display settings in profile {Name} are already installed. No need to install them again. Skipping.");
+                        SharedLogger.Info($"ProfileItem/SetActive: The AMD display settings in profile {Name} are already installed. No need to install them again. Skipping.");
                     }
                     else
                     {
                         if (amdLibrary.IsPossibleConfig(_amdDisplayConfig))
                         {
 
-                            SharedLogger.logger.Trace($"ProfileItem/SetActive: The AMD display settings within profile {Name} are possible to use right now, so we'll use attempt to use them.");
+                            SharedLogger.Trace($"ProfileItem/SetActive: The AMD display settings within profile {Name} are possible to use right now, so we'll use attempt to use them.");
                             amdMainConfigTried = true;
                             amdMainConfigApplied = amdLibrary.SetActiveConfig(_amdDisplayConfig);
 
                             /*if (!amdMainConfigApplied)
                             {
-                                SharedLogger.logger.Error($"ProfileItem/SetActive: Error applying AMD display configuration in profile {Name}. Please see specific error earlier in log file.");
+                                SharedLogger.Error($"ProfileItem/SetActive: Error applying AMD display configuration in profile {Name}. Please see specific error earlier in log file.");
                                 return false;
                             }*/
 
-                            SharedLogger.logger.Trace($"ProfileItem/SetActive: Waiting 0.5 seconds to let the AMD display change take place before continuing.");
+                            SharedLogger.Trace($"ProfileItem/SetActive: Waiting 0.5 seconds to let the AMD display change take place before continuing.");
                             System.Threading.Thread.Sleep(500);
 
                             // Lets update the screens so Windows knows whats happening
@@ -668,7 +665,7 @@ namespace iSurroundShared
                         }
                         else
                         {
-                            SharedLogger.logger.Warn($"ProfileItem/SetActive: Cannot apply the AMD display config in profile {Name} as it is not currently possible to use it.");
+                            SharedLogger.Warn($"ProfileItem/SetActive: Cannot apply the AMD display config in profile {Name} as it is not currently possible to use it.");
                             return false;
                         }
                     }
@@ -680,11 +677,11 @@ namespace iSurroundShared
                 winMainConfigApplied = winLibrary.SetActiveConfig(_windowsDisplayConfig);
                 if (winMainConfigApplied)
                 {
-                    SharedLogger.logger.Trace($"ProfileItem/SetActive: The Windows CCD display settings within the profile {Name} were successfully applied.");
+                    SharedLogger.Trace($"ProfileItem/SetActive: The Windows CCD display settings within the profile {Name} were successfully applied.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"ProfileItem/SetActive: The Windows CCD display settings within the profile {Name} were NOT applied correctly.");
+                    SharedLogger.Warn($"ProfileItem/SetActive: The Windows CCD display settings within the profile {Name} were NOT applied correctly.");
                 }
 
                 // Now apply the NVIDIA config override if the NVIDIA config was tried and successfully changed.
@@ -694,16 +691,16 @@ namespace iSurroundShared
 
                     if (nvidiaOverrideConfigApplied)
                     {
-                        SharedLogger.logger.Trace($"ProfileItem/SetActive: The NVIDIA display settings that override windows within the profile {Name} were successfully applied.");
+                        SharedLogger.Trace($"ProfileItem/SetActive: The NVIDIA display settings that override windows within the profile {Name} were successfully applied.");
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"ProfileItem/SetActive: The NVIDIA display settings that override windows within the profile {Name} were NOT applied correctly.");
+                        SharedLogger.Warn($"ProfileItem/SetActive: The NVIDIA display settings that override windows within the profile {Name} were NOT applied correctly.");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"ProfileItem/SetActive: Skipping applying the NVIDIA override config within profile {Name} as either NVIDIA or Windows CCD had an earlier error.");
+                    SharedLogger.Trace($"ProfileItem/SetActive: Skipping applying the NVIDIA override config within profile {Name} as either NVIDIA or Windows CCD had an earlier error.");
                 }
 
 
@@ -714,16 +711,16 @@ namespace iSurroundShared
 
                     if (amdOverrideConfigApplied)
                     {
-                        SharedLogger.logger.Trace($"ProfileItem/SetActive: The AMD display settings that override windows within the profile {Name} were successfully applied.");
+                        SharedLogger.Trace($"ProfileItem/SetActive: The AMD display settings that override windows within the profile {Name} were successfully applied.");
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"ProfileItem/SetActive: The AMD display settings that override windows within the profile {Name} were NOT applied correctly.");
+                        SharedLogger.Warn($"ProfileItem/SetActive: The AMD display settings that override windows within the profile {Name} were NOT applied correctly.");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"ProfileItem/SetActive: Skipping applying the AMD override config within profile {Name} as either NVIDIA or Windows CCD had an earlier error.");
+                    SharedLogger.Trace($"ProfileItem/SetActive: Skipping applying the AMD override config within profile {Name} as either NVIDIA or Windows CCD had an earlier error.");
                 }
 
                 // Lets update the screen config again for the final time.
@@ -735,7 +732,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/SetActive: Exception within SetActive function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/SetActive: Exception within SetActive function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
                 return false;
             }
 
@@ -804,7 +801,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/GetScreenPositions: Exception within GetScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/GetScreenPositions: Exception within GetScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }
 
             return allScreens;
@@ -948,12 +945,12 @@ namespace iSurroundShared
                                 // If we hit this issue, then we just want to skip over it, as we can update it later when the user pushes the button.
                                 // This only happens due to the auto detection stuff functionality we have built in to try and update as quickly as we can.
                                 // So its something that we can safely ignore if we hit this exception as it is part of the expect behaviour
-                                SharedLogger.logger.Trace(ex, $"ProfileItem/GetNVIDIAScreenPositions: The windows screen doesn't match the NVIDIA screen. This can happen during a transition to Mosaic.");
+                                SharedLogger.Trace(ex, $"ProfileItem/GetNVIDIAScreenPositions: The windows screen doesn't match the NVIDIA screen. This can happen during a transition to Mosaic.");
                                 continue;
                             }
                             catch (Exception ex)
                             {
-                                SharedLogger.logger.Trace(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception ocurred whilst looking for the Windows layout details now we know the size of this display.");
+                                SharedLogger.Trace(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception ocurred whilst looking for the Windows layout details now we know the size of this display.");
                                 // Some other exception has occurred and we need to report it.
                                 //screen.Name = targetId.ToString();
                                 //screen.DisplayConnector = displayMode.DisplayConnector;
@@ -1039,13 +1036,13 @@ namespace iSurroundShared
                                 // If we hit this issue, then we just want to skip over it, as we can update it later when the user pushes the button.
                                 // This only happens due to the auto detection stuff functionality we have built in to try and update as quickly as we can.
                                 // So its something that we can safely ignore if we hit this exception as it is part of the expect behaviour
-                                SharedLogger.logger.Trace(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception thrown as the Windows display doesn't match the NVIDIA display. This is expected behaviour and can be safely ignored.");
+                                SharedLogger.Trace(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception thrown as the Windows display doesn't match the NVIDIA display. This is expected behaviour and can be safely ignored.");
                                 continue;
                             }
                             catch (Exception ex)
                             {
                                 // Some other exception has occurred and we need to report it.
-                                SharedLogger.logger.Error(ex, $"ProfileItem/GetNVIDIAScreenPositions: Unable to get the non-mosaic screen size for a secondary screen to a surround screen.");
+                                SharedLogger.Error(ex, $"ProfileItem/GetNVIDIAScreenPositions: Unable to get the non-mosaic screen size for a secondary screen to a surround screen.");
                             }
 
                         }
@@ -1065,7 +1062,7 @@ namespace iSurroundShared
                         // Force the taskbar edge to the bottom as it is an NVIDIA surround screen
                         screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
 
-                        SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Added a new NVIDIA Spanned Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
+                        SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Added a new NVIDIA Spanned Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
 
                         _screens.Add(screen);
 
@@ -1076,16 +1073,16 @@ namespace iSurroundShared
                     // If mosaic isn't enabled then we use the NVIDIA DisplayConfig structure to find the details
                     try
                     {
-                        SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Mosaic isn't enabled so using the DisplayConfig based screen details.");
+                        SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Mosaic isn't enabled so using the DisplayConfig based screen details.");
                         List<NV_DISPLAYCONFIG_PATH_INFO_V2> displaySources = _nvidiaDisplayConfig.DisplayConfigs;
                         foreach (var displaySource in displaySources)
                         {
                             int targetInfoIndex = 0;
-                            SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Processing screen source index #{targetInfoIndex}.");
+                            SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Processing screen source index #{targetInfoIndex}.");
 
                             foreach (NV_DISPLAYCONFIG_PATH_TARGET_INFO_V2 targetInfo in displaySource.TargetInfo)
                             {
-                                SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Processing target screen ID:{targetInfo.DisplayId}.");
+                                SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Processing target screen ID:{targetInfo.DisplayId}.");
 
                                 ScreenPosition screen = new ScreenPosition();
                                 screen.Library = "NVIDIA";
@@ -1096,21 +1093,21 @@ namespace iSurroundShared
                                     if (targetInfoIndex == 0)
                                     {
                                         // Show that this window has clones, and show how many there are.
-                                        SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: The screen ID:{targetInfo.DisplayId} is the source of a cloned group.");
+                                        SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: The screen ID:{targetInfo.DisplayId} is the source of a cloned group.");
                                         screen.IsClone = true;
                                         screen.ClonedCopies = (int)displaySource.TargetInfoCount;
                                     }
                                     else
                                     {
                                         // Skip getting layout details from the clones themselves, as we have no idea where they are!
-                                        SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: The screen ID:{targetInfo.DisplayId} is part of a cloned group (but we don'tt need to show it so skipping).");
+                                        SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: The screen ID:{targetInfo.DisplayId} is part of a cloned group (but we don'tt need to show it so skipping).");
                                         continue;
                                     }
 
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: The screen ID:{targetInfo.DisplayId} is NOT part of a cloned group.");
+                                    SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: The screen ID:{targetInfo.DisplayId} is NOT part of a cloned group.");
                                 }
 
                                 // It's a normal screen
@@ -1126,11 +1123,11 @@ namespace iSurroundShared
                                 //screen.ScreenHeight = (int)displaySource.SourceModeInfo.Resolution.Height;
                                 if (screen.ScreenWidth == 0)
                                 {
-                                    SharedLogger.logger.Error($"ProfileItem/GetNVIDIAScreenPositions: The screen width is 0 and it shouldn't be! Skipping this display id #{targetInfo.DisplayId.ToString()}.");
+                                    SharedLogger.Debug($"ProfileItem/GetNVIDIAScreenPositions: The screen width is 0 and it shouldn't be! Skipping this display id #{targetInfo.DisplayId.ToString()}.");
                                 }
                                 if (screen.ScreenHeight == 0)
                                 {
-                                    SharedLogger.logger.Error($"ProfileItem/GetNVIDIAScreenPositions: The screen height is 0 and it shouldn't be! Skipping this display id #{targetInfo.DisplayId.ToString()}.");
+                                    SharedLogger.Debug($"ProfileItem/GetNVIDIAScreenPositions: The screen height is 0 and it shouldn't be! Skipping this display id #{targetInfo.DisplayId.ToString()}.");
                                 }
 
                                 if (targetInfo.Details.Rotation == NV_ROTATE.ROTATE_0)
@@ -1167,7 +1164,7 @@ namespace iSurroundShared
                                 // If we're at the 0,0 coordinate then we're the primary monitor
                                 if (screen.ScreenX == 0 && screen.ScreenY == 0)
                                 {
-                                    SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: NVIDIA Screen {screen.Name} is the primary monitor.");
+                                    SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: NVIDIA Screen {screen.Name} is the primary monitor.");
                                     // Record we're primary screen
                                     screen.IsPrimary = true;
                                     // Change the colour to be the primary colour, but only if it isn't a surround screen
@@ -1199,22 +1196,22 @@ namespace iSurroundShared
                                                 }
                                             }
                                         }
-                                        SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Position of the taskbar on display {targetInfo.DisplayId} is on the {screen.TaskBarEdge} of the screen.");
+                                        SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Position of the taskbar on display {targetInfo.DisplayId} is on the {screen.TaskBarEdge} of the screen.");
                                     }
                                     else
                                     {
-                                        SharedLogger.logger.Warn($"ProfileItem/GetNVIDIAScreenPositions: Couldn't get the position of the taskbar on display {targetInfo.DisplayId} so assuming its at the bottom.");
+                                        SharedLogger.Warn($"ProfileItem/GetNVIDIAScreenPositions: Couldn't get the position of the taskbar on display {targetInfo.DisplayId} so assuming its at the bottom.");
                                         screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                                     }
                                 }
                                 catch (Exception ex)
                                 {
                                     // Guess that it is at the bottom (90% correct)
-                                    SharedLogger.logger.Warn(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception trying to get the position of the taskbar on display {targetInfo.DisplayId}");
+                                    SharedLogger.Warn(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception trying to get the position of the taskbar on display {targetInfo.DisplayId}");
                                     screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                                 }
 
-                                SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: (2) Added a non-surround NVIDIA Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
+                                SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: (2) Added a non-surround NVIDIA Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
 
                                 _screens.Add(screen);
                                 targetInfoIndex++;
@@ -1225,14 +1222,14 @@ namespace iSurroundShared
                     catch (Exception ex)
                     {
                         // Some other exception has occurred and we need to report it.
-                        SharedLogger.logger.Error(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception while trying to get the screen details. (#2) Mosaic isn't enabled, but unable to get the screen details. ");
+                        SharedLogger.Error(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception while trying to get the screen details. (#2) Mosaic isn't enabled, but unable to get the screen details. ");
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception within GetNVIDIAScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception within GetNVIDIAScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }
 
             return _screens;
@@ -1295,7 +1292,7 @@ namespace iSurroundShared
                         // Set the taskbar location for this screen at the bottom
                         screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
 
-                        SharedLogger.logger.Trace($"ProfileItem/GetAMDScreenPositions: Added a new AMD Spanned Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
+                        SharedLogger.Trace($"ProfileItem/GetAMDScreenPositions: Added a new AMD Spanned Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
 
                         _screens.Add(screen);
                     }
@@ -1337,12 +1334,12 @@ namespace iSurroundShared
                                     }
                                 }                            
                             }*/
-                            SharedLogger.logger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
+                            SharedLogger.Trace($"ProfileItem/GetNVIDIAScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
                         }
                         catch (Exception ex)
                         {
                             // Guess that it is at the bottom (90% correct)
-                            SharedLogger.logger.Warn(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception trying to get the position of the taskbar on display {targetId}");
+                            SharedLogger.Warn(ex, $"ProfileItem/GetNVIDIAScreenPositions: Exception trying to get the position of the taskbar on display {targetId}");
                             screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                         }
 
@@ -1421,7 +1418,7 @@ namespace iSurroundShared
                         // Decide if this screen is one we've had earlier, and if so, skip it
                         if (_screens.Any(s => s.ScreenX == screen.ScreenX && s.ScreenY == screen.ScreenY && s.ScreenWidth == screen.ScreenWidth && s.ScreenHeight == screen.ScreenHeight))
                         {
-                            SharedLogger.logger.Trace($"ProfileItem/GetAMDScreenPositions: We've already got the {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) screen from the AMD driver, so skipping it from the Windows driver.");
+                            SharedLogger.Trace($"ProfileItem/GetAMDScreenPositions: We've already got the {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) screen from the AMD driver, so skipping it from the Windows driver.");
                             continue;
                         }
 
@@ -1457,7 +1454,7 @@ namespace iSurroundShared
 
                         }
 
-                        SharedLogger.logger.Trace($"ProfileItem/GetAMDScreenPositions: Added a new Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
+                        SharedLogger.Trace($"ProfileItem/GetAMDScreenPositions: Added a new Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
 
                         _screens.Add(screen);
                     }
@@ -1465,7 +1462,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/GetAMDScreenPositions: Exception within GetAMDScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/GetAMDScreenPositions: Exception within GetAMDScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }
 
             return _screens;
@@ -1527,12 +1524,12 @@ namespace iSurroundShared
                                 }
                             }
                         }
-                        SharedLogger.logger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
+                        SharedLogger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
                     }
                     catch (Exception ex)
                     {
                         // Guess that it is at the bottom (90% correct)
-                        SharedLogger.logger.Warn(ex, $"ProfileItem/GetWindowsScreenPositions: Exception trying to get the position of the taskbar on display {targetId}");
+                        SharedLogger.Warn(ex, $"ProfileItem/GetWindowsScreenPositions: Exception trying to get the position of the taskbar on display {targetId}");
                         screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                     }
 
@@ -1663,18 +1660,18 @@ namespace iSurroundShared
                                     }
                                 }
 
-                                SharedLogger.logger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on the primary display {targetId} is on the {screen.TaskBarEdge} of the screen.");
+                                SharedLogger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on the primary display {targetId} is on the {screen.TaskBarEdge} of the screen.");
                             }
                             else
                             {
-                                SharedLogger.logger.Warn($"ProfileItem/GetWindowsScreenPositions: Problem trying to get the position of the taskbar on primary display {targetId}. Assuming it's on the bottom edge.");
+                                SharedLogger.Warn($"ProfileItem/GetWindowsScreenPositions: Problem trying to get the position of the taskbar on primary display {targetId}. Assuming it's on the bottom edge.");
                                 screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                             }
                         }
                         catch (Exception ex)
                         {
                             // Guess that it is at the bottom (90% correct)
-                            SharedLogger.logger.Warn(ex, $"ProfileItem/GetWindowsScreenPositions: Exception trying to get the position of the taskbar on primary display {targetId}");
+                            SharedLogger.Warn(ex, $"ProfileItem/GetWindowsScreenPositions: Exception trying to get the position of the taskbar on primary display {targetId}");
                             screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                         }
 
@@ -1701,7 +1698,7 @@ namespace iSurroundShared
                                                 // This is the actual display we want!
                                                 foundIt = true;
                                                 screen.TaskBarEdge = matchingTbl.Edge;
-                                                SharedLogger.logger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
+                                                SharedLogger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
                                                 break;
                                             }
                                         }
@@ -1715,29 +1712,29 @@ namespace iSurroundShared
                                 if (!foundIt)
                                 {
                                     screen.TaskBarEdge = _windowsDisplayConfig.TaskBarLayout.First(tbr => tbr.Value.RegKeyValue.Contains($"UID{targetId}")).Value.Edge;
-                                    SharedLogger.logger.Trace($"ProfileItem/GetWindowsScreenPositions: Couldn't find the taskbar location for display {targetId} when it had multiple matching UIDs. Assuming the screen edge is at the bottom of the screen.");
+                                    SharedLogger.Trace($"ProfileItem/GetWindowsScreenPositions: Couldn't find the taskbar location for display {targetId} when it had multiple matching UIDs. Assuming the screen edge is at the bottom of the screen.");
                                 }
                             }
                             else if (numMatches == 1)
                             {
                                 screen.TaskBarEdge = _windowsDisplayConfig.TaskBarLayout.First(tbr => tbr.Value.RegKeyValue.Contains($"UID{targetId}")).Value.Edge;
-                                SharedLogger.logger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
+                                SharedLogger.Trace($"ProfileItem/GetWindowsScreenPositions: Position of the taskbar on display {targetId} is on the {screen.TaskBarEdge} of the screen.");
                             }
                             else
                             {
-                                SharedLogger.logger.Warn($"ProfileItem/GetWindowsScreenPositions: Problem trying to get the position of the taskbar on display {targetId} as UID doesn't exist. Assuming it's on the bottom edge.");
+                                SharedLogger.Warn($"ProfileItem/GetWindowsScreenPositions: Problem trying to get the position of the taskbar on display {targetId} as UID doesn't exist. Assuming it's on the bottom edge.");
                                 screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                             }
                         }
                         catch (Exception ex)
                         {
                             // Guess that it is at the bottom (90% correct)
-                            SharedLogger.logger.Warn(ex, $"ProfileItem/GetWindowsScreenPositions: Exception trying to get the position of the taskbar on display {targetId}");
+                            SharedLogger.Warn(ex, $"ProfileItem/GetWindowsScreenPositions: Exception trying to get the position of the taskbar on display {targetId}");
                             screen.TaskBarEdge = TaskBarLayout.TaskBarEdge.Bottom;
                         }
                     }
 
-                    SharedLogger.logger.Trace($"ProfileItem/GetWindowsScreenPositions: Added a new Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
+                    SharedLogger.Trace($"ProfileItem/GetWindowsScreenPositions: Added a new Screen {screen.Name} ({screen.ScreenWidth}x{screen.ScreenHeight}) at position {screen.ScreenX},{screen.ScreenY}.");
 
                     windowsScreens.Add(screen);
 
@@ -1745,7 +1742,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/GetWindowsScreenPositions: Exception within GetWindowsScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/GetWindowsScreenPositions: Exception within GetWindowsScreenPositions function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
             }
 
             return windowsScreens;
@@ -1772,11 +1769,11 @@ namespace iSurroundShared
                             if (!taskbarPositions.ContainsKey(taskBarValue.MonitorLocation))
                             {
                                 taskbarPositions.Add(taskBarValue.MonitorLocation, taskBarValue.Edge);
-                                SharedLogger.logger.Trace($"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Tracking position of the taskbar on the primary display at ({taskBarValue.MonitorLocation.X},{taskBarValue.MonitorLocation.Y}) with an edge location of {taskBarValue.Edge}.");
+                                SharedLogger.Trace($"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Tracking position of the taskbar on the primary display at ({taskBarValue.MonitorLocation.X},{taskBarValue.MonitorLocation.Y}) with an edge location of {taskBarValue.Edge}.");
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Skipping recording the taskbar poition on the primary display at ({taskBarValue.MonitorLocation.X},{taskBarValue.MonitorLocation.Y}) with an edge location of {taskBarValue.Edge} as it was already recorded.");
+                                SharedLogger.Trace($"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Skipping recording the taskbar poition on the primary display at ({taskBarValue.MonitorLocation.X},{taskBarValue.MonitorLocation.Y}) with an edge location of {taskBarValue.Edge} as it was already recorded.");
                             }
                         }
                     }
@@ -1784,7 +1781,7 @@ namespace iSurroundShared
                 catch (Exception ex)
                 {
                     // Guess that it is at the bottom (90% correct)
-                    SharedLogger.logger.Warn(ex, $"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Exception trying to get the position of the taskbar on primary display for storing it for later");
+                    SharedLogger.Warn(ex, $"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Exception trying to get the position of the taskbar on primary display for storing it for later");
                 }
 
 
@@ -1827,7 +1824,7 @@ namespace iSurroundShared
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Exception within GetTaskbarLocationsForNonWindowsScreens function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
+                SharedLogger.Error(ex, $"ProfileItem/GetTaskbarLocationsForNonWindowsScreens: Exception within GetTaskbarLocationsForNonWindowsScreens function - {ex.Message}: {ex.StackTrace} - {ex.InnerException}");
                 return false;
             }
                        

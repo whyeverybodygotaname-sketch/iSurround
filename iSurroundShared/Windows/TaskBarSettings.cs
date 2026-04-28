@@ -74,13 +74,13 @@ namespace iSurroundShared.Windows
 
                                 if (value != null && value is int intValue)
                                 {
-                                    SharedLogger.logger.Trace($"TaskBarSettings/GetCurrent: Got taskbar setting {valueName} = {intValue}");
+                                    SharedLogger.Trace($"TaskBarSettings/GetCurrent: Got taskbar setting {valueName} = {intValue}");
                                     taskBarOptions.Add(new Tuple<string, int>(valueName, intValue));
                                 }
                             }
                             catch (Exception ex)
                             {
-                                SharedLogger.logger.Error(ex,$"TaskBarSettings/GetCurrent: Exception getting taskbar setting {valueName}. It likely does not exist (which happens if it is not explicitly set).");
+                                SharedLogger.Error(ex,$"TaskBarSettings/GetCurrent: Exception getting taskbar setting {valueName}. It likely does not exist (which happens if it is not explicitly set).");
                             }
                         }
                     }
@@ -89,7 +89,7 @@ namespace iSurroundShared.Windows
             catch (Exception ex)
             {
                 // ignored
-                SharedLogger.logger.Error(ex, $"TaskBarSettings/GetCurrent: Exception opening taskbar setting registry key {AdvancedSettingsAddress}.");
+                SharedLogger.Error(ex, $"TaskBarSettings/GetCurrent: Exception opening taskbar setting registry key {AdvancedSettingsAddress}.");
             }
 
             if (taskBarOptions.Count == 0)

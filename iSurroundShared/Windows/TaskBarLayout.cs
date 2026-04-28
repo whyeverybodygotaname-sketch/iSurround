@@ -69,7 +69,7 @@ namespace iSurroundShared.Windows
             if (Registry.CurrentUser.OpenSubKey(address) != null)
             {
                 MMStuckRectVerFound = true;
-                SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Found MMStuckRect3 registry key! {address}");
+                SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Found MMStuckRect3 registry key! {address}");
             }
             else
             {
@@ -79,13 +79,13 @@ namespace iSurroundShared.Windows
                 if (Registry.CurrentUser.OpenSubKey(address) != null)
                 {
                     MMStuckRectVerFound = true;
-                    SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Found MMStuckRect2 registry key! {address}");
+                    SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Found MMStuckRect2 registry key! {address}");
                 }
                 else
                 {
                     // It's not v2 or v3, so it must be a single display
                     MMStuckRectVerFound = false;
-                    SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Couldn't find an MMStuckRect2 or MMStuckRect3 registry key! Going to test if it is a single display only.");
+                    SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Couldn't find an MMStuckRect2 or MMStuckRect3 registry key! Going to test if it is a single display only.");
                 }
             }
 
@@ -114,36 +114,36 @@ namespace iSurroundShared.Windows
                                     // Extract the values from the binary byte field
                                     PopulateFieldsFromBinary();
 
-                                    SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: The taskbar for {RegKeyValue} is against the {Edge} edge, is positioned at ({TaskBarLocation.X},{TaskBarLocation.Y}) and is {TaskBarLocation.Width}x{TaskBarLocation.Height} in size.");
+                                    SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: The taskbar for {RegKeyValue} is against the {Edge} edge, is positioned at ({TaskBarLocation.X},{TaskBarLocation.Y}) and is {TaskBarLocation.Width}x{TaskBarLocation.Height} in size.");
 
                                     // If we get here then we're done and don't need to continue with the rest of the code.
                                     return true;
                                 }
                                 else
                                 {
-                                    SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Unable to get the TaskBarStuckRectangle binary settings from {regKeyValue} screen. Screen details may not be available yet in registry.");
+                                    SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Unable to get the TaskBarStuckRectangle binary settings from {regKeyValue} screen. Screen details may not be available yet in registry.");
                                     retryNeeded = true;
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Unable to find {regKeyValue} key in {address}. Screen details may not be available yet in registry.");
+                                SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Unable to find {regKeyValue} key in {address}. Screen details may not be available yet in registry.");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        SharedLogger.logger.Trace(ex, $"TaskBarLayout/ReadFromRegistry: Exception while trying to open RegKey {address}. Unable to get the TaskBarStuckRectangle binary settings. Screen details may not be available yet in registry.");
+                        SharedLogger.Trace(ex, $"TaskBarLayout/ReadFromRegistry: Exception while trying to open RegKey {address}. Unable to get the TaskBarStuckRectangle binary settings. Screen details may not be available yet in registry.");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"TaskBarLayout/ReadFromRegistry: A MMStuckRect entry was found, but the version of the field is wrong.");
+                    SharedLogger.Error($"TaskBarLayout/ReadFromRegistry: A MMStuckRect entry was found, but the version of the field is wrong.");
                 }
             }
             else
             {
-                SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: A MMStuckRect entry was NOT found. We will try to find the object in the StuckRect registry key instead");
+                SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: A MMStuckRect entry was NOT found. We will try to find the object in the StuckRect registry key instead");
             }
 
             bool StuckRectVerFound = false;
@@ -153,7 +153,7 @@ namespace iSurroundShared.Windows
             if (Registry.CurrentUser.OpenSubKey(address) != null)
             {
                 StuckRectVerFound = true;
-                SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Found StuckRect3 single display registry key! {address}");
+                SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Found StuckRect3 single display registry key! {address}");
             }
             else
             {
@@ -163,11 +163,11 @@ namespace iSurroundShared.Windows
                 if (Registry.CurrentUser.OpenSubKey(address) != null)
                 {
                     StuckRectVerFound = true;
-                    SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: Found StuckRect2 single display registry key! {address}");
+                    SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: Found StuckRect2 single display registry key! {address}");
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"TaskBarLayout/ReadFromRegistry: Couldn't find an single display StuckRect2 or StuckRect3 registry key! So we have to just return after doing nothing as there is nothing we can do.");
+                    SharedLogger.Error($"TaskBarLayout/ReadFromRegistry: Couldn't find an single display StuckRect2 or StuckRect3 registry key! So we have to just return after doing nothing as there is nothing we can do.");
                     return false;
                 }
             }
@@ -195,12 +195,12 @@ namespace iSurroundShared.Windows
                                 // Extract the values from the binary byte field
                                 PopulateFieldsFromBinary();
 
-                                SharedLogger.logger.Trace($"TaskBarLayout/ReadFromRegistry: The taskbar for {RegKeyValue} is against the {Edge} edge, is positioned at ({TaskBarLocation.X},{TaskBarLocation.Y}) and is {TaskBarLocation.Width}x{TaskBarLocation.Height} in size.");
+                                SharedLogger.Trace($"TaskBarLayout/ReadFromRegistry: The taskbar for {RegKeyValue} is against the {Edge} edge, is positioned at ({TaskBarLocation.X},{TaskBarLocation.Y}) and is {TaskBarLocation.Width}x{TaskBarLocation.Height} in size.");
                                 return true;
                             }
                             else
                             {
-                                SharedLogger.logger.Error($"TaskBarLayout/ReadFromRegistry: Unable to get the TaskBarStuckRectangle binary settings from {regKeyValue} screen.");
+                                SharedLogger.Error($"TaskBarLayout/ReadFromRegistry: Unable to get the TaskBarStuckRectangle binary settings from {regKeyValue} screen.");
                                 retryNeeded = true;
                                 return false;
                             }
@@ -209,20 +209,20 @@ namespace iSurroundShared.Windows
                     }
                     catch (Exception ex)
                     {
-                        SharedLogger.logger.Trace(ex, $"TaskBarLayout/ReadFromRegistry: Exception2 while trying to open RegKey {address}. Unable to get the TaskBarStuckRectangle binary settings. Screen details may not be available yet in registry.");
+                        SharedLogger.Trace(ex, $"TaskBarLayout/ReadFromRegistry: Exception2 while trying to open RegKey {address}. Unable to get the TaskBarStuckRectangle binary settings. Screen details may not be available yet in registry.");
                         return false;
                     }
 
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"TaskBarLayout/ReadFromRegistry: A StuckRect entry was found, but the version of the field is wrong.");
+                    SharedLogger.Error($"TaskBarLayout/ReadFromRegistry: A StuckRect entry was found, but the version of the field is wrong.");
                     return false;
                 }
             }
             else
             {
-                SharedLogger.logger.Error($"TaskBarLayout/ReadFromRegistry: A StuckRect entry was NOT found. This means we're unable to get the taskbar location, an unable to return a sensible TaskBarStuckRectangle object.");
+                SharedLogger.Error($"TaskBarLayout/ReadFromRegistry: A StuckRect entry was NOT found. This means we're unable to get the taskbar location, an unable to return a sensible TaskBarStuckRectangle object.");
                 return false;
             }
 
@@ -367,7 +367,7 @@ namespace iSurroundShared.Windows
                 Rows = BitConverter.ToUInt32(Binary, 44);
             }
 
-            SharedLogger.logger.Trace($"TaskBarLayout/PopulateFieldsFromBinary: Grabbed the following settings for {RegKeyValue} from the registry: DPI = {DPI}, Edge = {Edge}, Location = ({TaskBarLocation.X},{TaskBarLocation.Y}), MinSize = {TaskBarLocation.Width}x{TaskBarLocation.Height}, Options = {Options}, Rows = {Rows}.");
+            SharedLogger.Trace($"TaskBarLayout/PopulateFieldsFromBinary: Grabbed the following settings for {RegKeyValue} from the registry: DPI = {DPI}, Edge = {Edge}, Location = ({TaskBarLocation.X},{TaskBarLocation.Y}), MinSize = {TaskBarLocation.Width}x{TaskBarLocation.Height}, Options = {Options}, Rows = {Rows}.");
 
             return true;
         }
@@ -472,7 +472,7 @@ namespace iSurroundShared.Windows
                 Array.Copy(bytes, 0, Binary, 44, 4);
             }
 
-            SharedLogger.logger.Trace($"TaskBarLayout/PopulateBinaryFromFields: Set the following settings for {RegKeyValue} into registry: DPI = {DPI}, Edge = {Edge}, Location = ({TaskBarLocation.X},{TaskBarLocation.Y}), MinSize = {TaskBarLocation.Width}x{TaskBarLocation.Height}, Options = {Options}, Rows = {Rows}.");
+            SharedLogger.Trace($"TaskBarLayout/PopulateBinaryFromFields: Set the following settings for {RegKeyValue} into registry: DPI = {DPI}, Edge = {Edge}, Location = ({TaskBarLocation.X},{TaskBarLocation.Y}), MinSize = {TaskBarLocation.Width}x{TaskBarLocation.Height}, Options = {Options}, Rows = {Rows}.");
 
             return true;
         }
@@ -495,12 +495,12 @@ namespace iSurroundShared.Windows
                         RegistryKeyPermissionCheck.ReadWriteSubTree))
                     {
                         key.SetValue(RegKeyValue, Binary);
-                        SharedLogger.logger.Trace($"TaskBarLayout/Apply: Successfully applied TaskBarStuckRectangle registry settings for the {RegKeyValue} Screen in {address}!");
+                        SharedLogger.Trace($"TaskBarLayout/Apply: Successfully applied TaskBarStuckRectangle registry settings for the {RegKeyValue} Screen in {address}!");
                     }
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Error(ex, $"TaskBarLayout/GetCurrent: Unable to set the {RegKeyValue} TaskBarStuckRectangle registry settings in {address} due to an exception!");
+                    SharedLogger.Error(ex, $"TaskBarLayout/GetCurrent: Unable to set the {RegKeyValue} TaskBarStuckRectangle registry settings in {address} due to an exception!");
                 }
             }
             else
@@ -514,12 +514,12 @@ namespace iSurroundShared.Windows
                         RegistryKeyPermissionCheck.ReadWriteSubTree))
                     {
                         key.SetValue(RegKeyValue, Binary);
-                        SharedLogger.logger.Trace($"TaskBarLayout/WriteToRegistry: Successfully applied TaskBarStuckRectangle registry settings for the {RegKeyValue} Screen in {address}!");
+                        SharedLogger.Trace($"TaskBarLayout/WriteToRegistry: Successfully applied TaskBarStuckRectangle registry settings for the {RegKeyValue} Screen in {address}!");
                     }
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Error(ex, $"TaskBarLayout/WriteToRegistry: Unable to set the {RegKeyValue} TaskBarStuckRectangle registry settings in {address} due to an exception!");
+                    SharedLogger.Error(ex, $"TaskBarLayout/WriteToRegistry: Unable to set the {RegKeyValue} TaskBarStuckRectangle registry settings in {address} due to an exception!");
                 }
             }
 
@@ -554,7 +554,7 @@ namespace iSurroundShared.Windows
                 MONITORINFOEX monitorInfo = new MONITORINFOEX();
                 monitorInfo.cbSize = (UInt32)Marshal.SizeOf(typeof(MONITORINFOEX));
                 //monitorInfo.szDevice = new char[Utils.CCHDEVICENAME];
-                SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Getting the monitor coordinates from the main monitor");
+                SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Getting the monitor coordinates from the main monitor");
                 Utils.GetMonitorInfo(mainMonitorHwnd, ref monitorInfo);
 
                 abd.hWnd = mainTaskbarHwnd;
@@ -576,7 +576,7 @@ namespace iSurroundShared.Windows
                     tbsrReadWorked = tbsr.ReadFromRegistry(GetRegKeyValueFromDevicePath(displaySources[monitorInfo.szDevice][0].DevicePath),out retryNeeded);
                     if (retryNeeded)
                     {
-                        SharedLogger.logger.Debug($"TaskBarLayout/GetAllCurrentTaskBarPositions: Additional Display Taskbar read #1 from registry didn't work.");
+                        SharedLogger.Debug($"TaskBarLayout/GetAllCurrentTaskBarPositions: Additional Display Taskbar read #1 from registry didn't work.");
                         retryNeeded = true;
                         tbsrReadWorked = tbsr.ReadFromRegistry(GetRegKeyValueFromDevicePath(displaySources[monitorInfo.szDevice][0].DevicePath), out retryNeeded);
                         //return taskBarStuckRectangles;
@@ -614,7 +614,7 @@ namespace iSurroundShared.Windows
                     tbsrReadWorked = tbsrMain.ReadFromRegistry("Settings",out retryNeeded) ;
                     if (retryNeeded)
                     {
-                        SharedLogger.logger.Debug($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main Taskbar read #1 from registry didn't work.");
+                        SharedLogger.Debug($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main Taskbar read #1 from registry didn't work.");
                         retryNeeded = true;
                         tbsrReadWorked = tbsrMain.ReadFromRegistry("Settings", out retryNeeded);
                     }
@@ -623,9 +623,9 @@ namespace iSurroundShared.Windows
                     tbsrMain.TaskBarLocation = tbsr.TaskBarLocation;
                     tbsrMain.MainScreen = tbsr.MainScreen;
 
-                    SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main monitor coordinates are {tbsrMain.MonitorLocation.X},{tbsrMain.MonitorLocation.Y} and it is {tbsrMain.MonitorLocation.Width}x{tbsrMain.MonitorLocation.Height}");
-                    SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main taskbar coordinates are {tbsrMain.TaskBarLocation.X},{tbsrMain.TaskBarLocation.Y} and it is {tbsrMain.TaskBarLocation.Width}x{tbsrMain.TaskBarLocation.Height}");
-                    SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main taskbar is {tbsrMain.Edge.ToString("G")}");
+                    SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main monitor coordinates are {tbsrMain.MonitorLocation.X},{tbsrMain.MonitorLocation.Y} and it is {tbsrMain.MonitorLocation.Width}x{tbsrMain.MonitorLocation.Height}");
+                    SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main taskbar coordinates are {tbsrMain.TaskBarLocation.X},{tbsrMain.TaskBarLocation.Y} and it is {tbsrMain.TaskBarLocation.Width}x{tbsrMain.TaskBarLocation.Height}");
+                    SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Main taskbar is {tbsrMain.Edge.ToString("G")}");
 
                     // Now as a LAST step we update the Binary field just before we apply it to make sure that the correct binary settings are stored
                     tbsrMain.PopulateBinaryFromFields();
@@ -634,7 +634,7 @@ namespace iSurroundShared.Windows
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"TaskBarLayout/GetAllCurrentTaskBarPositions: Exception while trying to get the main taskbar position");
+                SharedLogger.Error(ex, $"TaskBarLayout/GetAllCurrentTaskBarPositions: Exception while trying to get the main taskbar position");
             }
 
             // Then go through the secondary windows and get the position of them
@@ -674,7 +674,7 @@ namespace iSurroundShared.Windows
                     tbsrReadWorked = tbsr.ReadFromRegistry(GetRegKeyValueFromDevicePath(displaySources[monitorInfo.szDevice][0].DevicePath), out retryNeeded);
                     if (!tbsrReadWorked)
                     {
-                        SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar read #3 from registry didn't work.");
+                        SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar read #3 from registry didn't work.");
                         retryNeeded = true;
                         return taskBarStuckRectangles;
                     }
@@ -701,8 +701,8 @@ namespace iSurroundShared.Windows
                         else
                         {
                             // Invalid state
-                            SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar position was not on a horizontal edge of a monitor!");
-                            SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Forcing Taskbar position to be at the bottom");
+                            SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar position was not on a horizontal edge of a monitor!");
+                            SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Forcing Taskbar position to be at the bottom");
                             tbWidth = monWidth;
                             tbHeight = monHeight - wrkHeight;
                             tbsr.TaskBarLocation = new System.Drawing.Rectangle(monitorInfo.rcMonitor.left, monitorInfo.rcWork.bottom, tbWidth, tbHeight);
@@ -732,8 +732,8 @@ namespace iSurroundShared.Windows
                         else
                         {
                             // Invalid state
-                            SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar position was not on a vertical edge of a monitor!");
-                            SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Forcing Taskbar position to be at the bottom");
+                            SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar position was not on a vertical edge of a monitor!");
+                            SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Forcing Taskbar position to be at the bottom");
                             tbWidth = monWidth;
                             tbHeight = monHeight - wrkHeight;
                             tbsr.TaskBarLocation = new System.Drawing.Rectangle(monitorInfo.rcMonitor.left, monitorInfo.rcWork.bottom, tbWidth, tbHeight);
@@ -743,8 +743,8 @@ namespace iSurroundShared.Windows
                     else
                     {
                         // Invalid state
-                        SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar position was not fully along one of the monitor edges!");
-                        SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Forcing Taskbar position to be at the bottom");
+                        SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Taskbar position was not fully along one of the monitor edges!");
+                        SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Forcing Taskbar position to be at the bottom");
                         tbWidth = monWidth;
                         tbHeight = monHeight - wrkHeight;
                         tbsr.TaskBarLocation = new System.Drawing.Rectangle(monitorInfo.rcMonitor.left, monitorInfo.rcWork.bottom, tbWidth, tbHeight);
@@ -754,9 +754,9 @@ namespace iSurroundShared.Windows
                     tbsr.MonitorLocation = new System.Drawing.Rectangle(monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top, monWidth, monHeight);
                     tbsr.MainScreen = false;
 
-                    SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Secondary monitor coordinates are {tbsr.MonitorLocation.X},{tbsr.MonitorLocation.Y} and it is {tbsr.MonitorLocation.Width}x{tbsr.MonitorLocation.Height}");
-                    SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Secondary taskbar coordinates are {tbsr.TaskBarLocation.X},{tbsr.TaskBarLocation.Y} and it is {tbsr.TaskBarLocation.Width}x{tbsr.TaskBarLocation.Height}");
-                    SharedLogger.logger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Secondary taskbar is {tbsr.Edge.ToString("G")}");
+                    SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Secondary monitor coordinates are {tbsr.MonitorLocation.X},{tbsr.MonitorLocation.Y} and it is {tbsr.MonitorLocation.Width}x{tbsr.MonitorLocation.Height}");
+                    SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Secondary taskbar coordinates are {tbsr.TaskBarLocation.X},{tbsr.TaskBarLocation.Y} and it is {tbsr.TaskBarLocation.Width}x{tbsr.TaskBarLocation.Height}");
+                    SharedLogger.Trace($"TaskBarLayout/GetAllCurrentTaskBarPositions: Secondary taskbar is {tbsr.Edge.ToString("G")}");
 
                     // Now as a LAST step we update the Binary field to make sure that the correct binary settings are stored
                     // This means the correct location should be returned even if the registry isn't updated as we're patching the registry object before we store it.
@@ -768,7 +768,7 @@ namespace iSurroundShared.Windows
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Skipping grabbing Taskbar position from a cloned display {monitorInfo.szDevice}");
+                        SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: Skipping grabbing Taskbar position from a cloned display {monitorInfo.szDevice}");
                         clonedCount++;
                     }
 
@@ -778,7 +778,7 @@ namespace iSurroundShared.Windows
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, $"TaskBarLayout/GetAllCurrentTaskBarPositions: Exception while trying to get a secondary taskbar position");
+                SharedLogger.Error(ex, $"TaskBarLayout/GetAllCurrentTaskBarPositions: Exception while trying to get a secondary taskbar position");
             }
 
             // Check if the display reg keys shown match the display sources
@@ -791,7 +791,7 @@ namespace iSurroundShared.Windows
                 // If there isn't a match then we have a problem.
                 if (!displaySources.ContainsKey(tbrKey))
                 {
-                    SharedLogger.logger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: We have an error because Display Sources array doesn't include the {tbrKey} taskbar data. This means we have a mismatch somewhere.");
+                    SharedLogger.Error($"TaskBarLayout/GetAllCurrentTaskBarPositions: We have an error because Display Sources array doesn't include the {tbrKey} taskbar data. This means we have a mismatch somewhere.");
                     retryNeeded = true;
                 }
             }
@@ -920,11 +920,11 @@ namespace iSurroundShared.Windows
             if (match.Success)
             {
                 regKeyValue = match.Groups[1].Value;
-                SharedLogger.logger.Trace($"TaskBarLayout/GetRegKeyValueFromDevicePath: Found regKeyValue {regKeyValue } in the devicePath {devicePath }.");
+                SharedLogger.Trace($"TaskBarLayout/GetRegKeyValueFromDevicePath: Found regKeyValue {regKeyValue } in the devicePath {devicePath }.");
             }
             else
             {
-                SharedLogger.logger.Warn($"TaskBarLayout/GetRegKeyValueFromDevicePath: We were unable to figure out the regKeyValue {regKeyValue } in the devicePath {devicePath }..");
+                SharedLogger.Warn($"TaskBarLayout/GetRegKeyValueFromDevicePath: We were unable to figure out the regKeyValue {regKeyValue } in the devicePath {devicePath }..");
             }
             return regKeyValue;
         }
@@ -965,8 +965,5 @@ namespace iSurroundShared.Windows
         public TaskBarStuckRectangleException() { }
         public TaskBarStuckRectangleException(string message) : base(message) { }
         public TaskBarStuckRectangleException(string message, Exception inner) : base(message, inner) { }
-        protected TaskBarStuckRectangleException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

@@ -173,7 +173,7 @@ namespace iSurroundShared.Windows
                 DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY.DISPLAYCONFIG_OUTPUT_TECHNOLOGY_SVIDEO
             };
 
-            SharedLogger.logger.Trace("WinLibrary/WinLibrary: Intialising Windows CCD library interface");
+            SharedLogger.Trace("WinLibrary/WinLibrary: Intialising Windows CCD library interface");
             _initialised = true;
 
             // Set the DPI awareness for the process this thread is running within so that the DPI calls return the right values at the right times
@@ -186,7 +186,7 @@ namespace iSurroundShared.Windows
         ~WinLibrary()
         {
             // The WinLibrary was initialised, but doesn't need to be freed.
-            SharedLogger.logger.Trace("WinLibrary/~WinLibrary: Destroying Windows CCD library interface");
+            SharedLogger.Trace("WinLibrary/~WinLibrary: Destroying Windows CCD library interface");
         }
 
         // Public implementation of Dispose pattern callable by consumers.
@@ -267,32 +267,32 @@ namespace iSurroundShared.Windows
             Dictionary<ulong, string> currentAdapterMap = GetAllAdapterIDs();
             try
             {
-                SharedLogger.logger.Trace("WinLibrary/PatchWindowsDisplayConfig: Going through the list of adapters we stored in the config to figure out the old adapterIDs");
+                SharedLogger.Trace("WinLibrary/PatchWindowsDisplayConfig: Going through the list of adapters we stored in the config to figure out the old adapterIDs");
                 foreach (KeyValuePair<ulong, string> savedAdapter in savedDisplayConfig.DisplayAdapters)
                 {
                     bool adapterMatched = false;
                     foreach (KeyValuePair<ulong, string> currentAdapter in currentAdapterMap)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Checking if saved adapter {savedAdapter.Key} (AdapterName is {savedAdapter.Value}) is equal to current adapter id {currentAdapter.Key} (AdapterName is {currentAdapter.Value})");
+                        SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Checking if saved adapter {savedAdapter.Key} (AdapterName is {savedAdapter.Value}) is equal to current adapter id {currentAdapter.Key} (AdapterName is {currentAdapter.Value})");
 
                         if (currentAdapter.Value.Equals(savedAdapter.Value))
                         {
                             // we have found the new LUID Value for the same adapter
                             // So we want to store it
-                            SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: We found that saved adapter {savedAdapter.Key} has now been assigned adapter id {currentAdapter.Key} (AdapterName is {savedAdapter.Value})");
+                            SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: We found that saved adapter {savedAdapter.Key} has now been assigned adapter id {currentAdapter.Key} (AdapterName is {savedAdapter.Value})");
                             adapterOldToNewMap.Add(savedAdapter.Key, currentAdapter.Key);
                             adapterMatched = true;
                         }
                     }
                     if (!adapterMatched)
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Saved adapter {savedAdapter.Key} (AdapterName is {savedAdapter.Value}) doesn't have a current match! The adapters have changed since the configuration was last saved. This could be an Optimus laptop or another type of system that disables GPUs.");
+                        SharedLogger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Saved adapter {savedAdapter.Key} (AdapterName is {savedAdapter.Value}) doesn't have a current match! The adapters have changed since the configuration was last saved. This could be an Optimus laptop or another type of system that disables GPUs.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the list of adapters we stored in the config to figure out the old adapterIDs");
+                SharedLogger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the list of adapters we stored in the config to figure out the old adapterIDs");
             }
 
             ulong newAdapterValue = 0;
@@ -301,7 +301,7 @@ namespace iSurroundShared.Windows
             try
             {
                 // Update the DisplayAdapters with the current adapter id
-                SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display adatpers to update the adapter id");
+                SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display adatpers to update the adapter id");
                 ulong[] currentKeys = savedDisplayConfig.DisplayAdapters.Keys.ToArray();
                 var currentLength = savedDisplayConfig.DisplayAdapters.Count;
                 for (int i = 0; i < currentLength; i++)
@@ -321,19 +321,19 @@ namespace iSurroundShared.Windows
                             // Remove the old dictionary key
                             savedDisplayConfig.DisplayAdapters.Remove(oldAdapterValue);
                         }
-                        SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplayAdapter from adapter {oldAdapterValue} to adapter {newAdapterValue} instead.");
+                        SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplayAdapter from adapter {oldAdapterValue} to adapter {newAdapterValue} instead.");
                     }
                 }
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display adapters update the adapter ids");
+                SharedLogger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display adapters update the adapter ids");
             }
 
             try
             {
                 // Update the paths with the current adapter id
-                SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display config paths to update the adapter id");
+                SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display config paths to update the adapter id");
                 for (int i = 0; i < savedDisplayConfig.DisplayConfigPaths.Length; i++)
                 {
                     // Change the Path SourceInfo and TargetInfo AdapterIDs
@@ -344,14 +344,14 @@ namespace iSurroundShared.Windows
                         savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId = AdapterValueToLUID(newAdapterValue);
                         newAdapterValue = adapterOldToNewMap[savedDisplayConfig.DisplayConfigPaths[i].TargetInfo.AdapterId.Value];
                         savedDisplayConfig.DisplayConfigPaths[i].TargetInfo.AdapterId = AdapterValueToLUID(newAdapterValue);
-                        SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplayConfig Path #{i} from adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} to adapter {newAdapterValue} instead.");
+                        SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplayConfig Path #{i} from adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} to adapter {newAdapterValue} instead.");
                     }
                     else
                     {
                         // if there isn't a matching adapter, then we just pick the first current one and hope that works!
                         // (it is highly likely to... its only if the user has multiple graphics cards with some weird config it may break)
                         newAdapterValue = currentAdapterMap.First().Key;
-                        SharedLogger.logger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Uh Oh. Adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} didn't have a current match! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
+                        SharedLogger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Uh Oh. Adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} didn't have a current match! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
                         savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId = AdapterValueToLUID(newAdapterValue);
                         savedDisplayConfig.DisplayConfigPaths[i].TargetInfo.AdapterId = AdapterValueToLUID(newAdapterValue);
                     }
@@ -359,13 +359,13 @@ namespace iSurroundShared.Windows
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display config paths to update the adapter id");
+                SharedLogger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display config paths to update the adapter id");
             }
 
 
             try
             {
-                SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display config modes to update the adapter id");
+                SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display config modes to update the adapter id");
                 // Update the modes with the current adapter id
                 for (int i = 0; i < savedDisplayConfig.DisplayConfigModes.Length; i++)
                 {
@@ -375,27 +375,27 @@ namespace iSurroundShared.Windows
                         // We get here if there is a matching adapter
                         newAdapterValue = adapterOldToNewMap[savedDisplayConfig.DisplayConfigModes[i].AdapterId.Value];
                         savedDisplayConfig.DisplayConfigModes[i].AdapterId = AdapterValueToLUID(newAdapterValue);
-                        SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplayConfig Mode #{i} from adapter {savedDisplayConfig.DisplayConfigModes[i].AdapterId.Value} to adapter {newAdapterValue} instead.");
+                        SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplayConfig Mode #{i} from adapter {savedDisplayConfig.DisplayConfigModes[i].AdapterId.Value} to adapter {newAdapterValue} instead.");
                     }
                     else
                     {
                         // if there isn't a matching adapter, then we just pick the first current one and hope that works!
                         // (it is highly likely to... its only if the user has multiple graphics cards with some weird config it may break)
                         newAdapterValue = currentAdapterMap.First().Key;
-                        SharedLogger.logger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Uh Oh. Adapter {savedDisplayConfig.DisplayConfigModes[i].AdapterId.Value} didn't have a current match! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
+                        SharedLogger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Uh Oh. Adapter {savedDisplayConfig.DisplayConfigModes[i].AdapterId.Value} didn't have a current match! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
                         savedDisplayConfig.DisplayConfigModes[i].AdapterId = AdapterValueToLUID(newAdapterValue);
                     }
                 }
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display config modes to update the adapter id");
+                SharedLogger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display config modes to update the adapter id");
             }
 
 
             try
             {
-                SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display config HDR info to update the adapter id");
+                SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display config HDR info to update the adapter id");
                 if (savedDisplayConfig.DisplayHDRStates.Count > 0)
                 {
                     // Update the HDRInfo with the current adapter id
@@ -405,7 +405,7 @@ namespace iSurroundShared.Windows
                         // Change the Mode AdapterID
                         if (adapterOldToNewMap.ContainsKey(savedDisplayConfig.DisplayHDRStates[i].AdapterId.Value))
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: adapterOldToNewMap contains adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} so using the new adapter ID of {newAdapterValue} instead.");
+                            SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: adapterOldToNewMap contains adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} so using the new adapter ID of {newAdapterValue} instead.");
                             // We get here if there is a matching adapter
                             newAdapterValue = adapterOldToNewMap[savedDisplayConfig.DisplayHDRStates[i].AdapterId.Value];
                             hdrInfo.AdapterId = AdapterValueToLUID(newAdapterValue);
@@ -413,14 +413,14 @@ namespace iSurroundShared.Windows
                             hdrInfo.AdvancedColorInfo.Header.AdapterId = AdapterValueToLUID(newAdapterValue);
                             newAdapterValue = adapterOldToNewMap[savedDisplayConfig.DisplayHDRStates[i].SDRWhiteLevel.Header.AdapterId.Value];
                             hdrInfo.SDRWhiteLevel.Header.AdapterId = AdapterValueToLUID(newAdapterValue);
-                            SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated Display HDR state #{i} from adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} to adapter {newAdapterValue} instead.");
+                            SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated Display HDR state #{i} from adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} to adapter {newAdapterValue} instead.");
                         }
                         else
                         {
                             // if there isn't a matching adapter, then we just pick the first current one and hope that works!
                             // (it is highly likely to... its only if the user has multiple graphics cards with some weird config it may break)
                             newAdapterValue = currentAdapterMap.First().Key;
-                            SharedLogger.logger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Uh Oh. Adapter {savedDisplayConfig.DisplayHDRStates[i].AdapterId.Value} didn't have a current match! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
+                            SharedLogger.Warn($"WinLibrary/PatchWindowsDisplayConfig: Uh Oh. Adapter {savedDisplayConfig.DisplayHDRStates[i].AdapterId.Value} didn't have a current match! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
                             hdrInfo.AdapterId = AdapterValueToLUID(newAdapterValue);
                             hdrInfo.AdvancedColorInfo.Header.AdapterId = AdapterValueToLUID(newAdapterValue);
                             hdrInfo.SDRWhiteLevel.Header.AdapterId = AdapterValueToLUID(newAdapterValue);
@@ -430,18 +430,18 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PatchWindowsDisplayConfig: There are no Display HDR states to update. Skipping.");
+                    SharedLogger.Warn($"WinLibrary/PatchWindowsDisplayConfig: There are no Display HDR states to update. Skipping.");
                 }
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display config HDR info to update the adapter id");
+                SharedLogger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display config HDR info to update the adapter id");
             }
 
 
             try
             {
-                SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display sources list info to update the adapter id");
+                SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Going through the display sources list info to update the adapter id");
                 // Update the DisplaySources with the current adapter id
                 for (int i = 0; i < savedDisplayConfig.DisplaySources.Count; i++)
                 {
@@ -457,14 +457,14 @@ namespace iSurroundShared.Windows
                                 // We get here if there is a matching adapter
                                 newAdapterValue = adapterOldToNewMap[ds.AdapterId.Value];
                                 ds.AdapterId = AdapterValueToLUID(newAdapterValue);
-                                SharedLogger.logger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplaySource #{i} from adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} to adapter {newAdapterValue} instead.");
+                                SharedLogger.Trace($"WinLibrary/PatchWindowsDisplayConfig: Updated DisplaySource #{i} from adapter {savedDisplayConfig.DisplayConfigPaths[i].SourceInfo.AdapterId.Value} to adapter {newAdapterValue} instead.");
                             }
                             else
                             {
                                 // if there isn't a matching adapter, then we just pick the first current one and hope that works!
                                 // (it is highly likely to... its only if the user has multiple graphics cards with some weird config it may break)
                                 newAdapterValue = currentAdapterMap.First().Key;
-                                SharedLogger.logger.Warn($"WinLibrary/PatchAdapterIDs: Uh Oh. Adapter {savedDisplayConfig.DisplayHDRStates[i].AdapterId.Value} didn't have a current match in Display Sources! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
+                                SharedLogger.Warn($"WinLibrary/PatchAdapterIDs: Uh Oh. Adapter {savedDisplayConfig.DisplayHDRStates[i].AdapterId.Value} didn't have a current match in Display Sources! It's possible the adapter was swapped or disabled. Attempting to use adapter {newAdapterValue} instead.");
                                 ds.AdapterId = AdapterValueToLUID(newAdapterValue);
                             }
                             dsList[j] = ds;
@@ -474,14 +474,14 @@ namespace iSurroundShared.Windows
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display sources list info to update the adapter id");
+                SharedLogger.Error(ex, "WinLibrary/PatchWindowsDisplayConfig: Exception while going through the display sources list info to update the adapter id");
             }
 
         }
 
         public bool UpdateActiveConfig(bool fastScan = true)
         {
-            SharedLogger.logger.Trace($"WinLibrary/UpdateActiveConfig: Updating the currently active config");
+            SharedLogger.Trace($"WinLibrary/UpdateActiveConfig: Updating the currently active config");
             try
             {
                 _activeDisplayConfig = GetActiveConfig(fastScan);
@@ -489,7 +489,7 @@ namespace iSurroundShared.Windows
             }
             catch (Exception ex)
             {
-                SharedLogger.logger.Trace(ex, $"WinLibrary/UpdateActiveConfig: Exception updating the currently active config");
+                SharedLogger.Trace(ex, $"WinLibrary/UpdateActiveConfig: Exception updating the currently active config");
                 return false;
             }
 
@@ -498,7 +498,7 @@ namespace iSurroundShared.Windows
 
         public WINDOWS_DISPLAY_CONFIG GetActiveConfig(bool fastScan = true)
         {
-            SharedLogger.logger.Trace($"WinLibrary/GetActiveConfig: Getting the currently active config");
+            SharedLogger.Trace($"WinLibrary/GetActiveConfig: Getting the currently active config");
             // We'll leave virtual refresh rate aware until we can reliably detect Windows 11 versions.
             return GetWindowsDisplayConfig(QDC.QDC_ONLY_ACTIVE_PATHS, fastScan);
         }
@@ -514,50 +514,50 @@ namespace iSurroundShared.Windows
             WINDOWS_DISPLAY_CONFIG windowsDisplayConfig = CreateDefaultConfig();
 
             // Get the size of the largest Active Paths and Modes arrays
-            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the size of the largest Active Paths and Modes arrays");
+            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the size of the largest Active Paths and Modes arrays");
             int pathCount = 0;
             int modeCount = 0;
             WIN32STATUS err = CCDImport.GetDisplayConfigBufferSizes(selector, out pathCount, out modeCount);
             if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
+                SharedLogger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
                 throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
             }
 
-            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the current Display Config path and mode arrays");
+            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the current Display Config path and mode arrays");
             var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
             var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
             err = CCDImport.QueryDisplayConfig(selector, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
             if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
             {
-                SharedLogger.logger.Warn($"WinLibrary/GetWindowsDisplayConfig: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
-                SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the size of the largest Active Paths and Modes arrays");
+                SharedLogger.Warn($"WinLibrary/GetWindowsDisplayConfig: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
+                SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the size of the largest Active Paths and Modes arrays");
                 // Screen changed in between GetDisplayConfigBufferSizes and QueryDisplayConfig, so we need to get buffer sizes again
                 // as per https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig 
                 err = CCDImport.GetDisplayConfigBufferSizes(selector, out pathCount, out modeCount);
                 if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
+                    SharedLogger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                     throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                 }
-                SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the current Display Config path and mode arrays");
+                SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Getting the current Display Config path and mode arrays");
                 paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
                 modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
                 err = CCDImport.QueryDisplayConfig(selector, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
                 if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
+                    SharedLogger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                     throw new WinLibraryException($"The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                 }
                 else if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
+                    SharedLogger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
                     throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again.");
                 }
             }
             else if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
+                SharedLogger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
                 throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays.");
             }
 
@@ -595,13 +595,13 @@ namespace iSurroundShared.Windows
 
                 if (selector == QDC.QDC_ONLY_ACTIVE_PATHS && paths[i].TargetInfo.TargetInUse == false)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping display target {paths[i].TargetInfo.Id} as we only want displays currently in use");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping display target {paths[i].TargetInfo.Id} as we only want displays currently in use");
                     continue;
                 }
 
                 if (selector == QDC.QDC_ALL_PATHS && paths[i].TargetInfo.TargetAvailable == false)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping display target {paths[i].TargetInfo.Id} as we want all available displays and this one isn't available");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping display target {paths[i].TargetInfo.Id} as we want all available displays and this one isn't available");
                     continue;
                 }
 
@@ -634,13 +634,13 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref displayScalingInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found Windows DPI scaling value for source {paths[i].SourceInfo.Id} is {displayScalingInfo.CurrrentScaleRel}.");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found Windows DPI scaling value for source {paths[i].SourceInfo.Id} is {displayScalingInfo.CurrrentScaleRel}.");
                     sourceDpiScalingRel = displayScalingInfo.CurrrentScaleRel;
 
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetWindowsDisplayConfig: WARNING - Unabled to get Windows DPI Scaling value for display {paths[i].TargetInfo.Id}.");
+                    SharedLogger.Warn($"WinLibrary/GetWindowsDisplayConfig: WARNING - Unabled to get Windows DPI Scaling value for display {paths[i].TargetInfo.Id}.");
                 }
 
 
@@ -682,11 +682,11 @@ namespace iSurroundShared.Windows
                         windowsDisplayConfig.DisplaySources.Add(sourceInfo.ViewGdiDeviceName, sources);
                     }
 
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found Display Source {sourceInfo.ViewGdiDeviceName} for source {paths[i].SourceInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found Display Source {sourceInfo.ViewGdiDeviceName} for source {paths[i].SourceInfo.Id}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the source info for source adapter #{paths[i].SourceInfo.AdapterId}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the source info for source adapter #{paths[i].SourceInfo.AdapterId}");
                 }
 
                 // Check if this path is a cloned display path, and if so make some changes
@@ -701,7 +701,7 @@ namespace iSurroundShared.Windows
                 }
 
                 /*// Get adapter ID for later
-                SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get adapter name for adapter {paths[i].TargetInfo.AdapterId.Value}.");
+                SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get adapter name for adapter {paths[i].TargetInfo.AdapterId.Value}.");
                 if (!windowsDisplayConfig.DisplayAdapters.ContainsKey(paths[i].TargetInfo.AdapterId.Value))
                 {
                     var adapterInfo = new DISPLAYCONFIG_ADAPTER_NAME();
@@ -715,23 +715,23 @@ namespace iSurroundShared.Windows
                         //gotAdapterName = true;
                         // Store it for later
                         windowsDisplayConfig.DisplayAdapters.Add(paths[i].TargetInfo.AdapterId.Value, adapterInfo.AdapterDevicePath);
-                        SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found adapter name {adapterInfo.AdapterDevicePath} for adapter {paths[i].TargetInfo.AdapterId.Value}.");
+                        SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found adapter name {adapterInfo.AdapterDevicePath} for adapter {paths[i].TargetInfo.AdapterId.Value}.");
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to query the adapter name for adapter {paths[i].TargetInfo.AdapterId.Value}.");
+                        SharedLogger.Error($"WinLibrary/GetWindowsDisplayConfig: ERROR - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to query the adapter name for adapter {paths[i].TargetInfo.AdapterId.Value}.");
                     }
                 }
                 else
                 {
                     // We already have the adapter name
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: We already have the adapter name {windowsDisplayConfig.DisplayAdapters[paths[i].TargetInfo.AdapterId.Value]} for adapter {paths[i].TargetInfo.AdapterId.Value} so skipping storing it.");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: We already have the adapter name {windowsDisplayConfig.DisplayAdapters[paths[i].TargetInfo.AdapterId.Value]} for adapter {paths[i].TargetInfo.AdapterId.Value} so skipping storing it.");
                     //gotAdapterName = true;
                 }*/
 
 
                 // Get advanced color info
-                SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get advanced color info for display {paths[i].TargetInfo.Id}.");
+                SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get advanced color info for display {paths[i].TargetInfo.Id}.");
 
                 // We need to skip recording anything from a connection that doesn't support color communication
                 if (!SkippedColorConnectionTypes.Contains(paths[i].TargetInfo.OutputTechnology))
@@ -745,31 +745,31 @@ namespace iSurroundShared.Windows
                     if (err == WIN32STATUS.ERROR_SUCCESS)
                     {
                         gotAdvancedColorInfo = true;
-                        SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found color info for display {paths[i].TargetInfo.Id}.");
+                        SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found color info for display {paths[i].TargetInfo.Id}.");
                         if (colorInfo.AdvancedColorSupported)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is supported for display {paths[i].TargetInfo.Id}.");
+                            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is supported for display {paths[i].TargetInfo.Id}.");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is NOT supported for display {paths[i].TargetInfo.Id}.");
+                            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is NOT supported for display {paths[i].TargetInfo.Id}.");
                         }
                         if (colorInfo.AdvancedColorEnabled)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is enabled for display {paths[i].TargetInfo.Id}.");
+                            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is enabled for display {paths[i].TargetInfo.Id}.");
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is NOT enabled for display {paths[i].TargetInfo.Id}.");
+                            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: HDR is NOT enabled for display {paths[i].TargetInfo.Id}.");
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetWindowsDisplayConfig: WARNING - Unabled to get advanced color settings for display {paths[i].TargetInfo.Id}.");
+                        SharedLogger.Warn($"WinLibrary/GetWindowsDisplayConfig: WARNING - Unabled to get advanced color settings for display {paths[i].TargetInfo.Id}.");
                     }
 
                     // get SDR white levels
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get SDR white levels for display {paths[i].TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get SDR white levels for display {paths[i].TargetInfo.Id}.");
                     var whiteLevelInfo = new DISPLAYCONFIG_SDR_WHITE_LEVEL();
                     whiteLevelInfo.Header.Type = DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_SDR_WHITE_LEVEL;
                     whiteLevelInfo.Header.Size = (uint)Marshal.SizeOf<DISPLAYCONFIG_SDR_WHITE_LEVEL>();
@@ -779,11 +779,11 @@ namespace iSurroundShared.Windows
                     if (err == WIN32STATUS.ERROR_SUCCESS)
                     {
                         gotSdrWhiteLevel = true;
-                        SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found SDR White levels for display {paths[i].TargetInfo.Id}.");
+                        SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Found SDR White levels for display {paths[i].TargetInfo.Id}.");
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetWindowsDisplayConfig: WARNING - Unabled to get SDR White levels for display {paths[i].TargetInfo.Id}.");
+                        SharedLogger.Warn($"WinLibrary/GetWindowsDisplayConfig: WARNING - Unabled to get SDR White levels for display {paths[i].TargetInfo.Id}.");
                     }
 
                     // Only create and add the ADVANCED_HDR_INFO_PER_PATH if the info is there
@@ -802,7 +802,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping getting HDR and SDR White levels information as display {paths[i].TargetInfo.Id} uses a {paths[i].TargetInfo.OutputTechnology} connector that doesn't support HDR.");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping getting HDR and SDR White levels information as display {paths[i].TargetInfo.Id} uses a {paths[i].TargetInfo.OutputTechnology} connector that doesn't support HDR.");
                 }
             }
 
@@ -898,12 +898,12 @@ namespace iSurroundShared.Windows
                     err = CCDImport.DisplayConfigGetDeviceInfo(ref targetInfo);
                     if (err == WIN32STATUS.ERROR_SUCCESS)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the target info from {dsList[j].TargetId}.");
+                        SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the target info from {dsList[j].TargetId}.");
                         dsList[j].DevicePath = targetInfo.MonitorDevicePath;
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{dsList[j].TargetId}");
+                        SharedLogger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{dsList[j].TargetId}");
                     }
                 }
                 windowsDisplayConfig.DisplaySources[key] = dsList.ToList();
@@ -913,7 +913,7 @@ namespace iSurroundShared.Windows
             Dictionary<string, TaskBarLayout> taskBarStuckRectangles = new Dictionary<string, TaskBarLayout>();
 
             // Now attempt to get the windows taskbar location for each display
-            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get the Windows Taskbar Layouts.");
+            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get the Windows Taskbar Layouts.");
             bool retryNeeded = false;
             taskBarStuckRectangles = TaskBarLayout.GetAllCurrentTaskBarLayouts(windowsDisplayConfig.DisplaySources, out retryNeeded);
             // Check whether Windows has actually added the registry keys that outline the taskbar position
@@ -921,14 +921,14 @@ namespace iSurroundShared.Windows
             {
                 if (fastScan)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping retrying Windows Taskbar Layouts and just accepting the first locations");
+                    SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Skipping retrying Windows Taskbar Layouts and just accepting the first locations");
                 }
                 else
                 {
                     // We wait until the reg key is populated                
                     for (int count = 1; count <= 4; count++)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: We were unable to get all the Windows Taskbar Layouts! So we need to try again. Attempt {count} of 4.");
+                        SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: We were unable to get all the Windows Taskbar Layouts! So we need to try again. Attempt {count} of 4.");
 
                         // Wait 5 seconds
                         System.Threading.Thread.Sleep(5000);
@@ -938,7 +938,7 @@ namespace iSurroundShared.Windows
 
                         if (!retryNeeded)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: We successfully got the Windows Taskbar Layouts on attempt {count}! So we can stop trying to get them");
+                            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: We successfully got the Windows Taskbar Layouts on attempt {count}! So we can stop trying to get them");
                             break;
                         }
 
@@ -947,7 +947,7 @@ namespace iSurroundShared.Windows
             }           
 
             // Now we try to get the taskbar settings too
-            SharedLogger.logger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get the Windows Taskbar Settings.");
+            SharedLogger.Trace($"WinLibrary/GetWindowsDisplayConfig: Attempting to get the Windows Taskbar Settings.");
             TaskBarSettings taskBarSettings = TaskBarSettings.GetCurrent();
 
             // Store the active paths and modes in our display config object
@@ -971,18 +971,18 @@ namespace iSurroundShared.Windows
             while (GDIImport.EnumDisplayDevices(null, displayDeviceNum, ref displayDevice, 0))
             {
                 // Now we try and grab the GDI Device Settings for each display device
-                SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
+                SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
                 if (displayDevice.StateFlags.HasFlag(DISPLAY_DEVICE_STATE_FLAGS.AttachedToDesktop) || displayDevice.StateFlags.HasFlag(DISPLAY_DEVICE_STATE_FLAGS.MultiDriver))
                 {
                     // If the display device is attached to the Desktop, or a type of display that is represented by a psudeo mirroring application, then skip this display
                     // e.g. some sort of software interfaced display that doesn't have a physical plug, or maybe uses USB for communication
-                    SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
+                    SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
                     DEVICE_MODE currentMode = new DEVICE_MODE();
                     currentMode.Size = (UInt16)Marshal.SizeOf<DEVICE_MODE>();
                     bool gdiWorked = GDIImport.EnumDisplaySettings(displayDevice.DeviceName, DISPLAY_SETTINGS_MODE.CurrentSettings, ref currentMode);
                     if (gdiWorked)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
                         GDI_DISPLAY_SETTING myDisplaySetting = new GDI_DISPLAY_SETTING();
                         myDisplaySetting.IsEnabled = true; // Always true if we get here
                         myDisplaySetting.Device = displayDevice;
@@ -997,12 +997,12 @@ namespace iSurroundShared.Windows
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: The display {displayDevice.DeviceName} is either not attached to the desktop, or is not a mirroring driver. Skipping this display device as we cannot use it.");
+                    SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: The display {displayDevice.DeviceName} is either not attached to the desktop, or is not a mirroring driver. Skipping this display device as we cannot use it.");
                 }
 
                 displayDeviceNum++;
@@ -1013,50 +1013,50 @@ namespace iSurroundShared.Windows
         public static Dictionary<string, List<uint>> GetDisplaySourceNames()
         {
             // Get the size of the largest Active Paths and Modes arrays
-            SharedLogger.logger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the size of the largest Active Paths and Modes arrays");
+            SharedLogger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the size of the largest Active Paths and Modes arrays");
             int pathCount = 0;
             int modeCount = 0;
             WIN32STATUS err = CCDImport.GetDisplayConfigBufferSizes(QDC.QDC_ONLY_ACTIVE_PATHS, out pathCount, out modeCount);
             if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
+                SharedLogger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
                 throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
             }
 
-            SharedLogger.logger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the current Display Config path and mode arrays");
+            SharedLogger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the current Display Config path and mode arrays");
             var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
             var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
             err = CCDImport.QueryDisplayConfig(QDC.QDC_ONLY_ACTIVE_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
             if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
             {
-                SharedLogger.logger.Warn($"WinLibrary/GetDisplaySourceNames: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
-                SharedLogger.logger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the size of the largest Active Paths and Modes arrays");
+                SharedLogger.Warn($"WinLibrary/GetDisplaySourceNames: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
+                SharedLogger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the size of the largest Active Paths and Modes arrays");
                 // Screen changed in between GetDisplayConfigBufferSizes and QueryDisplayConfig, so we need to get buffer sizes again
                 // as per https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig 
                 err = CCDImport.GetDisplayConfigBufferSizes(QDC.QDC_ONLY_ACTIVE_PATHS, out pathCount, out modeCount);
                 if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
+                    SharedLogger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                     throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                 }
-                SharedLogger.logger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the current Display Config path and mode arrays");
+                SharedLogger.Trace($"WinLibrary/GetDisplaySourceNames: Getting the current Display Config path and mode arrays");
                 paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
                 modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
                 err = CCDImport.QueryDisplayConfig(QDC.QDC_ONLY_ACTIVE_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
                 if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
+                    SharedLogger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                     throw new WinLibraryException($"The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                 }
                 else if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
+                    SharedLogger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
                     throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again.");
                 }
             }
             else if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
+                SharedLogger.Error($"WinLibrary/GetDisplaySourceNames: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
                 throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays.");
             }
 
@@ -1091,11 +1091,11 @@ namespace iSurroundShared.Windows
                         DisplaySources.Add(sourceInfo.ViewGdiDeviceName, new List<uint> { path.SourceInfo.Id });
                     }
 
-                    SharedLogger.logger.Trace($"WinLibrary/GetDisplaySourceNames: Found Display Source {sourceInfo.ViewGdiDeviceName} for source {path.SourceInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetDisplaySourceNames: Found Display Source {sourceInfo.ViewGdiDeviceName} for source {path.SourceInfo.Id}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetDisplaySourceNames: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the source info for source adapter #{path.SourceInfo.AdapterId}");
+                    SharedLogger.Warn($"WinLibrary/GetDisplaySourceNames: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the source info for source adapter #{path.SourceInfo.AdapterId}");
                 }
 
             }
@@ -1137,7 +1137,7 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref sourceInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Display Source {sourceInfo.ViewGdiDeviceName} for source {path.SourceInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Display Source {sourceInfo.ViewGdiDeviceName} for source {path.SourceInfo.Id}.");
                     stringToReturn += $"****** Interrogating Display Source {path.SourceInfo.Id} *******\n";
                     stringToReturn += $"Found Display Source {sourceInfo.ViewGdiDeviceName}\n";
                     if (displayConfig.DisplaySources[sourceInfo.ViewGdiDeviceName].Count > 1)
@@ -1155,7 +1155,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the source info for source adapter #{path.SourceInfo.AdapterId}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the source info for source adapter #{path.SourceInfo.AdapterId}");
                 }
 
 
@@ -1168,15 +1168,15 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref targetInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Connector Instance: {targetInfo.ConnectorInstance} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: EDID Manufacturer ID: {targetInfo.EdidManufactureId} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: EDID Product Code ID: {targetInfo.EdidProductCodeId} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Flags Friendly Name from EDID: {targetInfo.Flags.FriendlyNameFromEdid} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Flags Friendly Name Forced: {targetInfo.Flags.FriendlyNameForced} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Flags EDID ID is Valid: {targetInfo.Flags.EdidIdsValid} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Monitor Device Path: {targetInfo.MonitorDevicePath} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Monitor Friendly Device Name: {targetInfo.MonitorFriendlyDeviceName} for source {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Output Technology: {targetInfo.OutputTechnology} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Connector Instance: {targetInfo.ConnectorInstance} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: EDID Manufacturer ID: {targetInfo.EdidManufactureId} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: EDID Product Code ID: {targetInfo.EdidProductCodeId} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Flags Friendly Name from EDID: {targetInfo.Flags.FriendlyNameFromEdid} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Flags Friendly Name Forced: {targetInfo.Flags.FriendlyNameForced} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Flags EDID ID is Valid: {targetInfo.Flags.EdidIdsValid} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Monitor Device Path: {targetInfo.MonitorDevicePath} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Monitor Friendly Device Name: {targetInfo.MonitorFriendlyDeviceName} for source {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Output Technology: {targetInfo.OutputTechnology} for source {path.TargetInfo.Id}.");
 
                     stringToReturn += $"****** Interrogating Display Target {targetInfo.MonitorFriendlyDeviceName} *******\n";
                     stringToReturn += $" Connector Instance: {targetInfo.ConnectorInstance}\n";
@@ -1192,7 +1192,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
                 }
 
 
@@ -1205,14 +1205,14 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref adapterInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Adapter Device Path {adapterInfo.AdapterDevicePath} for source {path.TargetInfo.AdapterId}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Adapter Device Path {adapterInfo.AdapterDevicePath} for source {path.TargetInfo.AdapterId}.");
                     stringToReturn += $"****** Interrogating Display Adapter {adapterInfo.AdapterDevicePath} *******\n";
                     stringToReturn += $" Display Adapter {adapterInfo.AdapterDevicePath}\n";
                     stringToReturn += $"\n";
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the adapter device path for target #{path.TargetInfo.AdapterId}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the adapter device path for target #{path.TargetInfo.AdapterId}");
                 }
 
                 // show the 
@@ -1226,15 +1226,15 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref targetPreferredInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Preferred Width {targetPreferredInfo.Width} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Preferred Height {targetPreferredInfo.Height} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Active Size: ({targetPreferredInfo.TargetMode.TargetVideoSignalInfo.ActiveSize.Cx}x{targetPreferredInfo.TargetMode.TargetVideoSignalInfo.ActiveSize.Cy} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Total Size: ({targetPreferredInfo.TargetMode.TargetVideoSignalInfo.TotalSize.Cx}x{targetPreferredInfo.TargetMode.TargetVideoSignalInfo.TotalSize.Cy} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info HSync Frequency: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.HSyncFreq} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info VSync Frequency: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.VSyncFreq} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Pixel Rate: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.PixelRate} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Scan Line Ordering: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.ScanLineOrdering} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Video Standard: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.VideoStandard} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Preferred Width {targetPreferredInfo.Width} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Preferred Height {targetPreferredInfo.Height} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Active Size: ({targetPreferredInfo.TargetMode.TargetVideoSignalInfo.ActiveSize.Cx}x{targetPreferredInfo.TargetMode.TargetVideoSignalInfo.ActiveSize.Cy} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Total Size: ({targetPreferredInfo.TargetMode.TargetVideoSignalInfo.TotalSize.Cx}x{targetPreferredInfo.TargetMode.TargetVideoSignalInfo.TotalSize.Cy} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info HSync Frequency: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.HSyncFreq} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info VSync Frequency: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.VSyncFreq} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Pixel Rate: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.PixelRate} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Scan Line Ordering: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.ScanLineOrdering} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Target Video Signal Info Video Standard: {targetPreferredInfo.TargetMode.TargetVideoSignalInfo.VideoStandard} for target {path.TargetInfo.Id}.");
 
                     stringToReturn += $"****** Interrogating Target Preferred Mode for Display {path.TargetInfo.Id} *******\n";
                     stringToReturn += $" Target Preferred Width {targetPreferredInfo.Width} for target {path.TargetInfo.Id}\n";
@@ -1250,7 +1250,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the preferred target name for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the preferred target name for display #{path.TargetInfo.Id}");
                 }
 
                 // get display target base type
@@ -1262,7 +1262,7 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref targetBaseTypeInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Virtual Resolution is Disabled: {targetBaseTypeInfo.BaseOutputTechnology} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Virtual Resolution is Disabled: {targetBaseTypeInfo.BaseOutputTechnology} for target {path.TargetInfo.Id}.");
 
                     stringToReturn += $"****** Interrogating Target Base Type for Display {path.TargetInfo.Id} *******\n";
                     stringToReturn += $" Base Output Technology: {targetBaseTypeInfo.BaseOutputTechnology}\n";
@@ -1270,7 +1270,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target base type for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target base type for display #{path.TargetInfo.Id}");
                 }
 
                 // get display support virtual resolution
@@ -1282,14 +1282,14 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref supportVirtResInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Base Output Technology: {supportVirtResInfo.IsMonitorVirtualResolutionDisabled} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Base Output Technology: {supportVirtResInfo.IsMonitorVirtualResolutionDisabled} for target {path.TargetInfo.Id}.");
                     stringToReturn += $"****** Interrogating Target Supporting virtual resolution for Display {path.TargetInfo.Id} *******\n";
                     stringToReturn += $" Virtual Resolution is Disabled: {supportVirtResInfo.IsMonitorVirtualResolutionDisabled}\n";
                     stringToReturn += $"\n";
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out the virtual resolution support for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out the virtual resolution support for display #{path.TargetInfo.Id}");
                 }
 
                 //get advanced color info
@@ -1301,12 +1301,12 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref colorInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Advanced Color Supported: {colorInfo.AdvancedColorSupported} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Advanced Color Enabled: {colorInfo.AdvancedColorEnabled} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Advanced Color Force Disabled: {colorInfo.AdvancedColorForceDisabled} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Bits per Color Channel: {colorInfo.BitsPerColorChannel} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Color Encoding: {colorInfo.ColorEncoding} for target {path.TargetInfo.Id}.");
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found Wide Color Enforced: {colorInfo.WideColorEnforced} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Advanced Color Supported: {colorInfo.AdvancedColorSupported} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Advanced Color Enabled: {colorInfo.AdvancedColorEnabled} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Advanced Color Force Disabled: {colorInfo.AdvancedColorForceDisabled} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Bits per Color Channel: {colorInfo.BitsPerColorChannel} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Color Encoding: {colorInfo.ColorEncoding} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found Wide Color Enforced: {colorInfo.WideColorEnforced} for target {path.TargetInfo.Id}.");
 
                     stringToReturn += $"****** Interrogating Advanced Color Info for Display {path.TargetInfo.Id} *******\n";
                     stringToReturn += $" Advanced Color Supported: {colorInfo.AdvancedColorSupported}\n";
@@ -1319,7 +1319,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out the virtual resolution support for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out the virtual resolution support for display #{path.TargetInfo.Id}");
                 }
 
                 // get SDR white levels
@@ -1331,7 +1331,7 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref whiteLevelInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Found SDR White Level: {whiteLevelInfo.SDRWhiteLevel} for target {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Found SDR White Level: {whiteLevelInfo.SDRWhiteLevel} for target {path.TargetInfo.Id}.");
 
                     stringToReturn += $"****** Interrogating SDR White Level for Display {path.TargetInfo.Id} *******\n";
                     stringToReturn += $" SDR White Level: {whiteLevelInfo.SDRWhiteLevel}\n";
@@ -1339,7 +1339,7 @@ namespace iSurroundShared.Windows
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out the SDL white level for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out the SDL white level for display #{path.TargetInfo.Id}");
                 }
             }
 
@@ -1369,19 +1369,19 @@ namespace iSurroundShared.Windows
                 stringToReturn += $"\n";
 
 
-                SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Getting the current Display Settings for {displayDevice.DeviceName}");
+                SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Getting the current Display Settings for {displayDevice.DeviceName}");
                 if (displayDevice.StateFlags.HasFlag(DISPLAY_DEVICE_STATE_FLAGS.AttachedToDesktop) || displayDevice.StateFlags.HasFlag(DISPLAY_DEVICE_STATE_FLAGS.MultiDriver))
                 {
                     // If the display device is attached to the Desktop, or a type of display that is represented by a psudeo mirroring application, then skip this display
                     // e.g. some sort of software interfaced display that doesn't have a physical plug, or maybe uses USB for communication
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Getting the current Display Settings for {displayDevice.DeviceName}");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Getting the current Display Settings for {displayDevice.DeviceName}");
                     stringToReturn += $" Display Device Settings for attached Display {displayDevice.DeviceName} :\n";
                     DEVICE_MODE currentMode = new DEVICE_MODE();
                     currentMode.Size = (UInt16)Marshal.SizeOf<DEVICE_MODE>();
                     bool gdiWorked = GDIImport.EnumDisplaySettings(displayDevice.DeviceName, DISPLAY_SETTINGS_MODE.CurrentSettings, ref currentMode);
                     if (gdiWorked)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: Got the current Display Settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Trace($"WinLibrary/PrintActiveConfig: Got the current Display Settings from display {displayDevice.DeviceName}.");
                         // Now we try and grab the GDI Device Settings for each display device
                         stringToReturn += $" Bits Per Pixel: {currentMode.BitsPerPixel}\n";
                         stringToReturn += $" Device Name: {currentMode.DeviceName}\n";
@@ -1400,13 +1400,13 @@ namespace iSurroundShared.Windows
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/PrintActiveConfig: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Warn($"WinLibrary/PrintActiveConfig: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
                         stringToReturn += $" No display settings found.\n\n";
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/PrintActiveConfig: The display {displayDevice.DeviceName} is either not attached to the desktop, or is not a mirroring driver. Skipping this display device as we cannot use it.");
+                    SharedLogger.Trace($"WinLibrary/PrintActiveConfig: The display {displayDevice.DeviceName} is either not attached to the desktop, or is not a mirroring driver. Skipping this display device as we cannot use it.");
                 }
 
                 displayDeviceNum++;
@@ -1417,24 +1417,21 @@ namespace iSurroundShared.Windows
 
         public bool SetActiveConfig(WINDOWS_DISPLAY_CONFIG displayConfig)
         {
-            //bool needToRestartExplorer = false;
-            UInt32 primaryMonitorDeviceID = 999;
-
             // Get the all possible windows display configs
-            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Generating a list of all the current display configs");
+            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Generating a list of all the current display configs");
             WINDOWS_DISPLAY_CONFIG allWindowsDisplayConfig = GetWindowsDisplayConfig(QDC.QDC_ALL_PATHS);
 
             if (displayConfig.IsCloned)
             {
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: We have a cloned display in this display profile");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: We have a cloned display in this display profile");
             }
             else
             {
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: We have no cloned displays in thus display profile");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: We have no cloned displays in thus display profile");
             }
 
             // Now we go through the Paths to update the LUIDs as per Soroush's suggestion
-            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Patching the adapter IDs to make the saved config valid");
+            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Patching the adapter IDs to make the saved config valid");
             PatchWindowsDisplayConfig(ref displayConfig);
 
 
@@ -1443,7 +1440,7 @@ namespace iSurroundShared.Windows
 
             // Apply the previously saved display settings to the new displays (match them up)
             // NOTE: This may be the only mode needed once it's completed.
-            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Attempting to change Display Device settings through GDI API using ChangeDisplaySettingsEx");
+            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Attempting to change Display Device settings through GDI API using ChangeDisplaySettingsEx");
             bool appliedGdiDisplaySettings = false;
             foreach (var gdiDisplay in displayConfig.GdiDisplaySettings)
             {
@@ -1453,7 +1450,7 @@ namespace iSurroundShared.Windows
 
                 if (currentGdiDisplaySettings.ContainsKey(displayDeviceKey))
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Trying to change Device Mode for Display {displayDeviceKey}.");
+                    SharedLogger.Trace($"WinLibrary/SetActiveConfig: Trying to change Device Mode for Display {displayDeviceKey}.");
                     GDI_DISPLAY_SETTING currentDeviceSetting = currentGdiDisplaySettings[displayDeviceKey];
 
                     // Use the current device as a base, but set some of the various settings we stored as part of the profile that are for displays (not printers!)
@@ -1471,106 +1468,106 @@ namespace iSurroundShared.Windows
                     // Also copy across the dmFields item as well as per https://stackoverflow.com/questions/9756416/using-user32-changedisplaysettings-to-set-resolution-fails-only-on-max-resolutio
                     currentDeviceSetting.DeviceMode.Fields = displayDeviceSettings.DeviceMode.Fields;
 
-                    SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Testing whether the GDI Device Mode will work for display {displayDeviceKey}.");
+                    SharedLogger.Trace($"WinLibrary/SetActiveConfig: Testing whether the GDI Device Mode will work for display {displayDeviceKey}.");
                     // First of all check that setting the GDI mode will work
                     CHANGE_DISPLAY_RESULTS result = GDIImport.ChangeDisplaySettingsEx(currentDeviceSetting.Device.DeviceName, ref currentDeviceSetting.DeviceMode, IntPtr.Zero, CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_TEST, IntPtr.Zero);
                     if (result == CHANGE_DISPLAY_RESULTS.Successful)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Success. The GDI Device Mode will work for display {displayDeviceKey}.");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: Success. The GDI Device Mode will work for display {displayDeviceKey}.");
                         // Set the 
                         if (currentDeviceSetting.IsPrimary)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (primary display).");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (primary display).");
                             result = GDIImport.ChangeDisplaySettingsEx(currentDeviceSetting.Device.DeviceName, ref currentDeviceSetting.DeviceMode, IntPtr.Zero, (CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_SET_PRIMARY | CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_UPDATEREGISTRY | CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_NORESET), IntPtr.Zero);
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (secondary display).");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (secondary display).");
                             result = GDIImport.ChangeDisplaySettingsEx(currentDeviceSetting.Device.DeviceName, ref currentDeviceSetting.DeviceMode, IntPtr.Zero, (CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_UPDATEREGISTRY | CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_NORESET), IntPtr.Zero);
 
                         }
                         if (result == CHANGE_DISPLAY_RESULTS.Successful)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Successfully changed display {displayDeviceKey} to use the new mode!");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Successfully changed display {displayDeviceKey} to use the new mode!");
                             appliedGdiDisplaySettings = true;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadDualView)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The settings change was unsuccessful because the system is DualView capable. Display {displayDeviceKey} not updated to new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The settings change was unsuccessful because the system is DualView capable. Display {displayDeviceKey} not updated to new mode.");
                             //return false;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadFlags)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: An invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: An invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
                             //return false;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadMode)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
                             //return false;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadParam)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: An invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: An invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
                             //return false;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.Failed)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
                             //return false;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.NotUpdated)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: Unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
                             //return false;
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.Restart)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
                             //return false;
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Unknown error while trying to change Display {displayDeviceKey} to use the new mode.");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Unknown error while trying to change Display {displayDeviceKey} to use the new mode.");
                             return false;
                         }
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.BadDualView)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the system is DualView capable. Skipping setting Display {displayDeviceKey}.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the system is DualView capable. Skipping setting Display {displayDeviceKey}.");
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.BadFlags)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.BadMode)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.BadParam)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.Failed)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.NotUpdated)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because we're unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because we're unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
                     }
                     else if (result == CHANGE_DISPLAY_RESULTS.Restart)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because there was an unknown error testing if Display {displayDeviceKey} could use the new mode.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because there was an unknown error testing if Display {displayDeviceKey} could use the new mode.");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Display {displayDeviceKey} is not currently in use, so cannot set it!");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Display {displayDeviceKey} is not currently in use, so cannot set it!");
                 }
 
             }
@@ -1579,50 +1576,50 @@ namespace iSurroundShared.Windows
             // see https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-changedisplaysettingsexa
             if (appliedGdiDisplaySettings)
             {
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Other display settings were changed, so applying all the changes now.");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Other display settings were changed, so applying all the changes now.");
                 CHANGE_DISPLAY_RESULTS result = GDIImport.ChangeDisplaySettingsEx(null, IntPtr.Zero, IntPtr.Zero, CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_NONE, IntPtr.Zero);
                 if (result == CHANGE_DISPLAY_RESULTS.Successful)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Successfully applied the new GDI modes!");
+                    SharedLogger.Trace($"WinLibrary/SetActiveConfig: Successfully applied the new GDI modes!");
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.BadDualView)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the system is DualView capable.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the system is DualView capable.");
                     return false;
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.BadFlags)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because an invalid set of flags was passed in.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because an invalid set of flags was passed in.");
                     return false;
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.BadMode)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the graphics mode is not supported.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the graphics mode is not supported.");
                     return false;
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.BadParam)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because an invalid parameter was passed in. This can include an invalid flag or combination of flags.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because an invalid parameter was passed in. This can include an invalid flag or combination of flags.");
                     return false;
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.Failed)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the display driver failed to apply the specified graphics mode.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the display driver failed to apply the specified graphics mode.");
                     return false;
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.NotUpdated)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because unable to write new settings to the registry.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because unable to write new settings to the registry.");
                     return false;
                 }
                 else if (result == CHANGE_DISPLAY_RESULTS.Restart)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the computer must be restarted for the graphics mode to work.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Couldn't apply the new GDI modes because the computer must be restarted for the graphics mode to work.");
                     return false;
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Unknown error while trying to apply the new GDI modes.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Unknown error while trying to apply the new GDI modes.");
                     return false;
                 }
             }
@@ -1639,115 +1636,115 @@ namespace iSurroundShared.Windows
             WIN32STATUS err = CCDImport.SetDisplayConfig(myPathsCount, displayConfig.DisplayConfigPaths, myModesCount, displayConfig.DisplayConfigModes, SDC.iSurround_SET | SDC.SDC_FORCE_MODE_ENUMERATION);
             if (err == WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Successfully set the display configuration to the settings supplied!");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Successfully set the display configuration to the settings supplied!");
             }
             else if (err == WIN32STATUS.ERROR_INVALID_PARAMETER)
             {
-                SharedLogger.logger.Warn($"WinLibrary/SetActiveConfig: The combination of parameters and flags specified is invalid. Display configuration not applied. So trying again without SDC_FORCE_MODE_ENUMERATION as that works on some computers.");
+                SharedLogger.Warn($"WinLibrary/SetActiveConfig: The combination of parameters and flags specified is invalid. Display configuration not applied. So trying again without SDC_FORCE_MODE_ENUMERATION as that works on some computers.");
                 // Try it again, because in some systems it doesn't work at the first try
                 err = CCDImport.SetDisplayConfig(myPathsCount, displayConfig.DisplayConfigPaths, myModesCount, displayConfig.DisplayConfigModes, SDC.iSurround_SET);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Retry. Successfully set the display configuration to the settings supplied!");
+                    SharedLogger.Trace($"WinLibrary/SetActiveConfig: Retry. Successfully set the display configuration to the settings supplied!");
                 }
                 else if (err == WIN32STATUS.ERROR_INVALID_PARAMETER)
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/SetActiveConfig: Retry. The combination of parameters and flags specified is invalid. Display configuration not applied. So trying again without any specific data other than the topology as that works on some computers.");
+                    SharedLogger.Warn($"WinLibrary/SetActiveConfig: Retry. The combination of parameters and flags specified is invalid. Display configuration not applied. So trying again without any specific data other than the topology as that works on some computers.");
                     // Try it again, because in some systems it doesn't work at the 2nd try! This is a fallback mode just to get something on the screen!
                     err = CCDImport.SetDisplayConfig(myPathsCount, displayConfig.DisplayConfigPaths, myModesCount, displayConfig.DisplayConfigModes, SDC.SDC_APPLY | SDC.SDC_TOPOLOGY_SUPPLIED | SDC.SDC_ALLOW_CHANGES | SDC.SDC_ALLOW_PATH_ORDER_CHANGES);
                     if (err == WIN32STATUS.ERROR_SUCCESS)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Retry 2. Successfully set the display configuration to the settings supplied!");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: Retry 2. Successfully set the display configuration to the settings supplied!");
                     }
                     else if (err == WIN32STATUS.ERROR_INVALID_PARAMETER)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry 2. The combination of parameters and flags specified is invalid. Display configuration not applied.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry 2. The combination of parameters and flags specified is invalid. Display configuration not applied.");
                         //return false;
                     }
                     else if (err == WIN32STATUS.ERROR_NOT_SUPPORTED)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry 2. The system is not running a graphics driver that was written according to the Windows Display Driver Model (WDDM). The function is only supported on a system with a WDDM driver running. Display configuration not applied.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry 2. The system is not running a graphics driver that was written according to the Windows Display Driver Model (WDDM). The function is only supported on a system with a WDDM driver running. Display configuration not applied.");
                         return false;
                     }
                     else if (err == WIN32STATUS.ERROR_ACCESS_DENIED)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry 2. The caller does not have access to the console session. This error occurs if the calling process does not have access to the current desktop or is running on a remote session. Display configuration not applied.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry 2. The caller does not have access to the console session. This error occurs if the calling process does not have access to the current desktop or is running on a remote session. Display configuration not applied.");
                         return false;
                     }
                     else if (err == WIN32STATUS.ERROR_GEN_FAILURE)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry 2. An unspecified error occurred. Display configuration not applied.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry 2. An unspecified error occurred. Display configuration not applied.");
                         return false;
                     }
                     else if (err == WIN32STATUS.ERROR_BAD_CONFIGURATION)
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry 2. The function could not find a workable solution for the source and target modes that the caller did not specify. Display configuration not applied.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry 2. The function could not find a workable solution for the source and target modes that the caller did not specify. Display configuration not applied.");
                         return false;
                     }
                     else
                     {
-                        SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry 2. SetDisplayConfig couldn't set the display configuration using the settings supplied. Display configuration not applied.");
+                        SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry 2. SetDisplayConfig couldn't set the display configuration using the settings supplied. Display configuration not applied.");
                         return false;
                     }
                 }
                 else if (err == WIN32STATUS.ERROR_NOT_SUPPORTED)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry. The system is not running a graphics driver that was written according to the Windows Display Driver Model (WDDM). The function is only supported on a system with a WDDM driver running. Display configuration not applied.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry. The system is not running a graphics driver that was written according to the Windows Display Driver Model (WDDM). The function is only supported on a system with a WDDM driver running. Display configuration not applied.");
                     return false;
                 }
                 else if (err == WIN32STATUS.ERROR_ACCESS_DENIED)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry. The caller does not have access to the console session. This error occurs if the calling process does not have access to the current desktop or is running on a remote session. Display configuration not applied.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry. The caller does not have access to the console session. This error occurs if the calling process does not have access to the current desktop or is running on a remote session. Display configuration not applied.");
                     return false;
                 }
                 else if (err == WIN32STATUS.ERROR_GEN_FAILURE)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry. An unspecified error occurred. Display configuration not applied.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry. An unspecified error occurred. Display configuration not applied.");
                     return false;
                 }
                 else if (err == WIN32STATUS.ERROR_BAD_CONFIGURATION)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry. The function could not find a workable solution for the source and target modes that the caller did not specify. Display configuration not applied.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry. The function could not find a workable solution for the source and target modes that the caller did not specify. Display configuration not applied.");
                     return false;
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Retry. SetDisplayConfig couldn't set the display configuration using the settings supplied. Display configuration not applied.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Retry. SetDisplayConfig couldn't set the display configuration using the settings supplied. Display configuration not applied.");
                     return false;
                 }
             }
             else if (err == WIN32STATUS.ERROR_NOT_SUPPORTED)
             {
-                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The system is not running a graphics driver that was written according to the Windows Display Driver Model (WDDM). The function is only supported on a system with a WDDM driver running. Display configuration not applied.");
+                SharedLogger.Error($"WinLibrary/SetActiveConfig: The system is not running a graphics driver that was written according to the Windows Display Driver Model (WDDM). The function is only supported on a system with a WDDM driver running. Display configuration not applied.");
                 return false;
             }
             else if (err == WIN32STATUS.ERROR_ACCESS_DENIED)
             {
-                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The caller does not have access to the console session. This error occurs if the calling process does not have access to the current desktop or is running on a remote session. Display configuration not applied.");
+                SharedLogger.Error($"WinLibrary/SetActiveConfig: The caller does not have access to the console session. This error occurs if the calling process does not have access to the current desktop or is running on a remote session. Display configuration not applied.");
                 return false;
             }
             else if (err == WIN32STATUS.ERROR_GEN_FAILURE)
             {
-                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: An unspecified error occurred. Display configuration not applied.");
+                SharedLogger.Error($"WinLibrary/SetActiveConfig: An unspecified error occurred. Display configuration not applied.");
                 return false;
             }
             else if (err == WIN32STATUS.ERROR_BAD_CONFIGURATION)
             {
-                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The function could not find a workable solution for the source and target modes that the caller did not specify. Display configuration not applied.");
+                SharedLogger.Error($"WinLibrary/SetActiveConfig: The function could not find a workable solution for the source and target modes that the caller did not specify. Display configuration not applied.");
                 return false;
             }
             else
             {
-                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: SetDisplayConfig couldn't set the display configuration using the settings supplied. Display configuration not applied.");
+                SharedLogger.Error($"WinLibrary/SetActiveConfig: SetDisplayConfig couldn't set the display configuration using the settings supplied. Display configuration not applied.");
                 return false;
             }
 
-            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: SUCCESS! The display configuration has been successfully applied");
+            SharedLogger.Trace($"WinLibrary/SetActiveConfig: SUCCESS! The display configuration has been successfully applied");
 
-            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Waiting 0.1 second to let the display change take place before adjusting the Windows CCD Source DPI scaling settings");
+            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Waiting 0.1 second to let the display change take place before adjusting the Windows CCD Source DPI scaling settings");
             System.Threading.Thread.Sleep(100);
 
-            SharedLogger.logger.Trace($"WinLibrary/SetWindowsDisplayConfig: Attempting to set Windows DPI Scaling setting for display sources.");
+            SharedLogger.Trace($"WinLibrary/SetWindowsDisplayConfig: Attempting to set Windows DPI Scaling setting for display sources.");
             CCDImport.SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
             foreach (var displaySourceEntry in displayConfig.DisplaySources)
             {
@@ -1762,11 +1759,11 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigSetDeviceInfo(ref displayScalingInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/SetWindowsDisplayConfig: Setting DPI value for source {displaySourceEntry.Value[0].SourceId} to {displayScalingInfo.ScaleRel}.");
+                    SharedLogger.Trace($"WinLibrary/SetWindowsDisplayConfig: Setting DPI value for source {displaySourceEntry.Value[0].SourceId} to {displayScalingInfo.ScaleRel}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/SetWindowsDisplayConfig: WARNING - Unable to set DPI value for source {displaySourceEntry.Value[0].SourceId} to {displayScalingInfo.ScaleRel}.");
+                    SharedLogger.Warn($"WinLibrary/SetWindowsDisplayConfig: WARNING - Unable to set DPI value for source {displaySourceEntry.Value[0].SourceId} to {displayScalingInfo.ScaleRel}.");
                 }
             }
             CCDImport.SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT.DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED);
@@ -1776,7 +1773,7 @@ namespace iSurroundShared.Windows
             // This code will only turn on the HDR setting.
             foreach (ADVANCED_HDR_INFO_PER_PATH myHDRstate in displayConfig.DisplayHDRStates)
             {
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Trying to get information whether HDR color is in use now on Display {myHDRstate.Id}.");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Trying to get information whether HDR color is in use now on Display {myHDRstate.Id}.");
                 // Get advanced HDR info
                 var colorInfo = new DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO();
                 colorInfo.Header.Type = DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO;
@@ -1786,11 +1783,11 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref colorInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Advanced Color Info gathered from Display {myHDRstate.Id}");
+                    SharedLogger.Trace($"WinLibrary/SetActiveConfig: Advanced Color Info gathered from Display {myHDRstate.Id}");
 
                     if (myHDRstate.AdvancedColorInfo.AdvancedColorEnabled != colorInfo.AdvancedColorEnabled)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: HDR is available for use on Display {myHDRstate.Id}, and we want it set to {myHDRstate.AdvancedColorInfo.BitsPerColorChannel} but is currently {colorInfo.AdvancedColorEnabled}.");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: HDR is available for use on Display {myHDRstate.Id}, and we want it set to {myHDRstate.AdvancedColorInfo.BitsPerColorChannel} but is currently {colorInfo.AdvancedColorEnabled}.");
 
 
                         var setColorState = new DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE();
@@ -1802,22 +1799,22 @@ namespace iSurroundShared.Windows
                         err = CCDImport.DisplayConfigSetDeviceInfo(ref setColorState);
                         if (err == WIN32STATUS.ERROR_SUCCESS)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: SUCCESS! Set HDR successfully to {myHDRstate.AdvancedColorInfo.AdvancedColorEnabled} on Display {myHDRstate.Id}");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: SUCCESS! Set HDR successfully to {myHDRstate.AdvancedColorInfo.AdvancedColorEnabled} on Display {myHDRstate.Id}");
                         }
                         else
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: ERROR - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to set the HDR settings for display #{myHDRstate.Id}");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: ERROR - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to set the HDR settings for display #{myHDRstate.Id}");
                             //return false;
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Skipping setting HDR on Display {myHDRstate.Id} as it is already in the correct HDR mode: {colorInfo.AdvancedColorEnabled}");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: Skipping setting HDR on Display {myHDRstate.Id} as it is already in the correct HDR mode: {colorInfo.AdvancedColorEnabled}");
                     }
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/SetActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out if HDR is supported for display #{myHDRstate.Id}");
+                    SharedLogger.Warn($"WinLibrary/SetActiveConfig: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to find out if HDR is supported for display #{myHDRstate.Id}");
                 }
 
             }
@@ -1840,7 +1837,7 @@ namespace iSurroundShared.Windows
                         TaskBarLayout wantedLayout = allWindowsDisplayConfig.TaskBarLayout[tbrDictEntry.Key];
                         if (currentLayout.Equals(wantedLayout))
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Display {tbrDictEntry.Key} ({tbrDictEntry.Value.RegKeyValue}) has the taskbar with the correct position, size and settings, so no need to move it");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Display {tbrDictEntry.Key} ({tbrDictEntry.Value.RegKeyValue}) has the taskbar with the correct position, size and settings, so no need to move it");
                         }
                         else
                         {
@@ -1852,7 +1849,7 @@ namespace iSurroundShared.Windows
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Display {tbrDictEntry.Key} ({tbrDictEntry.Value.RegKeyValue}) is not currently in use, so cannot set any taskbars on it!");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: Display {tbrDictEntry.Key} ({tbrDictEntry.Value.RegKeyValue}) is not currently in use, so cannot set any taskbars on it!");
                     }
                 }
 
@@ -1885,7 +1882,7 @@ namespace iSurroundShared.Windows
             }
             else
             {
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: No taskbar layout in display profile so skipping setting it!");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: No taskbar layout in display profile so skipping setting it!");
             }
 
             // Now set the taskbar settings
@@ -1893,21 +1890,21 @@ namespace iSurroundShared.Windows
             if (!displayConfig.TaskBarSettings.Equals(currentTaskBarSettings))
             {
                 // The settings are different, so we should apply them
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Setting the taskbar settings .");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Setting the taskbar settings .");
                 if (displayConfig.TaskBarSettings.Apply())
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Set the taskbar settings successfully!");
+                    SharedLogger.Trace($"WinLibrary/SetActiveConfig: Set the taskbar settings successfully!");
                     //needToRestartExplorer = true;
                 }
                 else
                 {
-                    SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Unable to set the taskbar settings.");
+                    SharedLogger.Error($"WinLibrary/SetActiveConfig: Unable to set the taskbar settings.");
                 }
             }
             else
             {
                 // The settings are the same, so we should skip applying them
-                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: The current taskbar settings are the same as the one's we want, so skipping setting them!");
+                SharedLogger.Trace($"WinLibrary/SetActiveConfig: The current taskbar settings are the same as the one's we want, so skipping setting them!");
             }*/
 
             return true;
@@ -1947,14 +1944,14 @@ namespace iSurroundShared.Windows
                 if (wantedGdiDisplaySettings.ContainsKey(displayDevice.DeviceKey))
                 {
                     // If the display device is configurable
-                    SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
+                    SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
                     DEVICE_MODE currentMode = new DEVICE_MODE();
                     currentMode.Size = (UInt16)Marshal.SizeOf<DEVICE_MODE>();
                     bool gdiWorked = GDIImport.EnumDisplaySettings(displayDevice.DeviceName, DISPLAY_SETTINGS_MODE.CurrentSettings, ref currentMode);
                     if (gdiWorked)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Trying to change Device Mode for Display {displayDevice.DeviceKey}.");
+                        SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: Trying to change Device Mode for Display {displayDevice.DeviceKey}.");
                         GDI_DISPLAY_SETTING currentDeviceSetting = currentGdiDisplaySettings[displayDevice.DeviceKey];
 
                         // Use the current device as a base, but set some of the various settings we stored as part of the profile that are for displays (not printers!)
@@ -1970,106 +1967,106 @@ namespace iSurroundShared.Windows
                         currentDeviceSetting.DeviceMode.PixelsWidth = displayDeviceSettings.DeviceMode.PixelsWidth;
                         currentDeviceSetting.DeviceMode.PixelsHeight = displayDeviceSettings.DeviceMode.PixelsHeight;
 
-                        SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Testing whether the GDI Device Mode will work for display {displayDeviceKey}.");
+                        SharedLogger.Trace($"WinLibrary/SetActiveConfig: Testing whether the GDI Device Mode will work for display {displayDeviceKey}.");
                         // First of all check that setting the GDI mode will work
                         CHANGE_DISPLAY_RESULTS result = GDIImport.ChangeDisplaySettingsEx(currentDeviceSetting.Device.DeviceName, ref currentDeviceSetting.DeviceMode, IntPtr.Zero, CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_TEST, IntPtr.Zero);
                         if (result == CHANGE_DISPLAY_RESULTS.Successful)
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Success. The GDI Device Mode will work for display {displayDeviceKey}.");
+                            SharedLogger.Trace($"WinLibrary/SetActiveConfig: Success. The GDI Device Mode will work for display {displayDeviceKey}.");
                             // Set the 
                             if (currentDeviceSetting.IsPrimary)
                             {
-                                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (primary display).");
+                                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (primary display).");
                                 result = GDIImport.ChangeDisplaySettingsEx(currentDeviceSetting.Device.DeviceName, ref currentDeviceSetting.DeviceMode, IntPtr.Zero, (CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_SET_PRIMARY | CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_UPDATEREGISTRY | CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_NORESET), IntPtr.Zero);
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (secondary display).");
+                                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Actually going to try to set the GDI Device Mode for display {displayDeviceKey} now (secondary display).");
                                 result = GDIImport.ChangeDisplaySettingsEx(currentDeviceSetting.Device.DeviceName, ref currentDeviceSetting.DeviceMode, IntPtr.Zero, (CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_UPDATEREGISTRY | CHANGE_DISPLAY_SETTINGS_FLAGS.CDS_NORESET), IntPtr.Zero);
 
                             }
                             if (result == CHANGE_DISPLAY_RESULTS.Successful)
                             {
-                                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Successfully changed display {displayDeviceKey} to use the new mode!");
+                                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Successfully changed display {displayDeviceKey} to use the new mode!");
                                 appliedGdiDisplaySettings = true;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.BadDualView)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The settings change was unsuccessful because the system is DualView capable. Display {displayDeviceKey} not updated to new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: The settings change was unsuccessful because the system is DualView capable. Display {displayDeviceKey} not updated to new mode.");
                                 //return false;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.BadFlags)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: An invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: An invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
                                 //return false;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.BadMode)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: The graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
                                 //return false;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.BadParam)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: An invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: An invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
                                 //return false;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.Failed)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: The display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
                                 //return false;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.NotUpdated)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: Unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: Unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
                                 //return false;
                             }
                             else if (result == CHANGE_DISPLAY_RESULTS.Restart)
                             {
-                                SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
+                                SharedLogger.Error($"WinLibrary/SetActiveConfig: The computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
                                 //return false;
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"WinLibrary/SetActiveConfig: Unknown error while trying to change Display {displayDeviceKey} to use the new mode.");
+                                SharedLogger.Trace($"WinLibrary/SetActiveConfig: Unknown error while trying to change Display {displayDeviceKey} to use the new mode.");
                                 return false;
                             }
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadDualView)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the system is DualView capable. Skipping setting Display {displayDeviceKey}.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the system is DualView capable. Skipping setting Display {displayDeviceKey}.");
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadFlags)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid set of flags was passed in. Display {displayDeviceKey} not updated to use the new mode.");
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadMode)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the graphics mode is not supported. Display {displayDeviceKey} not updated to use the new mode.");
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.BadParam)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because an invalid parameter was passed in. This can include an invalid flag or combination of flags. Display {displayDeviceKey} not updated to use the new mode.");
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.Failed)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the display driver failed to apply the specified graphics mode. Display {displayDeviceKey} not updated to use the new mode.");
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.NotUpdated)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because we're unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because we're unable to write new settings to the registry. Display {displayDeviceKey} not updated to use the new mode.");
                         }
                         else if (result == CHANGE_DISPLAY_RESULTS.Restart)
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because the computer must be restarted for the graphics mode to work. Display {displayDeviceKey} not updated to use the new mode.");
                         }
                         else
                         {
-                            SharedLogger.logger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because there was an unknown error testing if Display {displayDeviceKey} could use the new mode.");
+                            SharedLogger.Error($"WinLibrary/SetActiveConfig: The GDI mode change would be unsuccessful because there was an unknown error testing if Display {displayDeviceKey} could use the new mode.");
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
                     }
                 }
 
@@ -2089,17 +2086,17 @@ namespace iSurroundShared.Windows
             while (GDIImport.EnumDisplayDevices(null, displayDeviceNum, ref displayDevice, 0))
             {
                 // Now we try and grab the GDI Device Settings for each display device
-                SharedLogger.logger.Trace($"WinLibrary/SetPrimaryMonitor: Getting the current Display Settings for {displayDevice.DeviceName}");
+                SharedLogger.Trace($"WinLibrary/SetPrimaryMonitor: Getting the current Display Settings for {displayDevice.DeviceName}");
                 {
                     // If the display device is attached to the Desktop, or a type of display that is represented by a psudeo mirroring application, then skip this display
                     // e.g. some sort of software interfaced display that doesn't have a physical plug, or maybe uses USB for communication
-                    SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
+                    SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
                     DEVICE_MODE currentMode = new DEVICE_MODE();
                     currentMode.Size = (UInt16)Marshal.SizeOf<DEVICE_MODE>();
                     bool gdiWorked = GDIImport.EnumDisplaySettings(displayDevice.DeviceName, DISPLAY_SETTINGS_MODE.CurrentSettings, ref currentMode);
                     if (gdiWorked)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
 
                         offsetx = currentMode.Position.X;
                         offsety = currentMode.Position.Y;
@@ -2107,18 +2104,18 @@ namespace iSurroundShared.Windows
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
                     }
 
                     // If the display device is attached to the Desktop, or a type of display that is represented by a psudeo mirroring application, then skip this display
                     // e.g. some sort of software interfaced display that doesn't have a physical plug, or maybe uses USB for communication
-                    SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
+                    SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Getting the current Display Settings for {displayDevice.DeviceName}");
                     DEVICE_MODE currentMode = new DEVICE_MODE();
                     currentMode.Size = (UInt16)Marshal.SizeOf<DEVICE_MODE>();
                     bool gdiWorked = GDIImport.EnumDisplaySettings(displayDevice.DeviceName, DISPLAY_SETTINGS_MODE.CurrentSettings, ref currentMode);
                     if (gdiWorked)
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Trace($"WinLibrary/GetGdiDisplaySettings: Got the current Display Settings from display {displayDevice.DeviceName}.");
                         GDI_DISPLAY_SETTING myDisplaySetting = new GDI_DISPLAY_SETTING();
                         myDisplaySetting.IsEnabled = true; // Always true if we get here
                         myDisplaySetting.Device = displayDevice;
@@ -2133,7 +2130,7 @@ namespace iSurroundShared.Windows
                     }
                     else
                     {
-                        SharedLogger.logger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
+                        SharedLogger.Warn($"WinLibrary/GetGdiDisplaySettings: WARNING - Unabled to get current display mode settings from display {displayDevice.DeviceName}.");
                     }
 
 
@@ -2194,15 +2191,15 @@ namespace iSurroundShared.Windows
         public bool IsActiveConfig(WINDOWS_DISPLAY_CONFIG displayConfig)
         {
             // Check whether the display config is in use now
-            SharedLogger.logger.Trace($"WinLibrary/IsActiveConfig: Checking whether the display configuration is already being used.");
+            SharedLogger.Trace($"WinLibrary/IsActiveConfig: Checking whether the display configuration is already being used.");
             if (displayConfig.Equals(ActiveDisplayConfig))
             {
-                SharedLogger.logger.Trace($"WinLibrary/IsActiveConfig: The display configuration is already being used (supplied displayConfig Equals currentWindowsDisplayConfig");
+                SharedLogger.Trace($"WinLibrary/IsActiveConfig: The display configuration is already being used (supplied displayConfig Equals currentWindowsDisplayConfig");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"WinLibrary/IsActiveConfig: The display configuration is NOT currently in use (supplied displayConfig Equals currentWindowsDisplayConfig");
+                SharedLogger.Trace($"WinLibrary/IsActiveConfig: The display configuration is NOT currently in use (supplied displayConfig Equals currentWindowsDisplayConfig");
                 return false;
             }
 
@@ -2213,7 +2210,7 @@ namespace iSurroundShared.Windows
             // Get the current windows display configs
             WINDOWS_DISPLAY_CONFIG allWindowsDisplayConfig = GetWindowsDisplayConfig(QDC.QDC_ALL_PATHS);
 
-            SharedLogger.logger.Trace("WinLibrary/PatchAdapterIDs: Going through the list of adapters we stored in the config to make sure they still exist");
+            SharedLogger.Trace("WinLibrary/PatchAdapterIDs: Going through the list of adapters we stored in the config to make sure they still exist");
             // Firstly check that the Adapter Names are still currently available (i.e. the adapter hasn't been replaced).
             foreach (string savedAdapterName in displayConfig.DisplayAdapters.Values)
             {
@@ -2221,29 +2218,29 @@ namespace iSurroundShared.Windows
                 // to use this display config!
                 if (!allWindowsDisplayConfig.DisplayAdapters.Values.Contains(savedAdapterName))
                 {
-                    SharedLogger.logger.Error($"WinLibrary/PatchAdapterIDs: ERROR - Saved adapter {savedAdapterName} is not available right now! This display configuration won't work!");
+                    SharedLogger.Error($"WinLibrary/PatchAdapterIDs: ERROR - Saved adapter {savedAdapterName} is not available right now! This display configuration won't work!");
                     return false;
                 }
             }
-            SharedLogger.logger.Trace($"WinLibrary/PatchAdapterIDs: All teh adapters that the display configuration uses are still avilable to use now!");
+            SharedLogger.Trace($"WinLibrary/PatchAdapterIDs: All teh adapters that the display configuration uses are still avilable to use now!");
 
             // Now we go through the Paths to update the LUIDs as per Soroush's suggestion
-            SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: Attemptong to patch the saved display configuration's adapter IDs so that it will still work (these change at each boot)");
+            SharedLogger.Trace($"WinLibrary/IsPossibleConfig: Attemptong to patch the saved display configuration's adapter IDs so that it will still work (these change at each boot)");
             PatchWindowsDisplayConfig(ref displayConfig);
 
-            SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: Testing whether the display configuration is valid ");
+            SharedLogger.Trace($"WinLibrary/IsPossibleConfig: Testing whether the display configuration is valid ");
             // Test whether a specified display configuration is supported on the computer                    
             uint myPathsCount = (uint)displayConfig.DisplayConfigPaths.Length;
             uint myModesCount = (uint)displayConfig.DisplayConfigModes.Length;
             WIN32STATUS err = CCDImport.SetDisplayConfig(myPathsCount, displayConfig.DisplayConfigPaths, myModesCount, displayConfig.DisplayConfigModes, SDC.iSurround_VALIDATE);
             if (err == WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: SetDisplayConfig validated that the display configuration is valid and can be used!");
+                SharedLogger.Trace($"WinLibrary/IsPossibleConfig: SetDisplayConfig validated that the display configuration is valid and can be used!");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: SetDisplayConfig confirmed that the display configuration is invalid and cannot be used!");
+                SharedLogger.Trace($"WinLibrary/IsPossibleConfig: SetDisplayConfig confirmed that the display configuration is invalid and cannot be used!");
                 return false;
             }
 
@@ -2252,18 +2249,18 @@ namespace iSurroundShared.Windows
         public bool IsPossibleConfig(WINDOWS_DISPLAY_CONFIG displayConfig)
         {
             // We want to check the Windows Display profile can be used now
-            SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: Testing whether the Windows display configuration is possible to be used now");
+            SharedLogger.Trace($"WinLibrary/IsPossibleConfig: Testing whether the Windows display configuration is possible to be used now");
 
             // CHeck that we have all the displayConfig DisplayIdentifiers we need available now
             //if (currentAllIds.Intersect(displayConfig.DisplayIdentifiers).Count() == displayConfig.DisplayIdentifiers.Count)
             if (displayConfig.DisplayIdentifiers.All(value => _allConnectedDisplayIdentifiers.Contains(value)))
             {
-                SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: Success! THe Windows display configuration is possible to be used now");
+                SharedLogger.Trace($"WinLibrary/IsPossibleConfig: Success! THe Windows display configuration is possible to be used now");
                 return true;
             }
             else
             {
-                SharedLogger.logger.Trace($"WinLibrary/IsPossibleConfig: Uh oh! THe Windows display configuration is possible cannot be used now");
+                SharedLogger.Trace($"WinLibrary/IsPossibleConfig: Uh oh! THe Windows display configuration is possible cannot be used now");
                 return false;
             }
 
@@ -2271,13 +2268,13 @@ namespace iSurroundShared.Windows
 
         public List<string> GetCurrentDisplayIdentifiers()
         {
-            SharedLogger.logger.Trace($"WinLibrary/GetCurrentDisplayIdentifiers: Getting the current display identifiers for the displays in use now");
+            SharedLogger.Trace($"WinLibrary/GetCurrentDisplayIdentifiers: Getting the current display identifiers for the displays in use now");
             return GetSomeDisplayIdentifiers(QDC.QDC_ONLY_ACTIVE_PATHS);
         }
 
         public List<string> GetAllConnectedDisplayIdentifiers()
         {
-            SharedLogger.logger.Trace($"WinLibrary/GetAllConnectedDisplayIdentifiers: Getting all the display identifiers that can possibly be used");
+            SharedLogger.Trace($"WinLibrary/GetAllConnectedDisplayIdentifiers: Getting all the display identifiers that can possibly be used");
             _allConnectedDisplayIdentifiers = GetSomeDisplayIdentifiers(QDC.QDC_ALL_PATHS);
 
             return _allConnectedDisplayIdentifiers;
@@ -2285,55 +2282,55 @@ namespace iSurroundShared.Windows
 
         private List<string> GetSomeDisplayIdentifiers(QDC selector = QDC.QDC_ONLY_ACTIVE_PATHS)
         {
-            SharedLogger.logger.Debug($"WinLibrary/GetCurrentDisplayIdentifiers: Generating the unique Display Identifiers for the currently active configuration");
+            SharedLogger.Debug($"WinLibrary/GetCurrentDisplayIdentifiers: Generating the unique Display Identifiers for the currently active configuration");
 
             List<string> displayIdentifiers = new List<string>();
 
-            SharedLogger.logger.Trace($"WinLibrary/GetCurrentDisplayIdentifiers: Testing whether the display configuration is valid (allowing tweaks).");
+            SharedLogger.Trace($"WinLibrary/GetCurrentDisplayIdentifiers: Testing whether the display configuration is valid (allowing tweaks).");
             // Get the size of the largest Active Paths and Modes arrays
             int pathCount = 0;
             int modeCount = 0;
             WIN32STATUS err = CCDImport.GetDisplayConfigBufferSizes(selector, out pathCount, out modeCount);
             if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/PrintActiveConfig: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
+                SharedLogger.Error($"WinLibrary/PrintActiveConfig: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
                 throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
             }
 
-            SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
+            SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
             var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
             var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
             err = CCDImport.QueryDisplayConfig(selector, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
             if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
             {
-                SharedLogger.logger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
-                SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the size of the largest Active Paths and Modes arrays");
+                SharedLogger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
+                SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the size of the largest Active Paths and Modes arrays");
                 // Screen changed in between GetDisplayConfigBufferSizes and QueryDisplayConfig, so we need to get buffer sizes again
                 // as per https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig 
                 err = CCDImport.GetDisplayConfigBufferSizes(selector, out pathCount, out modeCount);
                 if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
+                    SharedLogger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                     throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                 }
-                SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
+                SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
                 paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
                 modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
                 err = CCDImport.QueryDisplayConfig(selector, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
                 if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
+                    SharedLogger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                     throw new WinLibraryException($"The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                 }
                 else if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
+                    SharedLogger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
                     throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again.");
                 }
             }
             else if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
+                SharedLogger.Error($"WinLibrary/GetSomeDisplayIdentifiers: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
                 throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays.");
             }
 
@@ -2342,7 +2339,7 @@ namespace iSurroundShared.Windows
                 if (path.TargetInfo.TargetAvailable == false)
                 {
                     // We want to skip this one cause it's not valid
-                    SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Skipping path due to TargetAvailable not existing in display #{path.TargetInfo.Id}");
+                    SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Skipping path due to TargetAvailable not existing in display #{path.TargetInfo.Id}");
                     continue;
                 }
 
@@ -2355,11 +2352,11 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref sourceInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the source info from {path.SourceInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the source info from {path.SourceInfo.Id}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.SourceInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.SourceInfo.Id}");
                 }
 
                 // get display target name
@@ -2371,11 +2368,11 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref targetInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the target info from {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the target info from {path.TargetInfo.Id}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
                 }
 
                 // get display adapter name
@@ -2387,11 +2384,11 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref adapterInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the display name info from {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Successfully got the display name info from {path.TargetInfo.Id}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/GetSomeDisplayIdentifiers: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
                 }
 
                 // Create an array of all the important display info we need to record
@@ -2403,7 +2400,7 @@ namespace iSurroundShared.Windows
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display Adapter Device Path from video card. Substituting with a # instead");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display Adapter Device Path from video card. Substituting with a # instead");
                     displayInfo.Add("#");
                 }
                 try
@@ -2412,7 +2409,7 @@ namespace iSurroundShared.Windows
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display Connector Instance from video card. Substituting with a # instead");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display Connector Instance from video card. Substituting with a # instead");
                     displayInfo.Add("#");
                 }
                 try
@@ -2421,7 +2418,7 @@ namespace iSurroundShared.Windows
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display EDID Manufacturer Code from video card. Substituting with a # instead");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display EDID Manufacturer Code from video card. Substituting with a # instead");
                     displayInfo.Add("#");
                 }
                 try
@@ -2430,7 +2427,7 @@ namespace iSurroundShared.Windows
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display EDID Product Code from video card. Substituting with a # instead");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display EDID Product Code from video card. Substituting with a # instead");
                     displayInfo.Add("#");
                 }
                 try
@@ -2439,7 +2436,7 @@ namespace iSurroundShared.Windows
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Path Target Info Id from video card. Substituting with a # instead");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Path Target Info Id from video card. Substituting with a # instead");
                     displayInfo.Add("#");
                 }
                 try
@@ -2448,7 +2445,7 @@ namespace iSurroundShared.Windows
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display Target Friendly name from video card. Substituting with a # instead");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetSomeDisplayIdentifiers: Exception getting Windows Display Target Friendly name from video card. Substituting with a # instead");
                     displayInfo.Add("#");
                 }
 
@@ -2459,7 +2456,7 @@ namespace iSurroundShared.Windows
                 if (!displayIdentifiers.Contains(displayIdentifier))
                 {
                     displayIdentifiers.Add(displayIdentifier);
-                    SharedLogger.logger.Debug($"ProfileRepository/GenerateProfileDisplayIdentifiers: DisplayIdentifier: {displayIdentifier}");
+                    SharedLogger.Debug($"ProfileRepository/GenerateProfileDisplayIdentifiers: DisplayIdentifier: {displayIdentifier}");
                 }
 
             }
@@ -2472,55 +2469,55 @@ namespace iSurroundShared.Windows
 
         public List<string> GetAllPCIVideoCardVendors()
         {
-            SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Getting the current PCI vendor ids for the videocards reported to Windows");
+            SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Getting the current PCI vendor ids for the videocards reported to Windows");
             List<string> videoCardVendorIds = new List<string>();
 
 
-            SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Testing whether the display configuration is valid (allowing tweaks).");
+            SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Testing whether the display configuration is valid (allowing tweaks).");
             // Get the size of the largest Active Paths and Modes arrays
             int pathCount = 0;
             int modeCount = 0;
             WIN32STATUS err = CCDImport.GetDisplayConfigBufferSizes(QDC.QDC_ALL_PATHS, out pathCount, out modeCount);
             if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
+                SharedLogger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
                 throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
             }
 
-            SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
+            SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
             var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
             var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
             err = CCDImport.QueryDisplayConfig(QDC.QDC_ALL_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
             if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
             {
-                SharedLogger.logger.Warn($"WinLibrary/GetCurrentPCIVideoCardVendors: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
-                SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Getting the size of the largest Active Paths and Modes arrays");
+                SharedLogger.Warn($"WinLibrary/GetCurrentPCIVideoCardVendors: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
+                SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Getting the size of the largest Active Paths and Modes arrays");
                 // Screen changed in between GetDisplayConfigBufferSizes and QueryDisplayConfig, so we need to get buffer sizes again
                 // as per https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig 
                 err = CCDImport.GetDisplayConfigBufferSizes(QDC.QDC_ALL_PATHS, out pathCount, out modeCount);
                 if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
+                    SharedLogger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                     throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                 }
-                SharedLogger.logger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
+                SharedLogger.Trace($"WinLibrary/GetSomeDisplayIdentifiers: Getting the current Display Config path and mode arrays");
                 paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
                 modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
                 err = CCDImport.QueryDisplayConfig(QDC.QDC_ALL_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
                 if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
+                    SharedLogger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                     throw new WinLibraryException($"The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                 }
                 else if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
+                    SharedLogger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
                     throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again.");
                 }
             }
             else if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
+                SharedLogger.Error($"WinLibrary/GetCurrentPCIVideoCardVendors: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
                 throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays.");
             }
 
@@ -2529,7 +2526,7 @@ namespace iSurroundShared.Windows
                 /*if (path.TargetInfo.TargetAvailable == false)
                 {
                     // We want to skip this one cause it's not valid
-                    SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Skipping path due to TargetAvailable not existing in display #{path.TargetInfo.Id}");
+                    SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Skipping path due to TargetAvailable not existing in display #{path.TargetInfo.Id}");
                     continue;
                 }*/
 
@@ -2542,11 +2539,11 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref adapterInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Successfully got the display name info from {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Successfully got the display name info from {path.TargetInfo.Id}.");
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetCurrentPCIVideoCardVendors: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/GetCurrentPCIVideoCardVendors: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
                 }
 
                 try
@@ -2556,7 +2553,7 @@ namespace iSurroundShared.Windows
                     // or it is something like "\\?\SuperDisplay#Display#1&3343b12b&0&1234#{5b45201d-f2f2-4f3b-85bb-30ff1f953599}" if it's a SuperDisplay device (allows Android tablet device to be used as directly attached screen)
                     // or it is something like "\\\\?\\SWD#{1BAAD4AC-CD9D-4207-B4FF-C4F160604B13}#0000#{5b45201d-f2f2-4f3b-85bb-30ff1f953599}" if it is a SpaceDesk Monitor
                     // We only want the vendor ID
-                    SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The AdapterDevicePath for this path is :{adapterInfo.AdapterDevicePath}");
+                    SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The AdapterDevicePath for this path is :{adapterInfo.AdapterDevicePath}");
                     // Match against the vendor ID
                     string pattern = @"(PCI|USB)#(?:VEN|VID)_([\d\w]{4})&";
                     Match match = Regex.Match(adapterInfo.AdapterDevicePath, pattern);
@@ -2564,55 +2561,55 @@ namespace iSurroundShared.Windows
                     {
                         string pciType = match.Groups[1].Value;
                         string vendorId = match.Groups[2].Value;
-                        SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The matched PCI Vendor ID is :{vendorId } and the PCI device is a {pciType} device.");
+                        SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The matched PCI Vendor ID is :{vendorId } and the PCI device is a {pciType} device.");
                         if (!videoCardVendorIds.Contains(vendorId))
                         {
                             videoCardVendorIds.Add(vendorId);
-                            SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Stored PCI vendor ID {vendorId} as we haven't already got it");
+                            SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Stored PCI vendor ID {vendorId} as we haven't already got it");
                         }
                     }
                     else
                     {
-                        SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The device is not a USB or PCI card, so trying to see if it is a SuperDisplay device.");
+                        SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The device is not a USB or PCI card, so trying to see if it is a SuperDisplay device.");
                         string pattern2 = @"SuperDisplay#";
                         Match match2 = Regex.Match(adapterInfo.AdapterDevicePath, pattern2);
                         if (match2.Success)
                         {
                             string pciType = "SuperDisplay";
                             string vendorId = "SuperDisplay";
-                            SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The matched PCI Vendor ID is :{vendorId } and the PCI device is a {pciType} device.");
+                            SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The matched PCI Vendor ID is :{vendorId } and the PCI device is a {pciType} device.");
                             if (!videoCardVendorIds.Contains(vendorId))
                             {
                                 videoCardVendorIds.Add(vendorId);
-                                SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Stored PCI vendor ID {vendorId} as we haven't already got it");
+                                SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Stored PCI vendor ID {vendorId} as we haven't already got it");
                             }
                         }
                         else
                         {
-                            SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The device is not a USB, PCI card or a SuperDisplay display, so trying to see if it is a SpaceDesk device.");
+                            SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The device is not a USB, PCI card or a SuperDisplay display, so trying to see if it is a SpaceDesk device.");
                             string pattern3 = @"SWD#";
                             Match match3 = Regex.Match(adapterInfo.AdapterDevicePath, pattern3);
                             if (match3.Success)
                             {
                                 string pciType = "SWD";
                                 string vendorId = "SWD";
-                                SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The matched PCI Vendor ID is :{vendorId } and the PCI device is a {pciType} device.");
+                                SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The matched PCI Vendor ID is :{vendorId } and the PCI device is a {pciType} device.");
                                 if (!videoCardVendorIds.Contains(vendorId))
                                 {
                                     videoCardVendorIds.Add(vendorId);
-                                    SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Stored PCI vendor ID {vendorId} as we haven't already got it");
+                                    SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: Stored PCI vendor ID {vendorId} as we haven't already got it");
                                 }
                             }
                             else
                             {
-                                SharedLogger.logger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The PCI Vendor ID pattern wasn't matched so we didn't record a vendor ID. AdapterDevicePath = {adapterInfo.AdapterDevicePath}");
+                                SharedLogger.Trace($"WinLibrary/GetCurrentPCIVideoCardVendors: The PCI Vendor ID pattern wasn't matched so we didn't record a vendor ID. AdapterDevicePath = {adapterInfo.AdapterDevicePath}");
                             }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    SharedLogger.logger.Warn(ex, $"WinLibrary/GetCurrentPCIVideoCardVendors: Exception getting PCI Vendor ID from Display Adapter {path.SourceInfo.AdapterId}.");
+                    SharedLogger.Warn(ex, $"WinLibrary/GetCurrentPCIVideoCardVendors: Exception getting PCI Vendor ID from Display Adapter {path.SourceInfo.AdapterId}.");
                 }
 
             }
@@ -2623,54 +2620,54 @@ namespace iSurroundShared.Windows
 
         public Dictionary<ulong, string> GetAllAdapterIDs()
         {
-            SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the current adapter ids for the videocards Windows knows about");
+            SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the current adapter ids for the videocards Windows knows about");
             Dictionary<ulong, string> currentAdapterMap = new Dictionary<ulong, string>();
 
-            SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Testing whether the display configuration is valid (allowing tweaks).");
+            SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Testing whether the display configuration is valid (allowing tweaks).");
             // Get the size of the largest All Paths and Modes arrays
             int pathCount = 0;
             int modeCount = 0;
             WIN32STATUS err = CCDImport.GetDisplayConfigBufferSizes(QDC.QDC_ALL_PATHS, out pathCount, out modeCount);
             if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
+                SharedLogger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
                 throw new WinLibraryException($"GetAllAdapterIDs returned WIN32STATUS {err} when trying to get the maximum path and mode sizes");
             }
 
-            SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the current Display Config path and mode arrays");
+            SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the current Display Config path and mode arrays");
             var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
             var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
             err = CCDImport.QueryDisplayConfig(QDC.QDC_ALL_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
             if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
             {
-                SharedLogger.logger.Warn($"WinLibrary/GetAllAdapterIDs: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
-                SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the size of the largest Active Paths and Modes arrays");
+                SharedLogger.Warn($"WinLibrary/GetAllAdapterIDs: The displays were modified between GetDisplayConfigBufferSizes and QueryDisplayConfig so we need to get the buffer sizes again.");
+                SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the size of the largest Active Paths and Modes arrays");
                 // Screen changed in between GetDisplayConfigBufferSizes and QueryDisplayConfig, so we need to get buffer sizes again
                 // as per https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-querydisplayconfig 
                 err = CCDImport.GetDisplayConfigBufferSizes(QDC.QDC_ALL_PATHS, out pathCount, out modeCount);
                 if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
+                    SharedLogger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                     throw new WinLibraryException($"GetDisplayConfigBufferSizes returned WIN32STATUS {err} when trying to get the maximum path and mode sizes again");
                 }
-                SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the current Display Config path and mode arrays");
+                SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Getting the current Display Config path and mode arrays");
                 paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
                 modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
                 err = CCDImport.QueryDisplayConfig(QDC.QDC_ALL_PATHS, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
                 if (err == WIN32STATUS.ERROR_INSUFFICIENT_BUFFER)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
+                    SharedLogger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                     throw new WinLibraryException($"The displays were still modified between GetDisplayConfigBufferSizes and QueryDisplayConfig, even though we tried twice. Something is wrong.");
                 }
                 else if (err != WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
+                    SharedLogger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again");
                     throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays again.");
                 }
             }
             else if (err != WIN32STATUS.ERROR_SUCCESS)
             {
-                SharedLogger.logger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
+                SharedLogger.Error($"WinLibrary/GetAllAdapterIDs: ERROR - QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays");
                 throw new WinLibraryException($"QueryDisplayConfig returned WIN32STATUS {err} when trying to query all available displays.");
             }
 
@@ -2679,7 +2676,7 @@ namespace iSurroundShared.Windows
                 if (path.TargetInfo.TargetAvailable == false)
                 {
                     // We want to skip this one cause it's not valid
-                    SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Skipping path due to TargetAvailable not existing in display #{path.TargetInfo.Id}");
+                    SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Skipping path due to TargetAvailable not existing in display #{path.TargetInfo.Id}");
                     continue;
                 }
 
@@ -2692,12 +2689,12 @@ namespace iSurroundShared.Windows
                 err = CCDImport.DisplayConfigGetDeviceInfo(ref adapterInfo);
                 if (err == WIN32STATUS.ERROR_SUCCESS)
                 {
-                    SharedLogger.logger.Trace($"WinLibrary/GetAllAdapterIDs: Successfully got the display name info from {path.TargetInfo.Id}.");
+                    SharedLogger.Trace($"WinLibrary/GetAllAdapterIDs: Successfully got the display name info from {path.TargetInfo.Id}.");
                     currentAdapterMap[path.TargetInfo.AdapterId.Value] = adapterInfo.AdapterDevicePath;
                 }
                 else
                 {
-                    SharedLogger.logger.Warn($"WinLibrary/GetAllAdapterIDs: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
+                    SharedLogger.Warn($"WinLibrary/GetAllAdapterIDs: WARNING - DisplayConfigGetDeviceInfo returned WIN32STATUS {err} when trying to get the target info for display #{path.TargetInfo.Id}");
                 }
 
             }
@@ -2743,7 +2740,7 @@ namespace iSurroundShared.Windows
             // Send the "TrayNotifyWnd" window a WM_USER+13 (0x040D) message with a wParameter of 0x0 and a lParameter of the position (e.g. 0x0000 for left, 0x0001 for top, 0x0002 for right and 0x0003 for bottom)
             Utils.SendMessage(systemTrayHandle, Utils.WM_USER_13, IntPtr.Zero, taskBarPositionBuffer);
             Utils.SendMessage(systemTrayHandle, Utils.WM_USER_100, (IntPtr)0x3e, (IntPtr)0x21c);
-            Utils.SendMessage(systemTrayHandle, Utils.WM_THEMECHANGED, (IntPtr)0xfffffffffffffff, (IntPtr)0x000000008000001);
+            Utils.SendMessage(systemTrayHandle, Utils.WM_THEMECHANGED, unchecked((IntPtr)(-1)), (IntPtr)0x000000008000001);
             // Next, send the "TrayShowDesktopButtonWClass" window a WM_USER+13 (0x040D) message with a wParameter of 0x0 and a lParameter of the position (e.g. 0x0000 for left, 0x0001 for top, 0x0002 for right and 0x0003 for bottom)
             Utils.SendMessage(trayDesktopShowButtonHandle, Utils.WM_USER_13, IntPtr.Zero, taskBarPositionBuffer);
             Utils.SendMessage(startButtonHandle, Utils.WM_USER_440, (IntPtr)0x0, (IntPtr)0x0);
@@ -2939,8 +2936,5 @@ namespace iSurroundShared.Windows
         public WinLibraryException() { }
         public WinLibraryException(string message) : base(message) { }
         public WinLibraryException(string message, Exception inner) : base(message, inner) { }
-        protected WinLibraryException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }

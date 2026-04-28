@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing.IconLib;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,7 +27,6 @@ namespace iSurroundShared
         private static bool _profilesLoaded = false;
         private static ProfileItem _currentProfile;
         private static List<string> _connectedDisplayIdentifiers = new List<string>();
-        private static bool _pauseReadsUntilChangeCompleted = false;
 
         public static string AppDataPath = Path.Combine(Application.StartupPath, "iSurroundData");
         //public static string AppIconPath = Path.Combine(AppDataPath, "Icons");//不再使用
@@ -217,7 +215,6 @@ namespace iSurroundShared
             if (profile == null) return ApplyProfileResult.Error;
             try
             {
-                _pauseReadsUntilChangeCompleted = true;
                 if (!profile.SetActive()) return ApplyProfileResult.Error;
                 // 成功应用后，将当前活动配置设为仓库中的对应实例（确保引用正确）
                 var repoProfile = _allProfiles.FirstOrDefault(p => p.UUID == profile.UUID);
@@ -227,12 +224,7 @@ namespace iSurroundShared
             catch { return ApplyProfileResult.Error; }
             finally
             {
-                _pauseReadsUntilChangeCompleted = false;
                 Thread.Sleep(500);
-                // 不再调用 UpdateActiveProfile，因为它会覆盖 _currentProfile
-                // 如果其他模块依赖 UpdateActiveProfile 的副作用（比如刷新显示状态），可以保留，但会覆盖我们刚才的设置
-                // 因此这里注释掉它
-                // UpdateActiveProfile(); 
             }
         }
     }
