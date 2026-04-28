@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.IconLib;
+//using System.Drawing.IconLib;
 using System.Drawing.Imaging;
 using System.Linq;
 
@@ -187,34 +187,34 @@ namespace iSurroundShared
             return bitmap;
         }*/
 
-        public MultiIcon ToIcon()
-        {
-            var iconSizes = new[]
-            {
-                new Size(256, 256),
-                new Size(64, 64),
-                new Size(48, 48),
-                new Size(32, 32),
-                new Size(24, 24),
-                new Size(16, 16)
-            };
-            var multiIcon = new MultiIcon();
-            var icon = multiIcon.Add("Icon1");
+        //public MultiIcon ToIcon()
+        //{
+        //    var iconSizes = new[]
+        //    {
+        //        new Size(256, 256),
+        //        new Size(64, 64),
+        //        new Size(48, 48),
+        //        new Size(32, 32),
+        //        new Size(24, 24),
+        //        new Size(16, 16)
+        //    };
+        //    var multiIcon = new MultiIcon();
+        //    var icon = multiIcon.Add("Icon1");
 
-            foreach (var size in iconSizes)
-            {
-                icon.Add(ToBitmap(size.Width, size.Height));
+        //    foreach (var size in iconSizes)
+        //    {
+        //        icon.Add(ToBitmap(size.Width, size.Height));
 
-                if (size.Width >= 256 && size.Height >= 256)
-                {
-                    icon[icon.Count - 1].IconImageFormat = IconImageFormat.PNG;
-                }
-            }
+        //        if (size.Width >= 256 && size.Height >= 256)
+        //        {
+        //            icon[icon.Count - 1].IconImageFormat = IconImageFormat.PNG;
+        //        }
+        //    }
 
-            multiIcon.SelectedIndex = 0;
+        //    multiIcon.SelectedIndex = 0;
 
-            return multiIcon;
-        }
+        //    return multiIcon;
+        //}
 
         /*public MultiIcon ToIconOverlay(string iconAddress)
         {
@@ -392,28 +392,28 @@ namespace iSurroundShared
         }
 
 
-        private Color pickTextColorBasedOnBgColour(Color bgColour, Color lightColour, Color darkColour)
-        {
-            if ((bgColour.R * 0.299 + bgColour.G * 0.587 + bgColour.B * 0.114) > 186)
-            {
-                return darkColour;
-            }
-            else
-            {
-                return lightColour;
-            }
-        }
+        //private Color pickTextColorBasedOnBgColour(Color bgColour, Color lightColour, Color darkColour)
+        //{
+        //    if ((bgColour.R * 0.299 + bgColour.G * 0.587 + bgColour.B * 0.114) > 186)
+        //    {
+        //        return darkColour;
+        //    }
+        //    else
+        //    {
+        //        return lightColour;
+        //    }
+        //}
 
-        private Bitmap pickBitmapBasedOnBgColour(Color bgColour, Bitmap lightBitmap, Bitmap darkBitmap)
-        {
-            if ((bgColour.R * 0.299 + bgColour.G * 0.587 + bgColour.B * 0.114) > 186)
-            {
-                return darkBitmap;
-            }
-            else
-            {
-                return lightBitmap;
-            }
-        }
+        //private Bitmap pickBitmapBasedOnBgColour(Color bgColour, Bitmap lightBitmap, Bitmap darkBitmap)
+        //{
+        //    if ((bgColour.R * 0.299 + bgColour.G * 0.587 + bgColour.B * 0.114) > 186)
+        //    {
+        //        return darkBitmap;
+        //    }
+        //    else
+        //    {
+        //        return lightBitmap;
+        //    }
+        //}
     }
 }
