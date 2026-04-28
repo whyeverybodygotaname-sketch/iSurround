@@ -1,7 +1,7 @@
 # iSurround
 
-[![License](https://img.shields.io/github/license/yourusername/iSurround.svg?style=flat-square)](LICENSE)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/yourusername/iSurround?style=flat-square)](https://github.com/yourusername/iSurround/releases/latest)
+[![License](https://img.shields.io/github/license/whyeverybodygotaname-sketch/iSurround.svg?style=flat-square)](LICENSE)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/whyeverybodygotaname-sketch/iSurround?style=flat-square)](https://github.com/yourusername/iSurround/releases/latest)
 [![Power by](https://img.shields.io/badge/Powered%20by-DeepSeek%20%26%20opencode-blue?style=flat-square)](#)
 
 ---
@@ -66,7 +66,6 @@ This means:
 
 👉 **[Latest Release](https://github.com/whyeverybodygotaname-sketch/iSurround/releases/latest)** 👈
 
-*(No pre‑built releases yet; you can compile yourself or wait for future releases.)*
 
 ### License
 
@@ -136,7 +135,6 @@ iSurround 是 [DisplayMagician](https://github.com/terrymacdonald/DisplayMagicia
 
 👉 **[最新发布版](https://github.com/whyeverybodygotaname-sketch/iSurround/releases/latest)** 👈
 
-（目前还没有预编译的发布包，你可以自行编译，或等以后我传 release。）
 
 ### 许可证
 
