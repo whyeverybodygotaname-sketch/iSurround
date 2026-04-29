@@ -50,8 +50,6 @@ namespace iSurround
 
                 // 加载设置
                 AppProgramSettings = ProgramSettings.LoadSettings();
-                AppProgramSettings.NumberOfTimesRun++;
-                AppProgramSettings.SaveSettings();
 
                 // 创建必要目录
                 //foreach (string dir in new[] { AppProfilePath })

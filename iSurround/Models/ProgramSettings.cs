@@ -11,7 +11,6 @@ namespace iSurround.Models
 
         public bool MinimiseOnStart { get; set; } = false;
         public bool StartOnBootUp { get; set; } = false;
-        public int NumberOfTimesRun { get; set; } = 0;   // 可选，统计启动次数
 
         public static ProgramSettings LoadSettings()
         {
